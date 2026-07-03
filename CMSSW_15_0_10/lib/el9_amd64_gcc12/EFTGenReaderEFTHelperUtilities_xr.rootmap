@@ -1,0 +1,10 @@
+[ libEFTGenReaderEFTHelperUtilities.so ]
+# List of selected classes
+class TH1EFT
+class TH2EFT
+class WCFit
+class WCPoint
+header EFTGenReader/EFTHelperUtilities/interface/TH1EFT.h
+header EFTGenReader/EFTHelperUtilities/interface/TH2EFT.h
+header EFTGenReader/EFTHelperUtilities/interface/WCFit.h
+header EFTGenReader/EFTHelperUtilities/interface/WCPoint.h

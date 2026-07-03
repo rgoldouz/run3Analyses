@@ -1,0 +1,5 @@
+ALL_SUBSYSTEMS+=EFTGenReader
+subdirs_src_EFTGenReader = src_EFTGenReader_EFTHelperUtilities
+subdirs_src += src_EFTGenReader
+ALL_PACKAGES += EFTGenReader/EFTHelperUtilities
+subdirs_src_EFTGenReader_EFTHelperUtilities := src_EFTGenReader_EFTHelperUtilities_src src_EFTGenReader_EFTHelperUtilities_test

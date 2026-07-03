@@ -1,0 +1,234 @@
+{
+  "ADDEDBF": {},
+  "ADDEDDIR": {},
+  "BFCACHE": {
+    "config/BuildFile.xml": 1751990777.0,
+    "src/EFTGenReader/EFTHelperUtilities/BuildFile.xml": 1772951249.913748
+  },
+  "CLASSDATA": [
+    [
+      [
+        "",
+        "Project"
+      ],
+      [
+        "BigProducts",
+        "SubSystem"
+      ],
+      [
+        "",
+        "BigProduct"
+      ],
+      [
+        "",
+        "donothing"
+      ]
+    ],
+    [
+      [
+        "",
+        "Project"
+      ],
+      [
+        "",
+        "SubSystem"
+      ],
+      [
+        "",
+        "Package"
+      ],
+      [
+        "scripts",
+        "scripts"
+      ]
+    ],
+    [
+      [
+        "",
+        "Project"
+      ],
+      [
+        "Documentation",
+        "Documentation"
+      ],
+      [
+        "",
+        "doc"
+      ]
+    ],
+    [
+      [
+        "",
+        "Project"
+      ],
+      [
+        "",
+        "SubSystem"
+      ],
+      [
+        "",
+        "Package"
+      ],
+      [
+        "src",
+        "library"
+      ]
+    ],
+    [
+      [
+        "",
+        "Project"
+      ],
+      [
+        "",
+        "SubSystem"
+      ],
+      [
+        "",
+        "Package"
+      ],
+      [
+        "bin",
+        "binary"
+      ]
+    ],
+    [
+      [
+        "",
+        "Project"
+      ],
+      [
+        "",
+        "SubSystem"
+      ],
+      [
+        "",
+        "Package"
+      ],
+      [
+        "test",
+        "test"
+      ]
+    ],
+    [
+      [
+        "",
+        "Project"
+      ],
+      [
+        "",
+        "SubSystem"
+      ],
+      [
+        "",
+        "Package"
+      ],
+      [
+        "plugins",
+        "plugins"
+      ]
+    ],
+    [
+      [
+        "",
+        "Project"
+      ],
+      [
+        "",
+        "SubSystem"
+      ],
+      [
+        "",
+        "Package"
+      ],
+      [
+        "python",
+        "python"
+      ]
+    ],
+    [
+      [
+        "",
+        "Project"
+      ],
+      [
+        "LCG",
+        "SubSystem"
+      ],
+      [
+        "",
+        "Package"
+      ],
+      [
+        "tests",
+        "binary"
+      ]
+    ]
+  ],
+  "CLASSMAP": {
+    "config": [
+      "Project",
+      "config",
+      ""
+    ],
+    "src": [
+      "Project",
+      "src",
+      ""
+    ],
+    "src/EFTGenReader": [
+      "SubSystem",
+      "src/EFTGenReader",
+      ""
+    ],
+    "src/EFTGenReader/EFTHelperUtilities": [
+      "Package",
+      "src/EFTGenReader/EFTHelperUtilities",
+      ""
+    ],
+    "src/EFTGenReader/EFTHelperUtilities/interface": [
+      "Package",
+      "src/EFTGenReader/EFTHelperUtilities",
+      "interface"
+    ],
+    "src/EFTGenReader/EFTHelperUtilities/src": [
+      "library",
+      "src/EFTGenReader/EFTHelperUtilities/src",
+      ""
+    ],
+    "src/EFTGenReader/EFTHelperUtilities/test": [
+      "test",
+      "src/EFTGenReader/EFTHelperUtilities/test",
+      ""
+    ]
+  },
+  "DIRCACHE": {
+    "config": [
+      1752034581.0
+    ],
+    "src": [
+      1772951249.837227,
+      "src/EFTGenReader"
+    ],
+    "src/EFTGenReader": [
+      1772951249.921756,
+      "src/EFTGenReader/EFTHelperUtilities"
+    ],
+    "src/EFTGenReader/EFTHelperUtilities": [
+      1772951249.914754,
+      "src/EFTGenReader/EFTHelperUtilities/src",
+      "src/EFTGenReader/EFTHelperUtilities/test"
+    ],
+    "src/EFTGenReader/EFTHelperUtilities/src": [
+      1772951249.87179
+    ],
+    "src/EFTGenReader/EFTHelperUtilities/test": [
+      1772951249.916753
+    ]
+  },
+  "PACKMAP": {
+    "src/EFTGenReader/EFTHelperUtilities": "src/EFTGenReader/EFTHelperUtilities/src"
+  },
+  "REMOVEDBF": {},
+  "REMOVEDDIR": {}
+}

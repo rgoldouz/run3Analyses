@@ -1,0 +1,14 @@
+{
+  "EXPORT": {
+    "LIB": [
+      "1"
+    ]
+  },
+  "NAME": "EFTGenReaderEFTHelperUtilities",
+  "USE": [
+    "CommonTools/Utils",
+    "DataFormats/FWLite",
+    "DataFormats/Math",
+    "root"
+  ]
+}

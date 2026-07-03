@@ -1,0 +1,3 @@
+ALL_SUBSYSTEMS+=EFTGenReader
+subdirs_src_EFTGenReader = src_EFTGenReader_EFTHelperUtilities
+subdirs_src += src_EFTGenReader

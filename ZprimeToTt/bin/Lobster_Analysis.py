@@ -1,0 +1,125 @@
+import datetime
+import os
+from os import path
+import sys
+from lobster import cmssw
+from lobster.core import AdvancedOptions, Category, Config, MultiProductionDataset, StorageConfiguration, Workflow, Dataset,ParentDataset
+sys.path.append(os.path.abspath("."))
+import Files_ULall_nano
+
+SAMPLES = {}
+SAMPLES.update(Files_ULall_nano.UL17)
+timestamp_tag = datetime.datetime.now().strftime('%Y%m%d_%H%M')
+production_tag = "AnalysisZprimeTT"            # For 'full_production' setup
+
+# Only run over lhe steps from specific processes/coeffs/runs
+process_whitelist = []
+coeff_whitelist   = []
+runs_whitelist    = []  # (i.e. MG starting points)
+
+master_label = '%s_%s' % (production_tag,timestamp_tag)
+
+input_path   = "/store/user/"
+output_path  = "/store/user/$USER/FullProduction/%s" % (production_tag)
+workdir_path = "/tmpscratch/users/$USER/FullProduction/%s" % (production_tag)
+plotdir_path = "~/www/lobster/FullProduction/%s" % (production_tag)
+
+storage = StorageConfiguration(
+    input=[
+        "file:///cms/cephfs/data/store/user/",
+        "root://cmsxrootd.crc.nd.edu//store/user/",        
+        "root://skynet013.crc.nd.edu//store/user/",
+        "root://cmsxcache.crc.nd.edu//store/user/",
+    ],
+    output=[
+        # Until a separate bug is fixed file://cms/cephfs needs to be the first output so the initial lobster validation passes.
+        "file:///cms/cephfs/data"+output_path,
+        "root://cmsxrootd.crc.nd.edu/"+output_path,
+        "root://skynet013.crc.nd.edu/"+output_path,
+        "root://cmsxcache.crc.nd.edu/"+output_path,
+    ],
+    disable_input_streaming=True,
+)
+
+#################################################################
+# Worker Res.:
+#   Cores:  12    | 4
+#   Memory: 16000 | 8000
+#   Disk:   13000 | 6500
+#################################################################
+
+gs_resources = Category(
+    name='gs',
+    cores=1,
+    memory=2990,
+    disk=14990,
+    mode='max'
+)
+
+
+tt_resources = Category(
+    name='tt',
+    cores=2,
+    memory=5990,
+    disk=14990,
+    mode='max'
+)
+#################################################################
+wf = []
+for key, value in SAMPLES.items():
+#    if 'UL17' not in key:
+#       continue
+    FPT=5
+    cat = gs_resources
+#    if 'TT' in key or 'FCNC' in key or 'Z' in key:
+#        cat=tt_resources
+    if path.exists('/cms/cephfs/data/store/user/rgoldouz/FullProduction/AnalysisZprimeTT/Analysis_' + key) and len(os.listdir('/cms/cephfs/data/store/user/rgoldouz/FullProduction/AnalysisZprimeTT/Analysis_' + key))>0:
+        continue
+    if path.exists('/cms/cephfs/data/store/user/rgoldouz/FullProduction/AnalysisZprimeTT/Analysis_' + key):
+        os.system('rm -r '+ '/cms/cephfs/data/store/user/rgoldouz/FullProduction/AnalysisZprimeTT/Analysis_' + key)
+    print (key)
+#    if len(os.listdir('/cms/cephfs/data/store/user/rgoldouz/FullProduction/AnalysisZprimeTT/Analysis_'+key))!=0:
+#        continue
+    Analysis = Workflow(
+        label='Analysis_%s' % (key),
+        sandbox=cmssw.Sandbox(release='/groups/mhildret/rgoldouz/run3Analyses/CMSSW_15_0_10'),
+        globaltag=False,
+        command='python3 Lobster_check.py ' + key + ' ' + value[1] +' ' + value[2] +' ' +value[3] +' ' +value[4] +' ' +value[5] +' ' +value[6] +' ' +value[7] +' ' +value[8] +' ' +value[9] +' ' +value[10] +' @inputfiles',
+        extra_inputs=[
+            '../Makefile',
+            'Lobster_check.py',
+            '../lib',
+            '../include',
+            '../bin',
+            '../src',
+        ],
+        outputs=['ANoutput.root'],
+        dataset=Dataset(
+           files=value[0],
+           patterns=["*.root"],
+           files_per_task =FPT
+        ),
+#        merge_command='hadd @outputfiles @inputfiles',
+#        merge_size='2G',
+#        category=gs_resources
+        category=cat
+    )
+    wf.append(Analysis)
+
+config = Config(
+    label=master_label,
+    workdir=workdir_path,
+    plotdir=plotdir_path,
+    storage=storage,
+    workflows=wf,
+    advanced=AdvancedOptions(
+        bad_exit_codes=[127, 160,137],
+        osg_version='3.6',
+        abort_threshold=100,
+        abort_multiplier=100,
+        full_monitoring=True, 
+        log_level=1,
+        dump_core=True
+    )
+)
+
