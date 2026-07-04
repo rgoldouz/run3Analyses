@@ -1,0 +1,125 @@
+{ decls }
+namespace RestFrames {  }
+namespace RestFrames { class RestFrame; }
+namespace RestFrames { template <typename T> class RFList; }
+namespace RestFrames { class Group; }
+namespace RestFrames { class Jigsaw; }
+namespace RestFrames { class HistPlotVar; }
+namespace RestFrames { class HistPlotCategory; }
+template <> class RestFrames::RFList<RestFrames::RestFrame>;
+
+[ libRestFrames ]
+# List of selected classes
+class RestFrames::CombinatoricGroup
+class RestFrames::CombinatoricJigsaw
+class RestFrames::CombinedCBInvJigsaw
+class RestFrames::ContraBoostInvJigsaw
+class RestFrames::DecayGenFrame
+class RestFrames::DecayRecoFrame
+class RestFrames::Group
+class RestFrames::HistPlot
+class RestFrames::HistPlotCategory
+class RestFrames::HistPlotVar
+class RestFrames::InvisibleGenFrame
+class RestFrames::InvisibleGroup
+class RestFrames::InvisibleJigsaw
+class RestFrames::InvisibleRecoFrame
+class RestFrames::Jigsaw
+class RestFrames::LabGenFrame
+class RestFrames::LabRecoFrame
+class RestFrames::MaxProbBreitWignerCombJigsaw
+class RestFrames::MaxProbBreitWignerInvJigsaw
+class RestFrames::MinMassChi2CombJigsaw
+class RestFrames::MinMassDiffCombJigsaw
+class RestFrames::MinMassDiffInvJigsaw
+class RestFrames::MinMassesCombJigsaw
+class RestFrames::MinMassesSqCombJigsaw
+class RestFrames::MinMassesSqInvJigsaw
+class RestFrames::RFBase
+class RestFrames::RFCharge
+class RestFrames::RFKey
+class RestFrames::RFList<RestFrames::Group const>
+class RestFrames::RFList<RestFrames::Group>
+class RestFrames::RFList<RestFrames::HistPlotCategory const>
+class RestFrames::RFList<RestFrames::HistPlotCategory>
+class RestFrames::RFList<RestFrames::HistPlotVar>
+class RestFrames::RFList<RestFrames::Jigsaw const>
+class RestFrames::RFList<RestFrames::Jigsaw>
+class RestFrames::RFList<RestFrames::RestFrame const>
+class RestFrames::RFList<RestFrames::RestFrame>
+class RestFrames::RFList<const RestFrames::Group>
+class RestFrames::RFList<const RestFrames::HistPlotCategory>
+class RestFrames::RFList<const RestFrames::Jigsaw>
+class RestFrames::RFList<const RestFrames::RestFrame>
+class RestFrames::RFLog
+class RestFrames::RFPlot
+class RestFrames::ResonanceGenFrame
+class RestFrames::RestFrame
+class RestFrames::SelfAssemblingRecoFrame
+class RestFrames::SetMassInvJigsaw
+class RestFrames::SetRapidityInvJigsaw
+class RestFrames::TreePlot
+class RestFrames::TreePlotLink
+class RestFrames::TreePlotNode
+class RestFrames::VisibleGenFrame
+class RestFrames::VisibleRecoFrame
+class RestFrames::ppLabGenFrame
+header RestFrames/CombinatoricGroup.hh
+header RestFrames/CombinatoricJigsaw.hh
+header RestFrames/CombinedCBInvJigsaw.hh
+header RestFrames/ContraBoostInvJigsaw.hh
+header RestFrames/DecayGenFrame.hh
+header RestFrames/DecayRecoFrame.hh
+header RestFrames/Group.hh
+header RestFrames/HistPlot.hh
+header RestFrames/HistPlotCategory.hh
+header RestFrames/HistPlotVar.hh
+header RestFrames/InvisibleGenFrame.hh
+header RestFrames/InvisibleGroup.hh
+header RestFrames/InvisibleJigsaw.hh
+header RestFrames/InvisibleRecoFrame.hh
+header RestFrames/Jigsaw.hh
+header RestFrames/LabGenFrame.hh
+header RestFrames/LabRecoFrame.hh
+header RestFrames/MaxProbBreitWignerCombJigsaw.hh
+header RestFrames/MaxProbBreitWignerInvJigsaw.hh
+header RestFrames/MinMassChi2CombJigsaw.hh
+header RestFrames/MinMassDiffCombJigsaw.hh
+header RestFrames/MinMassDiffInvJigsaw.hh
+header RestFrames/MinMassesCombJigsaw.hh
+header RestFrames/MinMassesSqCombJigsaw.hh
+header RestFrames/MinMassesSqInvJigsaw.hh
+header RestFrames/RFBase.hh
+header RestFrames/RFCharge.hh
+header RestFrames/RFKey.hh
+header RestFrames/RFLog.hh
+header RestFrames/RFPlot.hh
+header RestFrames/ResonanceGenFrame.hh
+header RestFrames/RestFrame.hh
+header RestFrames/SelfAssemblingRecoFrame.hh
+header RestFrames/SetMassInvJigsaw.hh
+header RestFrames/SetRapidityInvJigsaw.hh
+header RestFrames/TreePlot.hh
+header RestFrames/TreePlotLink.hh
+header RestFrames/TreePlotNode.hh
+header RestFrames/VisibleGenFrame.hh
+header RestFrames/VisibleRecoFrame.hh
+header RestFrames/ppLabGenFrame.hh
+# List of selected namespaces
+namespace RestFrames
+# List of selected typedefs and outer classes
+typedef RestFrames::RFBaseList
+typedef RestFrames::RestFrameList
+typedef RestFrames::ConstRestFrameList
+typedef RestFrames::GroupList
+typedef RestFrames::ConstGroupList
+typedef RestFrames::JigsawList
+typedef RestFrames::ConstJigsawList
+typedef RestFrames::StateList
+typedef RestFrames::VisibleStateList
+typedef RestFrames::HistPlotVarList
+typedef RestFrames::HistPlotCatList
+typedef RestFrames::RestFrameListList
+typedef RestFrames::StateListList
+# List of selected enums and outer classes
+enum RestFrames::LogType

@@ -1,0 +1,5 @@
+libRestFrames_la-RFKey.lo: RFKey.cc \
+ /afs/crc.nd.edu/user/r/rgoldouz/miniconda3/x86_64-conda-linux-gnu/sysroot/usr/include/stdc-predef.h \
+ ../inc/RestFrames/RFKey.hh
+/afs/crc.nd.edu/user/r/rgoldouz/miniconda3/x86_64-conda-linux-gnu/sysroot/usr/include/stdc-predef.h:
+../inc/RestFrames/RFKey.hh:
