@@ -19,8 +19,8 @@ TGaxis.SetMaxDigits(2)
 
 #year=['2016preVFP', '2016postVFP', '2017','2018']
 year=['2024']
-regions=["All", "2b0t","1b1t","2t","1b1tM50","2tM50"]
-regionsName=["All", "2b0t","1b1t","2t","1b1tM50","2tM50"]
+regions=["All", "2b0t","1b0t","0b0t","0b1t","1b1t","2t","1b1tM50","2tM50"]
+regionsName=["All", "2b0t","1b0t","0b0t","0b1t","1b1t","2t","1b1tM50","2tM50"]
 channels=["2l_eeInZ", "2l_mmInZ", "2l_eeOutZ", "2l_mmOutZ", "2l_em"]
 channelsFake=["2lssEE_LF", "2lssEE_FF", "2lssEM_LF", "2lssEM_FF","2lssMM_LF", "2lssMM_FF", "3lonZ_LLF", "3lonZ_LFF","3lonZ_FFF","3loffZhigh_LLF", "3loffZhigh_LFF","3loffZhigh_FFF", "3loffZlow_LLF", "3loffZlow_LFF","3loffZlow_FFF"]
 variables=["lep1Pt","lep1Eta","lep1Phi","lep2Pt","lep2Eta","lep2Phi","llM","llPt","llDr","llDphi","jet1Pt","jet1Eta","jet1Phi","njet","nbjet","Met","MetPhi","nVtx","llMZw","t1prob","t1mass","t1chEmEF","njet08","ntTagjet08","t1nbSubjet"]
@@ -959,3 +959,41 @@ def equal_yield_rebin(hist, nbins_new):
     print(edges)
 
     return new_hist
+
+
+def comparePlot(hists, names, var="sample", varname="v"):
+    canvas = ROOT.TCanvas("v","v",50,50,865,780)
+    canvas.SetGrid();
+    canvas.SetBottomMargin(0.17)
+    canvas.cd()
+    pad1=ROOT.TPad("pad1", "pad1", 0, 0.0, 1, 0.99 , 0)#used for the hist plot
+    pad1.Draw()
+    pad1.SetBottomMargin(0.1)
+    pad1.SetLeftMargin(0.1)
+    pad1.SetRightMargin(0.1)
+    pad1.SetFillStyle(0)
+    pad1.cd()
+    pad1.SetLogx(ROOT.kFALSE)
+    pad1.SetLogy(ROOT.kFALSE)
+    pad1.SetLogy(ROOT.kTRUE)    
+
+    hists[0].GetYaxis().SetRangeUser(0.00001,1)
+    hists[0].GetXaxis().SetRangeUser(0,1)    
+    legend = ROOT.TLegend(0.3,0.55,0.7,0.88)
+    legend.SetBorderSize(0)
+    legend.SetTextFont(42)
+    legend.SetTextSize(0.025)
+    hists[0].SetTitle("")
+    hists[0].GetYaxis().SetTitle('A.U.')
+    hists[0].GetXaxis().SetTitle(varname)
+    hists[0].Draw("HIST")
+    for i in range(len(hists)):
+        hists[i].Draw("HISTsame")
+        hists[i].SetLineWidth(2)
+        hists[i].SetLineColor(i+1)
+        legend.AddEntry(hists[i],names[i],'L')
+    legend.Draw("same")    
+    hists[0].Draw("AXISSAMEY+")
+    canvas.Print(var + ".png")
+    del canvas
+    gc.collect()        

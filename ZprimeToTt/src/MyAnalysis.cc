@@ -203,11 +203,13 @@ void MyAnalysis::Loop(TString fname, TString data, TString dataset ,string year,
   TH2D *h2_BTaggingEff_Num_udsg   = new TH2D("h2_BTaggingEff_Num_udsg"  , ";p_{T} [GeV];#eta", 10 , ptBins, 3 , etaBins);
 
 
-  TH1F  *DRij = new TH1F("DRij","DRij",15,0,8);
-  TH1F  *DRtH = new TH1F("DRtH","DRtH",15,0,8);
-  TH1F  *DRWHWH = new TH1F("DRWHWH","DRWHWH",15,0,8);
-  TH1F  *DPhitH = new TH1F("DPhitH","DPhitH",15,-4,4);
-  TH2F  *HmassVsnJet = new TH2F("HmassVsnJet","HmassVsnJet",20,0,500,6,0,6);
+  TH1F  *tTagProbQcdAll = new TH1F("tTagProbQcdAll","tTagProbQcdAll",110,0,1.1);
+  TH1F  *tTagProbQcdB = new TH1F("tTagProbQcdB","tTagProbQcdB",110,0,1.1);  
+  TH1F  *tTagProbQcdNonB = new TH1F("tTagProbQcdNonB","tTagProbQcdNonB",110,0,1.1);
+  TH1F  *tTagProbTop = new TH1F("tTagProbTop","tTagProbTop",110,0,1.1);
+
+  TH1F  *tTag_pt_Den = new TH1F(tTag_pt_Den,tTag_pt_Den)
+
   TH2F  *jetVetoMap_before = new TH2F("jetVetoMap_before","jetVetoMap_before",20,-2.6,2.6,20,-3.2,3.2);
   TH2F  *jetVetoMap_after = new TH2F("jetVetoMap_after","jetVetoMap_after",20,-2.6,2.6,20,-3.2,3.2);
 
@@ -581,6 +583,8 @@ cout<<"starting loop with  Virtual Memory: "<<getValue()/1048576.0<<" GB"<<endl;
 //##    delete eft_fit; 
 // MET Filters https://twiki.cern.ch/twiki/bin/view/CMS/MissingETOptionalFiltersRun2#Run_3_2024_data_and_MC_Recommend
     objectSelection(data,year);
+
+    //histograms for calculating the b-tag/misstag efficiencies 
     for (int l=0;l<selectedJets->size();l++){
       if( abs((*selectedJets)[l]->flavor_) == 5){
         h2_BTaggingEff_Denom_b->Fill((*selectedJets)[l]->pt_, abs((*selectedJets)[l]->eta_));
@@ -600,30 +604,53 @@ cout<<"starting loop with  Virtual Memory: "<<getValue()/1048576.0<<" GB"<<endl;
           h2_BTaggingEff_Num_udsg->Fill((*selectedJets)[l]->pt_, abs((*selectedJets)[l]->eta_));
 	  }
       }
-    }  
+    }
+
+    //histograms for calculating the top tagging efficiencies
     int nLeptons = 0;
-    if(data == "mc"){
-      for (int l=0;l<nGenPart;l++){
-        if(abs(GenPart_pdgId[l])==6){
-          topEvent=true;
-           break;
+    TLorentzVector Tlep1, Tlep2, b1, b2;
+    if (data == "mc") {
+      bool topEvent = false;
+      for (int l = 0; l < nGenPart; ++l) {
+        if (abs(GenPart_pdgId[l]) == 6) {
+          topEvent = true;
+          break;
         }
       }
+      if (topEvent) {
+        for (int i = 0; i < nLHEPart; ++i) {
+          const int id = LHEPart_pdgId[i];
+          if (id == 5) b1.SetPtEtaPhiM(LHEPart_pt[i], LHEPart_eta[i], LHEPart_phi[i], 0.);
+          else if (id == -5)  b2.SetPtEtaPhiM(LHEPart_pt[i], LHEPart_eta[i], LHEPart_phi[i], 0.);    
+          else if (id == 11 || id == 13 || id == 15) Tlep2.SetPtEtaPhiM(LHEPart_pt[i], LHEPart_eta[i], LHEPart_phi[i], 0.);    
+          else if (id == -11 || id == -13 || id == -15) Tlep1.SetPtEtaPhiM(LHEPart_pt[i], LHEPart_eta[i], LHEPart_phi[i], 0.);
+          if (abs(id) == 11 || abs(id) == 13 || abs(id) == 15)
+            ++nLeptons;
+        }
+      }
+    
+      // Loop over AK8 jets
+      for (size_t l = 0; l < selectedJets08->size(); ++l) {
+        auto *jet = (*selectedJets08)[l];
+        tTagProbQcdAll->Fill(jet->toptag_in_);
+        int genIdx = FatJet_genJetAK8Idx[jet->indice_];
+        if (genIdx >= 0 && GenJetAK8_hadronFlavour[genIdx] == 5) tTagProbQcdB->Fill(jet->toptag_in_);
+        else  tTagProbQcdNonB->Fill(jet->toptag_in_);
+        if (!topEvent) continue;
+        TLorentzVector jetP4;
+        jetP4.SetPtEtaPhiM(jet->pt_, jet->eta_, jet->phi_, jet->mass_);
+        bool matched = false;
+        // Require one b and one lepton inside the jet cone
+        if (b1.Pt() > 0 && Tlep1.Pt() > 0 &&  jetP4.DeltaR(b1) < 0.8 && jetP4.DeltaR(Tlep1) < 0.8) matched = true;
+        if (b2.Pt() > 0 && Tlep2.Pt() > 0 && jetP4.DeltaR(b2) < 0.8 && jetP4.DeltaR(Tlep2) < 0.8) matched = true;
+        if (matched) tTagProbTop->Fill(jet->toptag_in_);
+      }
+
       if(topEvent){
-        TLorentzVector lep1, lep2, b1, b2;
         float WP=0.85;
         int ttag=0;
         bool ifeve = false;
 	bool ifeveIso = false;
-        for(int i=0;i<nLHEPart;i++){
-          int id = LHEPart_pdgId[i];
-          if(id==5) b1.SetPtEtaPhiM(LHEPart_pt[i],LHEPart_eta[i],LHEPart_phi[i],0);
-          if(id==-5) b2.SetPtEtaPhiM(LHEPart_pt[i],LHEPart_eta[i],LHEPart_phi[i],0);
-          if(id==11 || id==13 || id==15)  lep2.SetPtEtaPhiM(LHEPart_pt[i],LHEPart_eta[i],LHEPart_phi[i],0);
-          if(id==-11 || id==-13 || id==-15)  lep1.SetPtEtaPhiM(LHEPart_pt[i],LHEPart_eta[i],LHEPart_phi[i],0);
-	  if(abs(id)==11 || abs(id)==13 || abs(id)==15) nLeptons++;
-//	  if(abs(id)==12 || abs(id)==14 || abs(id)==16) cout<<abs(id)<<" LHE "<<LHEPart_pt[i]<<":"<<LHEPart_eta[i]<<":"<<LHEPart_phi[i]<<endl;
-        }
     if(selectedNonIsoLeptons->size() >=2) drll=deltaR((*selectedNonIsoLeptons)[0]->eta_,(*selectedNonIsoLeptons)[0]->phi_,(*selectedNonIsoLeptons)[1]->eta_,(*selectedNonIsoLeptons)[1]->phi_);
     if(selectedNonIsoLeptons->size() >=2 && (*selectedNonIsoLeptons)[0]->lep_ == 1 &&  (*selectedNonIsoLeptons)[1]->lep_==1 && drll>0.8) ifeve=true;
     if(selectedNonIsoLeptons->size() >=2 && (*selectedNonIsoLeptons)[0]->lep_ == 1 &&  (*selectedNonIsoLeptons)[1]->lep_==10 && drll>0.8) ifeve=true;
@@ -1574,11 +1601,11 @@ cout<<"starting loop with  Virtual Memory: "<<getValue()/1048576.0<<" GB"<<endl;
   h2_BTaggingEff_Num_udsg  ->Write("",TObject::kOverwrite);
   crossSection             ->Write("",TObject::kOverwrite);
 
-  DRij->Write("",TObject::kOverwrite);
-  DRtH->Write("",TObject::kOverwrite);
-  DPhitH->Write("",TObject::kOverwrite);
-  DRWHWH->Write("",TObject::kOverwrite);
-  HmassVsnJet->Write("",TObject::kOverwrite);
+  tTagProbQcdAll->Write("",TObject::kOverwrite);
+  tTagProbQcdB->Write("",TObject::kOverwrite);
+  tTagProbQcdNonB->Write("",TObject::kOverwrite);
+  tTagProbTop->Write("",TObject::kOverwrite);
+
   mll_SS_Zwindow_0jet->Write("",TObject::kOverwrite);
   jetVetoMap_before->Write("",TObject::kOverwrite);
   jetVetoMap_after->Write("",TObject::kOverwrite);
@@ -1606,11 +1633,10 @@ cout<<"starting loop with  Virtual Memory: "<<getValue()/1048576.0<<" GB"<<endl;
   delete h2_BTaggingEff_Num_b      ;
   delete h2_BTaggingEff_Num_c      ;
   delete h2_BTaggingEff_Num_udsg   ;
-  delete DRij;
-  delete DRtH;
-  delete DRWHWH;
-  delete DPhitH;
-  delete HmassVsnJet;
+  delete tTagProbQcdAll;
+  delete tTagProbQcdB;
+  delete tTagProbQcdNonB;
+  delete tTagProbTop;
   delete crossSection;
   delete mll_SS_Zwindow_0jet;
   delete jetVetoMap_before;

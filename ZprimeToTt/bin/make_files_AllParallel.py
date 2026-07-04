@@ -28,6 +28,8 @@ import json
 import re
 from collections import OrderedDict
 
+#"UL24_EXT_TTto4Q":[['rgoldouz/NanoAodPostProcessingUL/UL24/fatjet/UL24_TT_TTto4Q/TTto4Q_TuneCP5_13p6TeV_powheg-pythia8/crab_UL24_TT_TTto4Q/260703_100603/0000'], 'mc', 'none', '2024', 'none', '0.1', '109', '847447.0423843687', '0', '1', '0'],
+
 MCSAMPLES = {}
 def build_category(name, description, data_by_sample, index_name):
     content = []

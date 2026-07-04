@@ -33,7 +33,7 @@ int jet_candidate::istop(float toptag_in , TString year, float mSD){
   if(year == "2016preVFP") topTagWP=0.958;
   if(year == "2017") topTagWP=0.97;
   if(year == "2018") topTagWP=0.95;
-  if(year == "2024") topTagWP=0.95;
+  if(year == "2024") topTagWP=0.89;
   int R = 0;
   if (toptag_in > topTagWP) R=1;
   return R;

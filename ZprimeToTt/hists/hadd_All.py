@@ -51,6 +51,8 @@ if __name__ == '__main__':
         year='2024'
 #        year = value[3]
         print (key,year)
+        if 'EXT' in key:
+            continue
         if value[1]=='data':
             addedFilesData[year].append(key + '.root')
 #        elif 'FCNC' in key:
