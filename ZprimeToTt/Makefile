@@ -6,10 +6,10 @@ CORFLAGS       = $(shell correction config --cflags)
 
 CVMA            = /cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_15_0_10/src/
 BOOST          = /cvmfs/cms.cern.ch/el9_amd64_gcc12/external/boost/1.80.0-fa55cb3940cb89fca310de6848667027/include/
-EFT            = /groups/mhildret/rgoldouz/CMSSW_15_0_10/src/EFTGenReader/EFTHelperUtilities/interface/
+EFT            = ../CMSSW_15_0_10/src/EFTGenReader/EFTHelperUtilities/interface/
 FMT            = /cvmfs/cms.cern.ch/el9_amd64_gcc12/external/fmt/10.2.1-e35fd1db5eb3abc8ac0452e8ee427196/include/
 INCLUDES       = -I./include -I./RestFrames/include -I$(EFT) -I$(BOOST) -I$(CVMA) -I$(FMT)
-RESTLIB        = -L/groups/mhildret/rgoldouz/run3Analyses/ZprimeToTt/RestFrames/lib
+RESTLIB        = -L./RestFrames/lib
 
 
 CXX            = g++ -m64 
