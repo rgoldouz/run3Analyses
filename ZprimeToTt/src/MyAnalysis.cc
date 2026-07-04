@@ -208,7 +208,27 @@ void MyAnalysis::Loop(TString fname, TString data, TString dataset ,string year,
   TH1F  *tTagProbQcdNonB = new TH1F("tTagProbQcdNonB","tTagProbQcdNonB",110,0,1.1);
   TH1F  *tTagProbTop = new TH1F("tTagProbTop","tTagProbTop",110,0,1.1);
 
-  TH1F  *tTag_pt_Den = new TH1F(tTag_pt_Den,tTag_pt_Den)
+  double binsPtH[]={200, 300, 400, 500,800,1200,2000};
+  double binsEta[]={-2.5,-2.25,-2,-1.75,-1.5,-1.25,-1,-0.75,-0.5,-0.25,0,0.25,0.5,0.75,1,1.25,1.5,1.75,2,2.25,2.5};  
+  double binsmass[]={0, 10, 20, 40, 80, 110, 150, 200, 300, 400, 500};
+  TH1F  *tTag_ee_pt_Den = new TH1F("tTag_ee_pt_Den","tTag_ee_pt_Den",sizeof(binsPtH)/sizeof(double) - 1, binsPtH);
+  TH1F  *tTag_ee_pt_Num = new TH1F("tTag_ee_pt_Num","tTag_ee_pt_Num",sizeof(binsPtH)/sizeof(double) - 1, binsPtH);	  
+  TH1F  *tTag_ee_eta_Den = new TH1F("tTag_ee_eta_Den","tTag_ee_eta_Den",sizeof(binsEta)/sizeof(double) - 1, binsEta);
+  TH1F  *tTag_ee_eta_Num = new TH1F("tTag_ee_eta_Num","tTag_ee_eta_Num",sizeof(binsEta)/sizeof(double) - 1, binsEta);
+  TH1F  *tTag_ee_mass_Den = new TH1F("tTag_ee_mass_Den","tTag_ee_mass_Den",sizeof(binsmass)/sizeof(double) - 1, binsmass);
+  TH1F  *tTag_ee_mass_Num = new TH1F("tTag_ee_mass_Num","tTag_ee_mass_Num",sizeof(binsmass)/sizeof(double) - 1, binsmass);
+  TH1F  *tTag_ee_lfrac_Den = new TH1F("tTag_ee_lfrac_Den","tTag_ee_lfrac_Den",10,0,10);
+  TH1F  *tTag_ee_lfrac_Num = new TH1F("tTag_ee_lfrac_Num","tTag_ee_lfrac_Num",10,0,10);
+
+  TH1F  *tTag_mm_pt_Den = new TH1F("tTag_mm_pt_Den","tTag_mm_pt_Den",sizeof(binsPtH)/sizeof(double) - 1, binsPtH);
+  TH1F  *tTag_mm_pt_Num = new TH1F("tTag_mm_pt_Num","tTag_mm_pt_Num",sizeof(binsPtH)/sizeof(double) - 1, binsPtH);
+  TH1F  *tTag_mm_eta_Den = new TH1F("tTag_mm_eta_Den","tTag_mm_eta_Den",sizeof(binsEta)/sizeof(double) - 1, binsEta);
+  TH1F  *tTag_mm_eta_Num = new TH1F("tTag_mm_eta_Num","tTag_mm_eta_Num",sizeof(binsEta)/sizeof(double) - 1, binsEta);
+  TH1F  *tTag_mm_mass_Den = new TH1F("tTag_mm_mass_Den","tTag_mm_mass_Den",sizeof(binsEta)/sizeof(double) - 1, binsmass);
+  TH1F  *tTag_mm_mass_Num = new TH1F("tTag_mm_mass_Num","tTag_mm_mass_Num",sizeof(binsEta)/sizeof(double) - 1, binsmass);
+  TH1F  *tTag_mm_lfrac_Den = new TH1F("tTag_mm_lfrac_Den","tTag_mm_lfrac_Den",10,0,10);
+  TH1F  *tTag_mm_lfrac_Num = new TH1F("tTag_mm_lfrac_Num","tTag_mm_lfrac_Num",10,0,10);
+
 
   TH2F  *jetVetoMap_before = new TH2F("jetVetoMap_before","jetVetoMap_before",20,-2.6,2.6,20,-3.2,3.2);
   TH2F  *jetVetoMap_after = new TH2F("jetVetoMap_after","jetVetoMap_after",20,-2.6,2.6,20,-3.2,3.2);
@@ -961,7 +981,9 @@ cout<<"starting loop with  Virtual Memory: "<<getValue()/1048576.0<<" GB"<<endl;
   if( ntjet==2) reg[getVecPos(regions,"2t")]=getVecPos(regions,"2t");  
   if (ntjet == 1 && nbjetOut == 1 && (lep0Iso || lep1Iso) && topMass)   reg[getVecPos(regions, "1b1tM50")] = getVecPos(regions, "1b1tM50");
   if( ntjet==2 && topMass) reg[getVecPos(regions,"2tM50")]=getVecPos(regions,"2tM50");  
-  
+ 
+  //if(reg[getVecPos(regions, "0b1t")] >= 0 
+
 
     if(ntjet==0 && nbjetOut==2 && nIsolOut==2) RECOmass0->Fill(recoTT(recoTop1,recoTop2));
     if( ntjet==1 && nbjetOut==1 && nIsolOut==1) RECOmass1->Fill(recoTT(recoTop1,recoTop2));
@@ -1606,6 +1628,24 @@ cout<<"starting loop with  Virtual Memory: "<<getValue()/1048576.0<<" GB"<<endl;
   tTagProbQcdNonB->Write("",TObject::kOverwrite);
   tTagProbTop->Write("",TObject::kOverwrite);
 
+  tTag_ee_pt_Den->Write("",TObject::kOverwrite); 
+  tTag_ee_pt_Num->Write("",TObject::kOverwrite);
+  tTag_ee_eta_Den->Write("",TObject::kOverwrite);
+  tTag_ee_eta_Num->Write("",TObject::kOverwrite);
+  tTag_ee_mass_Den->Write("",TObject::kOverwrite); 
+  tTag_ee_mass_Num->Write("",TObject::kOverwrite); 
+  tTag_ee_lfrac_Den->Write("",TObject::kOverwrite);
+  tTag_ee_lfrac_Num->Write("",TObject::kOverwrite);
+
+  tTag_mm_pt_Den->Write("",TObject::kOverwrite); 
+  tTag_mm_pt_Num->Write("",TObject::kOverwrite); 
+  tTag_mm_eta_Den->Write("",TObject::kOverwrite);
+  tTag_mm_eta_Num->Write("",TObject::kOverwrite);
+  tTag_mm_mass_Den->Write("",TObject::kOverwrite); 
+  tTag_mm_mass_Num->Write("",TObject::kOverwrite); 
+  tTag_mm_lfrac_Den->Write("",TObject::kOverwrite);
+  tTag_mm_lfrac_Num->Write("",TObject::kOverwrite);
+
   mll_SS_Zwindow_0jet->Write("",TObject::kOverwrite);
   jetVetoMap_before->Write("",TObject::kOverwrite);
   jetVetoMap_after->Write("",TObject::kOverwrite);
@@ -1655,6 +1695,24 @@ cout<<"starting loop with  Virtual Memory: "<<getValue()/1048576.0<<" GB"<<endl;
   delete RECOmass1;
   delete RECOmass2;
   delete cutFlowFinal;   
+
+  delete tTag_ee_pt_Den;
+  delete tTag_ee_pt_Num;
+  delete tTag_ee_eta_Den;
+  delete tTag_ee_eta_Num;
+  delete tTag_ee_mass_Den;
+  delete tTag_ee_mass_Num;
+  delete tTag_ee_lfrac_Den;
+  delete tTag_ee_lfrac_Num;
+
+  delete tTag_mm_pt_Den;
+  delete tTag_mm_pt_Num;
+  delete tTag_mm_eta_Den;
+  delete tTag_mm_eta_Num;
+  delete tTag_mm_mass_Den;
+  delete tTag_mm_mass_Num;
+  delete tTag_mm_lfrac_Den;
+  delete tTag_mm_lfrac_Num;
 
   malloc_trim(0);
   cout<<  "File ANoutput" + std::to_string(end) + ".root is made"<<endl;
