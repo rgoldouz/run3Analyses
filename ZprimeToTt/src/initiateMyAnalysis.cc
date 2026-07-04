@@ -367,6 +367,7 @@ void MyAnalysis::initiateHists(TString data,string year, bool ifSys){
 }
 
 void MyAnalysis::inputs(TString data,string year){
+  string sourceAddress="/groups/mhildret/rgoldouz/run3Analyses/ZprimeToTt/";	
   ROOT::DisableImplicitMT();
   const char* srcnames[nsrc] = {"FlavorQCD", "BBEC1", "Absolute", "RelativeBal", "RelativeSample_2016","Total"};
   string yearName;
@@ -759,10 +760,10 @@ void MyAnalysis::inputs(TString data,string year){
   }
 
   if(year == "2024"){  
-    eleSF="/groups/mhildret/rgoldouz/run3Analyses/ZprimeToTt/input/Run3SF/EGM/Run3-24CDEReprocessingFGHIPrompt-Summer24-NanoAODv15/latest/electron.json.gz";
-    muSF= "/groups/mhildret/rgoldouz/run3Analyses/ZprimeToTt/input/Run3SF/MUO/Run3-24CDEReprocessingFGHIPrompt-Summer24-NanoAODv15/latest/muon_HighPt.json.gz";
-    puSF = "/groups/mhildret/rgoldouz/run3Analyses/ZprimeToTt/input/Run3SF/LUM/Run3-24CDEReprocessingFGHIPrompt-Summer24-NanoAODv15/latest/puWeights_CDEFGHI.json.gz";
-    bSF="/groups/mhildret/rgoldouz/run3Analyses/ZprimeToTt/input/Run3SF/BTV/Run3-24CDEReprocessingFGHIPrompt-Summer24-NanoAODv15/latest";
+    eleSF = sourceAddress + "input/Run3SF/EGM/Run3-24CDEReprocessingFGHIPrompt-Summer24-NanoAODv15/latest/electron.json.gz";
+    muSF = sourceAddress + "input/Run3SF/MUO/Run3-24CDEReprocessingFGHIPrompt-Summer24-NanoAODv15/latest/muon_HighPt.json.gz";
+    puSF = sourceAddress + "input/Run3SF/LUM/Run3-24CDEReprocessingFGHIPrompt-Summer24-NanoAODv15/latest/puWeights_CDEFGHI.json.gz";
+    bSF = sourceAddress + "input/Run3SF/BTV/Run3-24CDEReprocessingFGHIPrompt-Summer24-NanoAODv15/latest";
 //    jetSF="/users/rgoldouz/FCNC/NanoAnalysis/data/POG/JME/2018_UL/UL18_jmar.json.gz";
   }  
 	  
