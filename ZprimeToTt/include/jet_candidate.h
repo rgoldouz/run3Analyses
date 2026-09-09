@@ -29,11 +29,14 @@ public:
   int Nsub_;
   int Nbsub_;
   int isb(float, TString);
-  int istop(float, TString, float);
+  int istop(float, TString);
   int isW(float, TString);
   TLorentzVector p4_;
   float mass_;
-
+  int lepFlavor_;
+  int lepIndex_;
+  int selectedLepIndex_;
+  float topTagBDT_;
 
 private:
 

@@ -520,6 +520,19 @@ float scale_factor( TH2F* h, float X, float Y , TString uncert){
 }
 */
 
+float scale_factor1D( TH1F* h, float X, TString uncert){
+  int NbinsX=h->GetXaxis()->GetNbins();
+  float x_min=h->GetXaxis()->GetBinLowEdge(1);
+  float x_max=h->GetXaxis()->GetBinLowEdge(NbinsX)+h->GetXaxis()->GetBinWidth(NbinsX);
+  TAxis *Xaxis = h->GetXaxis();
+  Int_t binx=1;
+  if(x_min < X && X < x_max) binx = Xaxis->FindBin(X);
+  else binx= (X<=x_min) ? 1 : NbinsX ;
+  if(uncert=="up") return (h->GetBinContent(binx)+h->GetBinError(binx));
+  if(uncert=="down") return (h->GetBinContent(binx)-h->GetBinError(binx));
+  if(uncert=="central") return  h->GetBinContent(binx);
+}
+
 float scale_factor( TH2F* h, float X, float Y , TString uncert, bool eff=false, bool out=false){
   int NbinsX=h->GetXaxis()->GetNbins();
   int NbinsY=h->GetYaxis()->GetNbins();

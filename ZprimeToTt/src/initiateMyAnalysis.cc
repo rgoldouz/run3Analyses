@@ -11,8 +11,8 @@
    double binsMz[]={70.0, 71.0256, 72.0513, 73.0769, 74.1026, 75.1282, 76.1538, 77.1795, 78.2051, 79.2308,80.2564, 81.2821, 82.3077, 83.3333, 84.3590, 85.3846, 86.4103, 87.4359, 88.4615, 89.4872,90.5128, 91.5385, 92.5641, 93.5897, 94.6154, 95.6410, 96.6667, 97.6923, 98.7179, 99.7436,100.7692, 101.7949, 102.8205, 103.8462, 104.8718, 105.8974, 106.9231, 107.9487, 108.9744, 110.0};
    double binsnJets[]={0,1,2,3,4,5,6,7,8};
    double binsnVtx[]={0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60};
-   double binProb[]={0.00, 0.05, 0.10, 0.20, 0.30, 0.40, 0.50, 0.60, 0.70, 0.80, 0.90, 0.91, 0.92, 0.93, 0.94, 0.95, 0.96, 0.97, 0.98, 0.99, 1.00};
-   double binsMtt[]={500, 550, 600, 650, 700, 750, 800, 850, 900, 950, 1000, 1050, 1100, 1150, 1200, 1250, 1300, 1350, 1400, 1450, 1500, 1550, 1600, 1650, 1700, 1750, 1800, 1850, 1900, 1950, 2000, 2100, 2200, 2300, 2400, 2500, 2600, 2700, 2800, 2900, 3000, 3100, 3200, 3300, 3400, 3500, 3600, 3700, 3800, 3900, 4000, 4200, 4400, 4600, 4800, 5000, 5200, 5400, 5600, 5800, 6000, 6200, 6400, 6600, 6800, 7000};
+   double binProb[]={0.00, 0.10, 0.20, 0.30, 0.40, 0.50, 0.60, 0.70, 0.80, 0.90, 1, 1.2, 1.4, 1.6};
+   double binsMtt[]={250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800, 850, 900, 950, 1000, 1050, 1100, 1150, 1200, 1250, 1300, 1350, 1400, 1450, 1500, 1550, 1600, 1650, 1700, 1750, 1800, 1850, 1900, 1950, 2000, 2100, 2200, 2300, 2400, 2500, 2600, 2700, 2800, 2900, 3000, 3100, 3200, 3300, 3400, 3500, 3600, 3700, 3800, 3900, 4000, 4200, 4400, 4600, 4800, 5000, 5200, 5400, 5600, 5800, 6000, 6200, 6400, 6600, 6800, 7000};
 
    const std::map<TString, std::tuple<int, int, const double*>> MyAnalysis::vars =
    {
@@ -37,12 +37,12 @@
     {"MetPhi",                         {18,      sizeof(binsPhi)/sizeof(double) - 1, binsPhi}},
     {"nVtx",                           {19,      sizeof(binsnVtx)/sizeof(double) - 1, binsnVtx}},
     {"llMZw",                          {20,      sizeof(binsMz)/sizeof(double) - 1, binsMz}},
-    {"t1prob",                         {21,      sizeof(binProb)/sizeof(double) - 1, binProb}},
-    {"t1mass",                         {22,      sizeof(binsPtM)/sizeof(double) - 1, binsPtM}},
-    {"t1chEmEF",                       {23,      sizeof(binProb)/sizeof(double) - 1, binProb}},
-    {"t1tau21 ",                       {24,      sizeof(binProb)/sizeof(double) - 1, binProb}},
-    {"t1nbSubjet",                     {25,      sizeof(binsnJets)/sizeof(double) - 1, binsnJets}},
-    {"ttM",                            {26,      sizeof(binsPtM)/sizeof(double) - 1, binsPtM}},    
+    {"t1Pt",                           {21,      sizeof(binsPtH)/sizeof(double) - 1, binsPtH}},
+    {"t1Eta",                          {22,      sizeof(binsEta)/sizeof(double) - 1, binsEta}},
+    {"t1mass",                         {23,      sizeof(binsPtM)/sizeof(double) - 1, binsPtM}},
+    {"t1ptlOptJ",                      {24,      sizeof(binProb)/sizeof(double) - 1, binProb}},
+    {"ttM",                            {25,      sizeof(binsMtt)/sizeof(double) - 1, binsMtt}},    
+    {"t1prob",                         {26,      sizeof(binProb)/sizeof(double) - 1, binProb}},
    };
 
       const std::map<TString, std::tuple<int, int, const double*>> MyAnalysis::varsFA =
@@ -308,60 +308,17 @@ void MyAnalysis::initiateHists(TString data,string year, bool ifSys){
     }
   }
   cout<<"All histograms are initiated"<<endl;
-  tree_out = new TTree("FCNC","Top FCNC analysis") ;
-  tree_out->Branch("HT"      , &HT_ , "HT/F" ) ;
-  tree_out->Branch("lep1Pt"      , &lep1Pt_ , "lep1Pt/F" ) ;
-  tree_out->Branch("lep1Eta"      , &lep1Eta_ , "lep1Eta/F" ) ;
-  tree_out->Branch("lep2Pt"      , &lep2Pt_ , "lep2Pt/F" ) ;
-  tree_out->Branch("lep2Eta"      , &lep2Eta_ , "lep2Eta/F" ) ;
-  tree_out->Branch("lep3Pt"      , &lep3Pt_ , "lep3Pt/F" ) ;
-  tree_out->Branch("lep3Eta"      , &lep3Eta_ , "lep3Eta/F" ) ;
-  tree_out->Branch("llM"      , &llM_ , "llM/F" ) ;
-  tree_out->Branch("llPt"      , &llPt_ , "llPt/F" ) ;
-  tree_out->Branch("llDr"      , &llDr_ , "llDr/F" ) ;
-  tree_out->Branch("llDphi"      , &llDphi_ , "llDphi/F" ) ;
-  tree_out->Branch("jet1Pt"      , &jet1Pt_ , "jet1Pt/F" ) ;
-  tree_out->Branch("jet1Eta"      , &jet1Eta_ , "jet1Eta/F"  ) ;
-  tree_out->Branch("bJetPt"      , &bJetPt_ , "bJetPt/F" ) ;
-  tree_out->Branch("bJetEta"      , &bJetEta_ , "bJetEta/F"  ) ;
-  tree_out->Branch("nJets"      , &nJets_ , "nJets/I"  ) ;
-  tree_out->Branch("tH_topMass"      , &tH_topMass_ , "tH_topMass/F"  ) ;
-  tree_out->Branch("tH_HMass"      , &tH_HMass_ , "tH_HMass/F"  ) ;
-  tree_out->Branch("tH_WtopMass"      , &tH_WtopMass_ , "tH_WtopMass/F"  ) ;
-  tree_out->Branch("tH_W1HMass"      , &tH_W1HMass_ , "tH_W1HMass/F"  ) ;
-  tree_out->Branch("tH_W2HMass"      , &tH_W2HMass_ , "tH_W2HMass/F"  ) ;
-  tree_out->Branch("tH_HPt"      , &tH_HPt_ , "tH_HPt/F"  ) ;
-  tree_out->Branch("tH_HEta"      , &tH_HEta_ , "tH_HEta/F"  ) ;
-  tree_out->Branch("tH_topPt"      , &tH_topPt_ , "tH_topPt/F"  ) ;
-  tree_out->Branch("tH_topEta"      , &tH_topEta_ , "tH_topEta/F"  ) ;
-  tree_out->Branch("tH_drWtopB"      , &tH_drWtopB_ , "tH_drWtopB/F"  ) ;
-  tree_out->Branch("tH_drW1HW2H"      , &tH_drW1HW2H_ , "tH_drW1HW2H/F"  ) ;
-  tree_out->Branch("tZ_topMass"      , &tZ_topMass_ , "tZ_topMass/F"  ) ;
-  tree_out->Branch("tZ_ZMass"      , &tZ_ZMass_ , "tZ_ZMass/F"  ) ;
-  tree_out->Branch("tZ_WtopMass"      , &tZ_WtopMass_ , "tZ_WtopMass/F"  ) ;
-  tree_out->Branch("tZ_ZPt"      , &tZ_ZPt_ , "tZ_ZPt/F"  ) ;
-  tree_out->Branch("tZ_ZEta"      , &tZ_ZEta_ , "tZ_ZEta/F"  ) ;
-  tree_out->Branch("tZ_topPt"      , &tZ_topPt_ , "tZ_topPt/F"  ) ;
-  tree_out->Branch("tZ_topEta"      , &tZ_topEta_ , "tZ_topEta/F"  ) ;
-
-  tree_out->Branch("weightSM"      , &weightSM_ , "weightSM/F" ) ;
-  tree_out->Branch("weightSMfake"      , &weightSMfake_ , "weightSMfake/F" ) ;
-  tree_out->Branch("weightctp"      , &weightctp_ , "weightctp/F" ) ;
-  tree_out->Branch("weightctlS"      , &weightctlS_ , "weightctlS/F" ) ;
-  tree_out->Branch("weightcte"      , &weightcte_ , "weightcte/F" ) ;
-  tree_out->Branch("weightctl"      , &weightctl_ , "weightctl/F" ) ;
-  tree_out->Branch("weightctlT"      , &weightctlT_ , "weightctlT/F" ) ;
-  tree_out->Branch("weightctZ"      , &weightctZ_ , "weightctZ/F" ) ;
-  tree_out->Branch("weightcpt"      , &weightcpt_ , "weightcpt/F" ) ;
-  tree_out->Branch("weightcpQM"      , &weightcpQM_ , "weightcpQM/F" ) ;
-  tree_out->Branch("weightctA"      , &weightctA_ , "weightctA/F" ) ;
-  tree_out->Branch("weightcQe"      , &weightcQe_ , "weightcQe/F" ) ;
-  tree_out->Branch("weightctG"      , &weightctG_ , "weightctG/F" ) ;
-  tree_out->Branch("weightcQlM"      , &weightcQlM_ , "weightcQlM/F" ) ;
-  tree_out->Branch("ch"      , &ch_, "ch/I" ) ;
-  tree_out->Branch("chFA"      , &chFA_, "chFA/I" ) ;
-  tree_out->Branch("reg"      , &reg_, "reg/I" ) ;
-  tree_out->Branch("MVATU"      , &MVATU_ , "MVATU/F" ) ;
+  tree_out = new TTree("topTag","Top tagging analysis") ;
+  tree_out->Branch("jetPt"      , &jetPt_ , "jetPt/F" ) ;
+  tree_out->Branch("lepPt"      , &lepPt_ , "lepPt/F" ) ;
+  tree_out->Branch("lepPtOjetPt"      , &lepPtOjetPt_ , "lepPtOjetPt/F" ) ;
+  tree_out->Branch("jetMass"      , &jetMass_ , "jetMass/F" ) ;
+  tree_out->Branch("globalParT3_TopbWlv"      , &globalParT3_TopbWlv_ , "globalParT3_TopbWlv/F" ) ;
+  tree_out->Branch("globalParT3_QCD"      , &globalParT3_QCD_ , "globalParT3_QCD/F" ) ;
+  tree_out->Branch("lepIso"      , &lepIso_ , "lepIso/F" ) ;
+  tree_out->Branch("jetSubJet_btagUParTAK4B"      , &jetSubJet_btagUParTAK4B_ , "jetSubJet_btagUParTAK4B/F"  ) ;
+  tree_out->Branch("lepFlavour"      , &lepFlavour_ , "lepFlavour/I" ) ;
+  tree_out->Branch("jetClass"      , &jetClass_ , "jetClass/I" ) ;	  
 
   cout<<"Output tree is ready to be used"<<endl;
 }
@@ -379,18 +336,27 @@ void MyAnalysis::inputs(TString data,string year){
   if(year == "2016preVFP") yearNameS="2016apv";
   if(year == "2016postVFP") yearNameS="2016";
   if(data == "mc"){
-//    TFile *f_btagEff_Map = new TFile("/users/rgoldouz/FCNC/NanoAnalysis/input/btagEffs_TopEFT_2022_05_16.root");
-//    TH2F* htemp = (TH2F*)f_btagEff_Map->Get(("BtagSFB_DeepFlavM_" + yearNameS).c_str());
-//    btagEff_b_H = (TH2F*)htemp->Clone("btagEff_b_H_clone");  // Clone decouples from file
-//    btagEff_b_H->SetDirectory(0);  // Important: unbind from the file, especially in ROOT < 6.22
-//    htemp = (TH2F*)f_btagEff_Map->Get(("BtagSFC_DeepFlavM_" + yearNameS).c_str());
-//    btagEff_c_H = (TH2F*)htemp->Clone("btagEff_c_H_clone");  
-//    btagEff_c_H->SetDirectory(0);  
-//    htemp = (TH2F*)f_btagEff_Map->Get(("BtagSFL_DeepFlavM_" + yearNameS).c_str());
-//    btagEff_udsg_H = (TH2F*)htemp->Clone("btagEff_udsg_H_clone");  
-//    btagEff_udsg_H->SetDirectory(0);  
-//    f_btagEff_Map->Close();
-//    delete f_btagEff_Map;
+   TFile *f_btagEff_Map = new TFile("/groups/mhildret/rgoldouz/run3Analyses/ZprimeToTt/input/Run3Inputs/btagEff.root");
+   TH2F* htemp = (TH2F*)f_btagEff_Map->Get((year + "_h2_BTaggingEff_b").c_str());
+   btagEff_b_H = (TH2F*)htemp->Clone("btagEff_b_H_clone");  // Clone decouples from file
+   btagEff_b_H->SetDirectory(0);  // Important: unbind from the file, especially in ROOT < 6.22
+   htemp = (TH2F*)f_btagEff_Map->Get((year + "_h2_BTaggingEff_c").c_str());
+   btagEff_c_H = (TH2F*)htemp->Clone("btagEff_c_H_clone");  
+   btagEff_c_H->SetDirectory(0);  
+   htemp = (TH2F*)f_btagEff_Map->Get((year + "_h2_BTaggingEff_udsg").c_str());
+   btagEff_udsg_H = (TH2F*)htemp->Clone("btagEff_udsg_H_clone");  
+   btagEff_udsg_H->SetDirectory(0);  
+   f_btagEff_Map->Close();
+   delete f_btagEff_Map;
+
+   TFile *Sf_topTagEff = new TFile("/groups/mhildret/rgoldouz/run3Analyses/ZprimeToTt/input/Run3Inputs/topTagSF.root");
+   TH1F* htemp1d = (TH1F*)Sf_topTagEff->Get((year + "_M2l_em_1b_jetPt").c_str());
+   Sf_topTagEff_mu_H = (TH1F*)htemp1d->Clone("Sf_topTagEff_mu_H");  
+   Sf_topTagEff_mu_H->SetDirectory(0);
+   Sf_topTagEff_ele_H = (TH1F*)htemp1d->Clone("Sf_topTagEff_ele_H");
+   Sf_topTagEff_ele_H->SetDirectory(0);   
+   Sf_topTagEff->Close();
+   delete Sf_topTagEff;
 //
 //    TFile *f_trigger = new TFile(("/users/rgoldouz/FCNC/NanoAnalysis/input/triggerScaleFactors_" + yearName + ".root").c_str());
 //    htemp = (TH2F*)f_trigger->Get("sf_2l_ee");
@@ -763,7 +729,7 @@ void MyAnalysis::inputs(TString data,string year){
     eleSF = sourceAddress + "input/Run3SF/EGM/Run3-24CDEReprocessingFGHIPrompt-Summer24-NanoAODv15/latest/electron.json.gz";
     muSF = sourceAddress + "input/Run3SF/MUO/Run3-24CDEReprocessingFGHIPrompt-Summer24-NanoAODv15/latest/muon_HighPt.json.gz";
     puSF = sourceAddress + "input/Run3SF/LUM/Run3-24CDEReprocessingFGHIPrompt-Summer24-NanoAODv15/latest/puWeights_CDEFGHI.json.gz";
-    bSF = sourceAddress + "input/Run3SF/BTV/Run3-24CDEReprocessingFGHIPrompt-Summer24-NanoAODv15/latest";
+    bSF = sourceAddress + "input/Run3SF/BTV/Run3-24CDEReprocessingFGHIPrompt-Summer24-NanoAODv15/latest/btagging.json.gz";
 //    jetSF="/users/rgoldouz/FCNC/NanoAnalysis/data/POG/JME/2018_UL/UL18_jmar.json.gz";
   }  
 	  
@@ -782,14 +748,10 @@ void MyAnalysis::inputs(TString data,string year){
   csetFilePuSF = CorrectionSet::from_file(puSF);
   csetPu = csetFilePuSF->at("Collisions24_CDEFGHI_goldenJSON");  
 
-//  csetFilebSF = CorrectionSet::from_file(bSF);
-//  csetLightJetSF = csetFilebSF->at("deepJet_incl");
-////  auto csetBcJetSF = csetFilebSF->at("deepCSV_mujets");
-//  csetBcJetSF = csetFilebSF->at("deepJet_comb");
-//
-//  csetFileJetSF = CorrectionSet::from_file(jetSF);
-//  csetJetPuID = csetFileJetSF->at("PUJetID_eff");
-//
+  csetFilebSF = CorrectionSet::from_file(bSF);
+  csetLightJetSF = csetFilebSF->at("UParTAK4_light");
+  csetBcJetSF = csetFilebSF->at("UParTAK4_mujets");
+
 //  csetFilePDFScale = CorrectionSet::from_file("/users/rgoldouz/FCNC/NanoAnalysis/bin/lhe_weight_sums.json");
 //  csetPDF = csetFilePDFScale->at("pdf_weight_sums");
 //  csetScale = csetFilePDFScale->at("qcd_scale_weight_sums");
@@ -801,23 +763,21 @@ void MyAnalysis::inputs(TString data,string year){
 //
 //  cout<<"Setting MVA"<<endl;
 //  TMVA::Tools::Instance();
-//  readerMVA3loffZ_TU = new TMVA::Reader( "!Color:!Silent" );
-//  readerMVA3loffZ_TU->AddVariable( "lep1Pt",       &MVA_lep1Pt    );
-//  readerMVA3loffZ_TU->AddVariable( "lep2Pt",       &MVA_lep2Pt    );
-//  readerMVA3loffZ_TU->AddVariable( "lep3Pt",       &MVA_lep3Pt    );
-//  readerMVA3loffZ_TU->AddVariable( "jet1Pt",       &MVA_jet1Pt    );
-//  readerMVA3loffZ_TU->AddVariable( "bJetPt",       &MVA_bJetPt    );
-//  readerMVA3loffZ_TU->AddVariable( "llDr",         &MVA_llDr    );
-//  readerMVA3loffZ_TU->AddVariable( "llDphi",       &MVA_llDphi    );
-//  readerMVA3loffZ_TU->AddVariable( "tZ_topMass",   &MVA_tZ_topMass    );
-//  readerMVA3loffZ_TU->AddVariable( "tZ_ZMass",     &MVA_tZ_ZMass    );
-//  readerMVA3loffZ_TU->AddVariable( "tZ_WtopMass",  &MVA_tZ_WtopMass    );
-//  readerMVA3loffZ_TU->AddVariable( "tZ_ZPt",       &MVA_tZ_ZPt    );
-//  readerMVA3loffZ_TU->AddVariable( "tZ_ZEta",      &MVA_tZ_ZEta    );
-//  readerMVA3loffZ_TU->AddVariable( "tZ_topPt",     &MVA_tZ_topPt    );
-//  readerMVA3loffZ_TU->AddVariable( "tZ_topEta",    &MVA_tZ_topEta    );
-//  readerMVA3loffZ_TU->AddVariable( "nJets",        &MVA_nJets    );
-//  readerMVA3loffZ_TU->BookMVA( "BDT::BDT", "/users/rgoldouz/FCNC/NanoAnalysis/MVA/tmp_TMVAClassification_TUTC_3loffZ/dataset/weights/TMVAMulticlass_TUTC_3loffZ_BDT.weights.xml");
+  readerMVAtopTagEle = new TMVA::Reader( "!Color:!Silent" );
+  readerMVAtopTagEle->AddVariable( "lepPtOjetPt",       &MVA_lepPtOjetPt    );
+  readerMVAtopTagEle->AddVariable( "globalParT3_TopbWlv",       &MVA_globalParT3_TopbWlv    );
+  readerMVAtopTagEle->AddVariable( "globalParT3_QCD",       &MVA_globalParT3_QCD    );
+  readerMVAtopTagEle->AddVariable( "lepIso",       &MVA_lepIso    );
+  readerMVAtopTagEle->AddVariable( "jetSubJet_btagUParTAK4B",       &MVA_jetSubJet_btagUParTAK4B    );
+  readerMVAtopTagEle->BookMVA( "BDT::BDT", sourceAddress + "MVA/tmp_TMVAClassification_topTag_ele/dataset/weights/TMVAMulticlass_topTag_ele_BDT.weights.xml");
+
+  readerMVAtopTagMu = new TMVA::Reader( "!Color:!Silent" );
+  readerMVAtopTagMu->AddVariable( "lepPtOjetPt",       &MVA_lepPtOjetPt    );
+  readerMVAtopTagMu->AddVariable( "globalParT3_TopbWlv",       &MVA_globalParT3_TopbWlv    );
+  readerMVAtopTagMu->AddVariable( "globalParT3_QCD",       &MVA_globalParT3_QCD    );
+  readerMVAtopTagMu->AddVariable( "lepIso",       &MVA_lepIso    );
+  readerMVAtopTagMu->AddVariable( "jetSubJet_btagUParTAK4B",       &MVA_jetSubJet_btagUParTAK4B    );
+  readerMVAtopTagMu->BookMVA( "BDT::BDT", sourceAddress + "MVA/tmp_TMVAClassification_topTag_mu/dataset/weights/TMVAMulticlass_topTag_mu_BDT.weights.xml");
 //  readerMVA3loffZ_TC = new TMVA::Reader( "!Color:!Silent" );
 //  readerMVA3loffZ_TC->AddVariable( "lep1Pt",       &MVA_lep1Pt    );
 //  readerMVA3loffZ_TC->AddVariable( "lep2Pt",       &MVA_lep2Pt    );

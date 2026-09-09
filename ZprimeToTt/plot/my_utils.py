@@ -19,20 +19,20 @@ TGaxis.SetMaxDigits(2)
 
 #year=['2016preVFP', '2016postVFP', '2017','2018']
 year=['2024']
-regions=["All", "2b0t","1b0t","0b0t","0b1t","1b1t","2t","1b1tM50","2tM50"]
-regionsName=["All", "2b0t","1b0t","0b0t","0b1t","1b1t","2t","1b1tM50","2tM50"]
+regions=["All", "2b0t","1b0t","0b0t","0b1t","1b1t","2b1t","2t"]
+regionsName=["All", "2b0t","1b0t","0b0t","0b1t","1b1t","2b1t","2t"]
 channels=["2l_eeInZ", "2l_mmInZ", "2l_eeOutZ", "2l_mmOutZ", "2l_em"]
 channelsFake=["2lssEE_LF", "2lssEE_FF", "2lssEM_LF", "2lssEM_FF","2lssMM_LF", "2lssMM_FF", "3lonZ_LLF", "3lonZ_LFF","3lonZ_FFF","3loffZhigh_LLF", "3loffZhigh_LFF","3loffZhigh_FFF", "3loffZlow_LLF", "3loffZlow_LFF","3loffZlow_FFF"]
-variables=["lep1Pt","lep1Eta","lep1Phi","lep2Pt","lep2Eta","lep2Phi","llM","llPt","llDr","llDphi","jet1Pt","jet1Eta","jet1Phi","njet","nbjet","Met","MetPhi","nVtx","llMZw","t1prob","t1mass","t1chEmEF","njet08","ntTagjet08","t1nbSubjet"]
+variables=["lep1Pt","lep1Eta","lep1Phi","lep2Pt","lep2Eta","lep2Phi","llM","llPt","llDr","llDphi","jet1Pt","jet1Eta","jet1Phi","njet","nbjet","Met","MetPhi","nVtx","llMZw","t1Pt","t1Eta","t1mass","t1ptlOptJ","t1prob","ttM"]
 #"lep3Pt","lep3Eta", "bJetPt", "bJetEta", "tH_topMass", "tH_HMass","tH_WtopMass", "tH_W1HMass","tH_W2HMass", "tH_HPt", "tH_HEta","tH_topPt", "tH_topEta", "tH_drWtopB",  "tH_drW1HW2H", "tZ_topMass", "tZ_ZMass", "tZ_WtopMass","tZ_ZPt","tZ_ZEta","tZ_topPt", "tZ_topEta", "MVATU","MVATC"]
 #variables=["lep1Pt","llM"]
-variablesName=["p_{T}(leading lepton)","#eta(leading lepton)","#Phi(leading lepton)","p_{T}(sub-leading lepton)","#eta(sub-leading lepton)","#Phi(sub-leading lepton)","M(ll)","p_{T}(ll)","#Delta R(ll)","#Delta #Phi(ll)","p_{T}(leading jet)","#eta(leading jet)","#Phi(leading jet)","Number of jets","Number of b-tagged jets","MET","#Phi(MET)","Number of vertices", "M(ll) [z window]","t1prob","t1mass","t1chEmEF","njet08","ntTagjet08","t1tau21","t1nbSubjet"]
+variablesName=["p_{T}(leading lepton)","#eta(leading lepton)","#Phi(leading lepton)","p_{T}(sub-leading lepton)","#eta(sub-leading lepton)","#Phi(sub-leading lepton)","M(ll)","p_{T}(ll)","#Delta R(ll)","#Delta #Phi(ll)","p_{T}(leading jet)","#eta(leading jet)","#Phi(leading jet)","Number of jets","Number of b-tagged jets","MET","#Phi(MET)","Number of vertices", "M(ll) [z window]","Pt (top jet candidate)","Eta (top jet candidate)","M (top jet candidate)","Pt(l)/Pt(top jet candidate)","BDT output (top jet candidate)","Pt(top jet candidate)","Mtt"]
 
 HistAddress = '/groups/mhildret/rgoldouz/run3Analyses/ZprimeToTt/hists/'
 
-Samples = ['data.root','Wjets.root','Diboson.root','ST.root','DY.root','ttbar2l.root','ttbar1l.root','ttbar0l.root','Signal_ZPrimeToTTM1000W1p.root','Signal_ZPrimeToTTM2000W1p.root']
+Samples = ['data.root','Wjets.root','Diboson.root','ST.root','DY.root','ttbar2l.root','ttbar1l.root','ttbar0l.root','TTG.root','Signal_ZPrimeToTTM1000W1p.root','Signal_ZPrimeToTTM2000W1p.root']
 SamplesNormErr = [0, 0.1, 0.06, 0.05, 0.1, 0.05, 0.05, 0.5, 0.15, 0.15, 0.15,0,0]
-SamplesName = ['Data','Wjets','Diboson','Single top','DY','t#bar{t} (2l)', 't#bar{t} (1l)', 't#bar{t} (0l)','Z\' (m=1TeV)','Z\' (m=2TeV)']#
+SamplesName = ['Data','Wjets','Diboson','Single top','DY','t#bar{t} (2l)', 't#bar{t} (1l)', 't#bar{t} (0l)','tt#gamma','Z\' (m=1TeV)','Z\' (m=2TeV)']#
 channelsSys=["2lss","2lssEE", "2lssEM","2lssMM", "3lonZ", "3loffZhigh"]
 sys = ["eleRecoIdIso","muRecoIdIso","triggerSF","pu","prefiring","bcTagSfCorr","LTagSfCorr","bcTagSfUnCorr","LTagSfUnCorr","JetPuID"]
 jetSys=["Jes","Jer"]
@@ -749,6 +749,8 @@ def SmoothingVariableBins(hist, merge, edges):
 
 def stackPlotsNoSys(hists, SignalHists, Fnames,FnamesS, folder='noSysPlots',ch = "channel", reg = "region", year='2016', var="sample", varname="v"):
     Blinded=False
+    if reg in ["1b1tM50","2tM50"]:
+        Blinded=True
 
     if not os.path.exists(folder):
        os.makedirs(folder)
@@ -834,7 +836,7 @@ def stackPlotsNoSys(hists, SignalHists, Fnames,FnamesS, folder='noSysPlots',ch =
     dummy.Draw("AXISSAMEY+")
     dummy.Draw("AXISSAMEX+")
 
-    Lumi = '138'
+    Lumi = '109'
     if (year == '2016preVFP'):
         Lumi = '19.52'
     if (year == '2016postVFP'):
@@ -854,7 +856,7 @@ def stackPlotsNoSys(hists, SignalHists, Fnames,FnamesS, folder='noSysPlots',ch =
     Label_cms.SetNDC()
     Label_cms.SetTextFont(61)
     Label_cms.Draw()
-    Label_lumi = ROOT.TLatex(0.71,0.92,Lumi+" fb^{-1} (13 TeV)")
+    Label_lumi = ROOT.TLatex(0.71,0.92,Lumi+" fb^{-1} (13.6 TeV)")
     Label_lumi.SetNDC()
     Label_lumi.SetTextFont(42)
     Label_lumi.Draw("same")
@@ -960,40 +962,216 @@ def equal_yield_rebin(hist, nbins_new):
 
     return new_hist
 
-
 def comparePlot(hists, names, var="sample", varname="v"):
-    canvas = ROOT.TCanvas("v","v",50,50,865,780)
-    canvas.SetGrid();
+    canvas = ROOT.TCanvas("v", "v", 50, 50, 865, 780)
+    canvas.SetGrid()
     canvas.SetBottomMargin(0.17)
-    canvas.cd()
-    pad1=ROOT.TPad("pad1", "pad1", 0, 0.0, 1, 0.99 , 0)#used for the hist plot
+
+    pad1 = ROOT.TPad("pad1", "pad1", 0, 0.0, 1, 0.99, 0)
     pad1.Draw()
     pad1.SetBottomMargin(0.1)
     pad1.SetLeftMargin(0.1)
     pad1.SetRightMargin(0.1)
     pad1.SetFillStyle(0)
+    pad1.SetLogx(False)
+    pad1.SetLogy(False)
     pad1.cd()
-    pad1.SetLogx(ROOT.kFALSE)
-    pad1.SetLogy(ROOT.kFALSE)
-    pad1.SetLogy(ROOT.kTRUE)    
 
-    hists[0].GetYaxis().SetRangeUser(0.00001,1)
-    hists[0].GetXaxis().SetRangeUser(0,1)    
-    legend = ROOT.TLegend(0.3,0.55,0.7,0.88)
+    legend = ROOT.TLegend(0.7, 0.6, 0.9, 0.88)
     legend.SetBorderSize(0)
     legend.SetTextFont(42)
     legend.SetTextSize(0.025)
-    hists[0].SetTitle("")
-    hists[0].GetYaxis().SetTitle('A.U.')
-    hists[0].GetXaxis().SetTitle(varname)
-    hists[0].Draw("HIST")
-    for i in range(len(hists)):
-        hists[i].Draw("HISTsame")
-        hists[i].SetLineWidth(2)
-        hists[i].SetLineColor(i+1)
-        legend.AddEntry(hists[i],names[i],'L')
-    legend.Draw("same")    
-    hists[0].Draw("AXISSAMEY+")
-    canvas.Print(var + ".png")
+
+    # Check whether we are plotting efficiencies
+    is_eff = hists[0].InheritsFrom("TEfficiency")
+
+    if is_eff:
+        # Draw first efficiency
+        hists[0].SetTitle("")
+        hists[0].SetLineColor(1)
+        hists[0].SetMarkerColor(1)
+        hists[0].SetMarkerStyle(20)
+        hists[0].Draw("AP")
+
+        ROOT.gPad.Update()
+
+        graph = hists[0].GetPaintedGraph()
+        graph.SetTitle("")
+        graph.GetXaxis().SetTitle(varname)
+        graph.GetYaxis().SetTitle("Efficiency")
+        #graph.GetXaxis().SetLimits(0, 1)
+        graph.GetYaxis().SetRangeUser(0.2, 1.6)
+
+    else:
+        # Draw first histogram
+        #pad1.SetLogy(True)
+        hists[0].SetTitle("")
+        if hists[0].GetMaximum()<2:
+#            pad1.SetLogy(True)
+            hists[0].GetYaxis().SetRangeUser(1e-5, 1)
+            for h in hists:
+                h.SetFillColor(0)
+#        hists[0].GetXaxis().SetRangeUser(0, 1)
+        hists[0].GetYaxis().SetTitle("A.U.")
+        hists[0].GetXaxis().SetTitle(varname)
+        hists[0].SetLineWidth(2)
+        hists[0].SetLineColor(1)
+        hists[0].Draw("HIST")
+
+    legend.AddEntry(hists[0], names[0], "L")
+
+    # Draw remaining objects
+    for i in range(1, len(hists)):
+        color = i + 1
+
+        if is_eff:
+            hists[i].SetLineColor(color)
+            hists[i].SetMarkerColor(color)
+            hists[i].SetMarkerStyle(20)
+            hists[i].Draw("P SAME")
+        else:
+            hists[i].SetLineWidth(2)
+            hists[i].SetLineColor(color)
+            hists[i].Draw("HIST SAME")
+
+        legend.AddEntry(hists[i], names[i], "L")
+
+    legend.Draw()
+
+    if not is_eff:
+        hists[0].Draw("AXISSAMEY+")
+
+    canvas.SaveAs(var + ".png")
+
     del canvas
-    gc.collect()        
+    gc.collect()
+
+def comparePlotWithRatio(hists, names, var="sample", varname="v"):
+    canvas = ROOT.TCanvas("v", "v", 50, 50, 865, 780)
+    canvas.SetGrid()
+    canvas.SetBottomMargin(0.17)
+
+    pad1 = ROOT.TPad("pad1", "pad1", 0, 0.50, 1, 0.99, 0)
+    pad1.Draw()
+    pad1.SetBottomMargin(0.1)
+    pad1.SetLeftMargin(0.1)
+    pad1.SetRightMargin(0.1)
+    pad1.SetFillStyle(0)
+    pad1.SetLogx(False)
+    pad1.SetLogy(False)
+    pad2 = ROOT.TPad("pad2", "pad2", 0, 0, 1, 0.48, 0)
+    pad2.Draw()    
+    pad1.cd()
+
+    legend = ROOT.TLegend(0.75, 0.7, 0.9, 0.88)
+    legend.SetBorderSize(0)
+    legend.SetTextFont(42)
+    legend.SetTextSize(0.045)
+
+    # Check whether we are plotting efficiencies
+    is_eff = hists[0].InheritsFrom("TEfficiency")
+
+    if is_eff:
+        # Draw first efficiency
+        hists[0].SetTitle("")
+        hists[0].SetLineColor(1)
+        hists[0].SetMarkerColor(1)
+        hists[0].SetMarkerStyle(20)
+        hists[0].Draw("AP")
+
+        ROOT.gPad.Update()
+
+        graph = hists[0].GetPaintedGraph()
+        graph.SetTitle("")
+        graph.GetXaxis().SetTitle(varname)
+        graph.GetYaxis().SetTitle("Efficiency")
+        #graph.GetXaxis().SetLimits(0, 1)
+        graph.GetYaxis().SetRangeUser(0.2, 1.6)
+
+    else:
+        # Draw first histogram
+#        pad1.SetLogy(True)
+        hists[0].SetTitle("")
+#        hists[0].GetYaxis().SetRangeUser(1e-5, 1)
+#        hists[0].GetXaxis().SetRangeUser(0, 1)
+        hists[0].GetYaxis().SetTitle("A.U.")
+        hists[0].GetXaxis().SetTitle(varname)
+        hists[0].SetLineWidth(2)
+        hists[0].SetLineColor(1)
+        hists[0].SetFillColor(0)
+        hists[0].Draw("HIST")
+
+    legend.AddEntry(hists[0], names[0], "L")
+
+    # Draw remaining objects
+    for i in range(1, len(hists)):
+        color = i + 1
+
+        if is_eff:
+            hists[i].SetLineColor(color)
+            hists[i].SetMarkerColor(color)
+            hists[i].SetMarkerStyle(20)
+            hists[i].Draw("P SAME")
+        else:
+            hists[i].SetLineWidth(2)
+            hists[i].SetLineColor(color)
+            hists[i].SetFillColor(0)
+            hists[i].Draw("HIST SAME")
+
+        legend.AddEntry(hists[i], names[i], "L")
+
+    legend.Draw()
+
+    if not is_eff:
+        hists[0].Draw("AXISSAMEY+")
+        pad2.cd()
+        for i in range(1, len(hists)):
+            CP= hists[i].Clone()
+            CP.SetTitle("Ratio/SF")
+            CP.Divide(hists[0])
+            CP.GetYaxis().SetRangeUser(0, 1.2)
+            CP.Draw("P SAME")
+
+
+
+    canvas.SaveAs(var + ".png")
+
+    del canvas
+    gc.collect()
+
+#def comparePlot(hists, names, var="sample", varname="v"):
+#    canvas = ROOT.TCanvas("v","v",50,50,865,780)
+#    canvas.SetGrid();
+#    canvas.SetBottomMargin(0.17)
+#    canvas.cd()
+#    pad1=ROOT.TPad("pad1", "pad1", 0, 0.0, 1, 0.99 , 0)#used for the hist plot
+#    pad1.Draw()
+#    pad1.SetBottomMargin(0.1)
+#    pad1.SetLeftMargin(0.1)
+#    pad1.SetRightMargin(0.1)
+#    pad1.SetFillStyle(0)
+#    pad1.cd()
+#    pad1.SetLogx(ROOT.kFALSE)
+#    pad1.SetLogy(ROOT.kFALSE)
+#    pad1.SetLogy(ROOT.kTRUE)    
+#
+#    hists[0].GetYaxis().SetRangeUser(0.00001,1)
+#    hists[0].GetXaxis().SetRangeUser(0,1)    
+#    legend = ROOT.TLegend(0.3,0.55,0.7,0.88)
+#    legend.SetBorderSize(0)
+#    legend.SetTextFont(42)
+#    legend.SetTextSize(0.025)
+#    hists[0].SetTitle("")
+#    hists[0].GetYaxis().SetTitle('A.U.')
+#    hists[0].GetXaxis().SetTitle(varname)
+#    hists[0].Draw("HIST")
+#    for i in range(len(hists)):
+#        hists[i].Draw("HISTsame")
+#        hists[i].SetLineWidth(2)
+#        hists[i].SetLineColor(i+1)
+#        legend.AddEntry(hists[i],names[i],'L')
+#    legend.Draw("same")    
+#    hists[0].Draw("AXISSAMEY+")
+#    canvas.Print(var + ".png")
+#    del canvas
+#    gc.collect()        

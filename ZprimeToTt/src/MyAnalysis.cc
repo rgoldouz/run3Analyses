@@ -180,7 +180,7 @@ void MyAnalysis::Loop(TString fname, TString data, TString dataset ,string year,
   bool ifSys=false;
 //*** make the histograms and all needed information ready to start the analysis 
   initiateHists(data, year, ifSys);
-
+  topTagSF_init();
 //  genLevelAnalysis genAnalysis(Evt);
 
   TH1EFT  *crossSection = new TH1EFT("crossSection","crossSection",1,0,1);
@@ -202,33 +202,38 @@ void MyAnalysis::Loop(TString fname, TString data, TString dataset ,string year,
   TH2D *h2_BTaggingEff_Num_c      = new TH2D("h2_BTaggingEff_Num_c"     , ";p_{T} [GeV];#eta", 10 , ptBins, 3 , etaBins);
   TH2D *h2_BTaggingEff_Num_udsg   = new TH2D("h2_BTaggingEff_Num_udsg"  , ";p_{T} [GeV];#eta", 10 , ptBins, 3 , etaBins);
 
+  TH1F  *tTag_noL_B =  new TH1F("tTag_noL_B" ,"tTag_noL_B",110,0,1.1);
+  TH1F  *tTag_noL_nonB =    new TH1F("tTag_noL_nonB"   ,"tTag_noL_nonB",110,0,1.1);
 
-  TH1F  *tTagProbQcdAll = new TH1F("tTagProbQcdAll","tTagProbQcdAll",110,0,1.1);
-  TH1F  *tTagProbQcdB = new TH1F("tTagProbQcdB","tTagProbQcdB",110,0,1.1);  
-  TH1F  *tTagProbQcdNonB = new TH1F("tTagProbQcdNonB","tTagProbQcdNonB",110,0,1.1);
-  TH1F  *tTagProbTop = new TH1F("tTagProbTop","tTagProbTop",110,0,1.1);
+  TH1F  *EtTag_LfromTop_B =  new TH1F("EtTag_LfromTop_B" ,"EtTag_LfromTop_B",110,0,1.1);
+  TH1F  *EtTag_LfromTop_nonB =    new TH1F("EtTag_LfromTop_nonB"   ,"EtTag_LfromTop_nonB",110,0,1.1);  
+  TH1F  *EtTag_LfromNonTop_B = new TH1F("EtTag_LfromNonTop_B","EtTag_LfromNonTop_B",110,0,1.1);
+  TH1F  *EtTag_LfromNonTop_nonB =     new TH1F("EtTag_LfromNonTop_nonB"    ,"EtTag_LfromNonTop_nonB",110,0,1.1);
+  TH1F  *EtTag_LnonPrompt_B =     new TH1F("EtTag_LnonPrompt_B"    ,"EtTag_LnonPrompt_B",110,0,1.1);
+  TH1F  *EtTag_LnonPrompt_nonB =     new TH1F("EtTag_LnonPrompt_nonB"    ,"EtTag_LnonPrompt_nonB",110,0,1.1);
 
-  double binsPtH[]={200, 300, 400, 500,800,1200,2000};
-  double binsEta[]={-2.5,-2.25,-2,-1.75,-1.5,-1.25,-1,-0.75,-0.5,-0.25,0,0.25,0.5,0.75,1,1.25,1.5,1.75,2,2.25,2.5};  
-  double binsmass[]={0, 10, 20, 40, 80, 110, 150, 200, 300, 400, 500};
-  TH1F  *tTag_ee_pt_Den = new TH1F("tTag_ee_pt_Den","tTag_ee_pt_Den",sizeof(binsPtH)/sizeof(double) - 1, binsPtH);
-  TH1F  *tTag_ee_pt_Num = new TH1F("tTag_ee_pt_Num","tTag_ee_pt_Num",sizeof(binsPtH)/sizeof(double) - 1, binsPtH);	  
-  TH1F  *tTag_ee_eta_Den = new TH1F("tTag_ee_eta_Den","tTag_ee_eta_Den",sizeof(binsEta)/sizeof(double) - 1, binsEta);
-  TH1F  *tTag_ee_eta_Num = new TH1F("tTag_ee_eta_Num","tTag_ee_eta_Num",sizeof(binsEta)/sizeof(double) - 1, binsEta);
-  TH1F  *tTag_ee_mass_Den = new TH1F("tTag_ee_mass_Den","tTag_ee_mass_Den",sizeof(binsmass)/sizeof(double) - 1, binsmass);
-  TH1F  *tTag_ee_mass_Num = new TH1F("tTag_ee_mass_Num","tTag_ee_mass_Num",sizeof(binsmass)/sizeof(double) - 1, binsmass);
-  TH1F  *tTag_ee_lfrac_Den = new TH1F("tTag_ee_lfrac_Den","tTag_ee_lfrac_Den",10,0,10);
-  TH1F  *tTag_ee_lfrac_Num = new TH1F("tTag_ee_lfrac_Num","tTag_ee_lfrac_Num",10,0,10);
+  TH1F  *MtTag_LfromTop_B =  new TH1F("MtTag_LfromTop_B" ,"MtTag_LfromTop_B",110,0,1.1);
+  TH1F  *MtTag_LfromTop_nonB =    new TH1F("MtTag_LfromTop_nonB"   ,"MtTag_LfromTop_nonB",110,0,1.1);
+  TH1F  *MtTag_LfromNonTop_B = new TH1F("MtTag_LfromNonTop_B","MtTag_LfromNonTop_B",110,0,1.1);
+  TH1F  *MtTag_LfromNonTop_nonB =     new TH1F("MtTag_LfromNonTop_nonB"    ,"MtTag_LfromNonTop_nonB",110,0,1.1);
+  TH1F  *MtTag_LnonPrompt_B =     new TH1F("MtTag_LnonPrompt_B"    ,"MtTag_LnonPrompt_B",110,0,1.1);  
+  TH1F  *MtTag_LnonPrompt_nonB =     new TH1F("MtTag_LnonPrompt_nonB"    ,"MtTag_LnonPrompt_nonB",110,0,1.1);
 
-  TH1F  *tTag_mm_pt_Den = new TH1F("tTag_mm_pt_Den","tTag_mm_pt_Den",sizeof(binsPtH)/sizeof(double) - 1, binsPtH);
-  TH1F  *tTag_mm_pt_Num = new TH1F("tTag_mm_pt_Num","tTag_mm_pt_Num",sizeof(binsPtH)/sizeof(double) - 1, binsPtH);
-  TH1F  *tTag_mm_eta_Den = new TH1F("tTag_mm_eta_Den","tTag_mm_eta_Den",sizeof(binsEta)/sizeof(double) - 1, binsEta);
-  TH1F  *tTag_mm_eta_Num = new TH1F("tTag_mm_eta_Num","tTag_mm_eta_Num",sizeof(binsEta)/sizeof(double) - 1, binsEta);
-  TH1F  *tTag_mm_mass_Den = new TH1F("tTag_mm_mass_Den","tTag_mm_mass_Den",sizeof(binsEta)/sizeof(double) - 1, binsmass);
-  TH1F  *tTag_mm_mass_Num = new TH1F("tTag_mm_mass_Num","tTag_mm_mass_Num",sizeof(binsEta)/sizeof(double) - 1, binsmass);
-  TH1F  *tTag_mm_lfrac_Den = new TH1F("tTag_mm_lfrac_Den","tTag_mm_lfrac_Den",10,0,10);
-  TH1F  *tTag_mm_lfrac_Num = new TH1F("tTag_mm_lfrac_Num","tTag_mm_lfrac_Num",10,0,10);
+  TH1F  *EtTagMVA_LfromTop_B =  new TH1F("EtTagMVA_LfromTop_B" ,"EtTagMVA_LfromTop_B",110,0,1.1);
+  TH1F  *EtTagMVA_LfromTop_nonB =    new TH1F("EtTagMVA_LfromTop_nonB"   ,"EtTagMVA_LfromTop_nonB",110,0,1.1);
+  TH1F  *EtTagMVA_LfromNonTop_B = new TH1F("EtTagMVA_LfromNonTop_B","EtTagMVA_LfromNonTop_B",110,0,1.1);
+  TH1F  *EtTagMVA_LfromNonTop_nonB =     new TH1F("EtTagMVA_LfromNonTop_nonB"    ,"EtTagMVA_LfromNonTop_nonB",110,0,1.1);
+  TH1F  *EtTagMVA_LnonPrompt_B =     new TH1F("EtTagMVA_LnonPrompt_B"    ,"EtTagMVA_LnonPrompt_B",110,0,1.1);
+  TH1F  *EtTagMVA_LnonPrompt_nonB =     new TH1F("EtTagMVA_LnonPrompt_nonB"    ,"EtTagMVA_LnonPrompt_nonB",110,0,1.1);
 
+  TH1F  *MtTagMVA_LfromTop_B =  new TH1F("MtTagMVA_LfromTop_B" ,"MtTagMVA_LfromTop_B",110,0,1.1);
+  TH1F  *MtTagMVA_LfromTop_nonB =    new TH1F("MtTagMVA_LfromTop_nonB"   ,"MtTagMVA_LfromTop_nonB",110,0,1.1);
+  TH1F  *MtTagMVA_LfromNonTop_B = new TH1F("MtTagMVA_LfromNonTop_B","MtTagMVA_LfromNonTop_B",110,0,1.1);
+  TH1F  *MtTagMVA_LfromNonTop_nonB =     new TH1F("MtTagMVA_LfromNonTop_nonB"    ,"MtTagMVA_LfromNonTop_nonB",110,0,1.1);
+  TH1F  *MtTagMVA_LnonPrompt_B =     new TH1F("MtTagMVA_LnonPrompt_B"    ,"MtTagMVA_LnonPrompt_B",110,0,1.1);
+  TH1F  *MtTagMVA_LnonPrompt_nonB =     new TH1F("MtTagMVA_LnonPrompt_nonB"    ,"MtTagMVA_LnonPrompt_nonB",110,0,1.1);  
+
+  TH1F  *subjetMaxBscore = new TH1F("subjetMaxBscore","subjetMaxBscore",110,0,1.1);
 
   TH2F  *jetVetoMap_before = new TH2F("jetVetoMap_before","jetVetoMap_before",20,-2.6,2.6,20,-3.2,3.2);
   TH2F  *jetVetoMap_after = new TH2F("jetVetoMap_after","jetVetoMap_after",20,-2.6,2.6,20,-3.2,3.2);
@@ -281,8 +286,6 @@ void MyAnalysis::Loop(TString fname, TString data, TString dataset ,string year,
   int nAccept=0;
   float sumWeight=0;
   int nbjet;
-  int nbjetOut;
-  int nbjetIn;
   int ntjet;
   int nbSubjet;
   int nIsolOut;
@@ -299,7 +302,6 @@ void MyAnalysis::Loop(TString fname, TString data, TString dataset ,string year,
   float MVAB_TUFA;
   float MVAS_TCFA;
   float MVAB_TCFA;
-  std::vector<Float_t> probs;
   float rawBDT;
   float ttKFactor;
   bool topEvent;
@@ -348,7 +350,7 @@ void MyAnalysis::Loop(TString fname, TString data, TString dataset ,string year,
     wcfitSysDown[i].resize(regions.size());
   }
 
-
+  std::vector<Float_t> probs;
   std::vector<std::vector<float>> wgtFA(1);
   wgtFA[0].resize(regions.size());
   std::vector<std::vector<WCFit>> wcfitFA(1);
@@ -390,7 +392,6 @@ cout<<"starting loop with  Virtual Memory: "<<getValue()/1048576.0<<" GB"<<endl;
     nb = fChain->GetEntry(jentry);   nbytes += nb;
     displayProgress(jentry, ntr) ;
     if (jentry % 1000 == 0) cout<<"Virtual Memory: "<<getValue()/1048576.0<<" GB"<<endl;
-
 //##    tH_topMass_=-999;    tH_HMass_=-999;    tH_WtopMass_=-999;    tH_W1HMass_=-999;    tH_W2HMass_=-999;    tH_HPt_=-999;    tH_HEta_=-999;    tH_topPt_=-999;    tH_topEta_=-999;    tH_drWtopB_=-999;    tH_drW1HW2H_=-999;
 //##    tZ_topMass_=-999; tZ_ZMass_=-999; tZ_WtopMass_=-999; tZ_ZPt_=-999; tZ_ZEta_=-999; tZ_topPt_=-999; tZ_topEta_=-999;
 //##//write out the WCs at the begining of the code to make sure what you have set is used in the sample
@@ -419,17 +420,17 @@ cout<<"starting loop with  Virtual Memory: "<<getValue()/1048576.0<<" GB"<<endl;
 //##    }
 //##   //photon overlap removal
 //##   //find the cuts here: /cvmfs/cms.cern.ch/phys_generator/gridpacks/UL/13TeV/madgraph/V5_2.6.5/TTGamma_Dilept/ttGamma_Dilept_5f_ckm_LO_1line_slc7_amd64_gcc700_CMSSW_10_6_19_tarball.tar.xz
-//##   //find the cuts here: /cvmfs/cms.cern.ch/phys_generator/gridpacks/2017/13TeV/madgraph/V5_2.6.1/QCD_ZA_FXFX/ZATo2LA01j_5f_NLO_FXFX_slc6_amd64_gcc481_CMSSW_7_1_30_tarball.tar.xz
-//##   if(data == "mc" && fname.Contains("TTTo") || fname.Contains("WJetsToLNu") || fname.Contains("DY") || fname.Contains("t_channel")){
-//##     if (overlapRemoval(15.0, 5.0, 0.4, false,false)) {
-//##       continue;
-//##     }
-//##   }
-//##   if(data == "mc" && fname.Contains("TTGamma") || fname.Contains("WGToLNuG") || fname.Contains("ZGToLLG") || fname.Contains("TGJets")){
-//##     if (overlapRemoval(15.0, 5.0, 0.4, false,true)) {
-//##       continue;
-//##     }
-//##   }
+   //find the cuts here: /cvmfs/cms.cern.ch/phys_generator/gridpacks/2017/13TeV/madgraph/V5_2.6.1/QCD_ZA_FXFX/ZATo2LA01j_5f_NLO_FXFX_slc6_amd64_gcc481_CMSSW_7_1_30_tarball.tar.xz
+   if(data == "mc" && fname.Contains("TT_")){
+     if (overlapRemoval(15.0, 5.0, 0.4, false,false)) {
+       continue;
+     }
+   }
+   if(data == "mc" && fname.Contains("TTG")){
+     if (overlapRemoval(15.0, 5.0, 0.4, false,true)) {
+       continue;
+     }
+   }
 //##//    if(jentry==0 && fname.Contains("FCNC")){
 //##//      listWC="";
 //##//      for (UInt_t i=0;i<nWCnames;++i){
@@ -542,8 +543,6 @@ cout<<"starting loop with  Virtual Memory: "<<getValue()/1048576.0<<" GB"<<endl;
     weight_lepB =1;
 //##    weight_EFT =1;
     nbjet=0;
-    nbjetOut=0;
-    nbjetIn=0;
     ntjet=0;
     nbSubjet=0;
     nIsolOut=0;
@@ -603,7 +602,131 @@ cout<<"starting loop with  Virtual Memory: "<<getValue()/1048576.0<<" GB"<<endl;
 //##    delete eft_fit; 
 // MET Filters https://twiki.cern.ch/twiki/bin/view/CMS/MissingETOptionalFiltersRun2#Run_3_2024_data_and_MC_Recommend
     objectSelection(data,year);
+//**************Add more information to our Ak8 jets for using them later
+    //First find if Ak8 jet includes any non isolated lepton
+//    for (size_t l = 0; l < selectedJets08->size(); ++l) {
+//      auto *jet = (*selectedJets08)[l];
+//      for (size_t i = 0; i < selectedNonIsoLeptons->size(); ++i) {
+//        if(deltaR(jet->eta_, jet->phi_, (*selectedNonIsoLeptons)[i]->eta_, (*selectedNonIsoLeptons)[i]->phi_) < 0.8) {
+//	  jet->lepFlavor_ = (*selectedNonIsoLeptons)[i]->lep_;
+//          jet->lepIndex_ = (*selectedNonIsoLeptons)[i]->indice_;	 
+//	  jet->selectedLepIndex_ = i; 
+//	  break;
+//	}  
+//      }
+//    }
+//
+//  // calculate the BDT output per jet and set it (default is zero)
+//    for (size_t l = 0; l < selectedJets08->size(); ++l) {
+//      auto *jet = (*selectedJets08)[l];
+//      jet->topTagBDT_=0;
+//      if (jet->lepIndex_<0) continue;
+//      globalParT3_QCD_=FatJet_globalParT3_QCD[jet->indice_];
+//      jetSubJet_btagUParTAK4B_ = max(SubJet_btagUParTAK4B[FatJet_subJetIdx1[jet->indice_]],SubJet_btagUParTAK4B[FatJet_subJetIdx2[jet->indice_]]);
+//      if(jet->lepFlavor_==1){
+//	lepPtOjetPt_=Electron_pt[jet->lepIndex_]/jet->pt_;      
+//        lepIso_= Electron_miniPFRelIso_all[jet->lepIndex_];
+//        globalParT3_TopbWlv_=FatJet_globalParT3_TopbWev[jet->indice_];
+//        MVA_lepPtOjetPt=lepPtOjetPt_;
+//        MVA_globalParT3_TopbWlv=globalParT3_TopbWlv_;
+//        MVA_globalParT3_QCD=globalParT3_QCD_;
+//        MVA_lepIso=lepIso_;
+//        MVA_jetSubJet_btagUParTAK4B=jetSubJet_btagUParTAK4B_;
+//        probs = readerMVAtopTagEle->EvaluateMulticlass("BDT::BDT");
+//        jet->topTagBDT_=probs[0];
+//      }
+//      if(jet->lepFlavor_==10){
+//	lepPtOjetPt_=Muon_pt[jet->lepIndex_]/jet->pt_;      
+//        lepIso_= Muon_miniPFRelIso_all[jet->lepIndex_];
+//        globalParT3_TopbWlv_=FatJet_globalParT3_TopbWmv[jet->indice_];
+//        MVA_lepPtOjetPt=lepPtOjetPt_;
+//        MVA_globalParT3_TopbWlv=globalParT3_TopbWlv_;
+//        MVA_globalParT3_QCD=globalParT3_QCD_;
+//        MVA_lepIso=lepIso_;
+//        MVA_jetSubJet_btagUParTAK4B=jetSubJet_btagUParTAK4B_;
+//        probs = readerMVAtopTagMu->EvaluateMulticlass("BDT::BDT");
+//        jet->topTagBDT_=probs[0];
+//      }
+//    }	
+    // now save jets for doing MVA for separating three classes of jets: l+b, l+nonb, nonl
+    if (data == "mc") {    
+      for (size_t l = 0; l < selectedJets08->size(); ++l) {
+        auto *jet = (*selectedJets08)[l];
+        int genIdx = FatJet_genJetAK8Idx[jet->indice_];
+        bool isBFlavour = genIdx >= 0 && abs(GenJetAK8_partonFlavour[genIdx]) == 5;
+        if (jet->lepIndex_<0) {
+          if(isBFlavour) tTag_noL_B->Fill(jet->toptag_in_);
+          else tTag_noL_nonB->Fill(jet->toptag_in_);
+          continue;
+        }
+        bool lepTypeT = false;
+        bool lepTypeWZTau = false;
+        jetPt_=jet->pt_;
+        jetMass_=jet->mass_;
+        globalParT3_QCD_=FatJet_globalParT3_QCD[jet->indice_];
+        jetSubJet_btagUParTAK4B_ = max(SubJet_btagUParTAK4B[FatJet_subJetIdx1[jet->indice_]],SubJet_btagUParTAK4B[FatJet_subJetIdx2[jet->indice_]]);
+        if(jet->lepFlavor_==1){
+          lepPt_=Electron_pt[jet->lepIndex_];
+          lepPtOjetPt_=Electron_pt[jet->lepIndex_]/jet->pt_;		
+          lepTypeT = isFromTop(Electron_genPartIdx[jet->lepIndex_]);
+          lepTypeWZTau = isFromWZTau(Electron_genPartIdx[jet->lepIndex_]);
+          lepIso_= Electron_miniPFRelIso_all[jet->lepIndex_];
+          globalParT3_TopbWlv_=FatJet_globalParT3_TopbWev[jet->indice_];
+          lepFlavour_=1;
+	  if(lepTypeT  && isBFlavour)                   jetClass_=1;  
+          if(lepTypeT  && !isBFlavour)                  jetClass_=2;
+          if(!lepTypeT && lepTypeWZTau  && isBFlavour)  jetClass_=3;
+          if(!lepTypeT && lepTypeWZTau  && !isBFlavour) jetClass_=4;
+          if(!lepTypeT && !lepTypeWZTau  && isBFlavour) jetClass_=5;
+          if(!lepTypeT && !lepTypeWZTau  && !isBFlavour)jetClass_=6; 
 
+	  if(lepTypeT  && isBFlavour)  EtTag_LfromTop_B->Fill(jet->toptag_in_);
+          if(lepTypeT  && !isBFlavour) EtTag_LfromTop_nonB->Fill(jet->toptag_in_);
+          if(!lepTypeT && lepTypeWZTau  && isBFlavour)  EtTag_LfromNonTop_B->Fill(jet->toptag_in_);
+          if(!lepTypeT && lepTypeWZTau  && !isBFlavour) EtTag_LfromNonTop_nonB->Fill(jet->toptag_in_);
+          if(!lepTypeT && !lepTypeWZTau  && isBFlavour)  EtTag_LnonPrompt_B->Fill(jet->toptag_in_);
+          if(!lepTypeT && !lepTypeWZTau  && !isBFlavour) EtTag_LnonPrompt_nonB->Fill(jet->toptag_in_);
+
+	  if(lepTypeT  && isBFlavour)  EtTagMVA_LfromTop_B->Fill(jet->topTagBDT_);
+          if(lepTypeT  && !isBFlavour) EtTagMVA_LfromTop_nonB->Fill(jet->topTagBDT_);
+          if(!lepTypeT && lepTypeWZTau  && isBFlavour)  EtTagMVA_LfromNonTop_B->Fill(jet->topTagBDT_);
+          if(!lepTypeT && lepTypeWZTau  && !isBFlavour) EtTagMVA_LfromNonTop_nonB->Fill(jet->topTagBDT_);
+          if(!lepTypeT && !lepTypeWZTau  && isBFlavour)  EtTagMVA_LnonPrompt_B->Fill(jet->topTagBDT_);
+          if(!lepTypeT && !lepTypeWZTau  && !isBFlavour) EtTagMVA_LnonPrompt_nonB->Fill(jet->topTagBDT_);
+        }
+        if(jet->lepFlavor_==10){
+          lepPt_=Muon_pt[jet->lepIndex_];
+          lepPtOjetPt_=Muon_pt[jet->lepIndex_]/jet->pt_;		
+          lepTypeT = isFromTop(Muon_genPartIdx[jet->lepIndex_]);
+          lepTypeWZTau = isFromWZTau(Muon_genPartIdx[jet->lepIndex_]);
+          lepIso_= Muon_miniPFRelIso_all[jet->lepIndex_];
+          globalParT3_TopbWlv_=FatJet_globalParT3_TopbWmv[jet->indice_];
+          lepFlavour_=10;
+	  if(lepTypeT  && isBFlavour)                   jetClass_=1;
+          if(lepTypeT  && !isBFlavour)                  jetClass_=2;
+          if(!lepTypeT && lepTypeWZTau  && isBFlavour)  jetClass_=3;
+          if(!lepTypeT && lepTypeWZTau  && !isBFlavour) jetClass_=4;
+          if(!lepTypeT && !lepTypeWZTau  && isBFlavour) jetClass_=5;
+          if(!lepTypeT && !lepTypeWZTau  && !isBFlavour)jetClass_=6;
+
+          if(lepTypeT  && isBFlavour)  MtTag_LfromTop_B->Fill(jet->toptag_in_);
+          if(lepTypeT  && !isBFlavour) MtTag_LfromTop_nonB->Fill(jet->toptag_in_);
+          if(!lepTypeT && lepTypeWZTau  && isBFlavour)  MtTag_LfromNonTop_B->Fill(jet->toptag_in_);
+          if(!lepTypeT && lepTypeWZTau  && !isBFlavour) MtTag_LfromNonTop_nonB->Fill(jet->toptag_in_);
+          if(!lepTypeT && !lepTypeWZTau  && isBFlavour)  MtTag_LnonPrompt_B->Fill(jet->toptag_in_);
+          if(!lepTypeT && !lepTypeWZTau  && !isBFlavour) MtTag_LnonPrompt_nonB->Fill(jet->toptag_in_);
+
+	  if(lepTypeT  && isBFlavour)  MtTagMVA_LfromTop_B->Fill(jet->topTagBDT_);
+          if(lepTypeT  && !isBFlavour) MtTagMVA_LfromTop_nonB->Fill(jet->topTagBDT_);
+          if(!lepTypeT && lepTypeWZTau  && isBFlavour)  MtTagMVA_LfromNonTop_B->Fill(jet->topTagBDT_);
+          if(!lepTypeT && lepTypeWZTau  && !isBFlavour) MtTagMVA_LfromNonTop_nonB->Fill(jet->topTagBDT_);
+          if(!lepTypeT && !lepTypeWZTau  && isBFlavour)  MtTagMVA_LnonPrompt_B->Fill(jet->topTagBDT_);
+          if(!lepTypeT && !lepTypeWZTau  && !isBFlavour) MtTagMVA_LnonPrompt_nonB->Fill(jet->topTagBDT_);
+        }
+        tree_out->Fill();
+      }
+    }
+  	
     //histograms for calculating the b-tag/misstag efficiencies 
     for (int l=0;l<selectedJets->size();l++){
       if( abs((*selectedJets)[l]->flavor_) == 5){
@@ -648,93 +771,76 @@ cout<<"starting loop with  Virtual Memory: "<<getValue()/1048576.0<<" GB"<<endl;
             ++nLeptons;
         }
       }
-    
-      // Loop over AK8 jets
-      for (size_t l = 0; l < selectedJets08->size(); ++l) {
-        auto *jet = (*selectedJets08)[l];
-        tTagProbQcdAll->Fill(jet->toptag_in_);
-        int genIdx = FatJet_genJetAK8Idx[jet->indice_];
-        if (genIdx >= 0 && GenJetAK8_hadronFlavour[genIdx] == 5) tTagProbQcdB->Fill(jet->toptag_in_);
-        else  tTagProbQcdNonB->Fill(jet->toptag_in_);
-        if (!topEvent) continue;
-        TLorentzVector jetP4;
-        jetP4.SetPtEtaPhiM(jet->pt_, jet->eta_, jet->phi_, jet->mass_);
-        bool matched = false;
-        // Require one b and one lepton inside the jet cone
-        if (b1.Pt() > 0 && Tlep1.Pt() > 0 &&  jetP4.DeltaR(b1) < 0.8 && jetP4.DeltaR(Tlep1) < 0.8) matched = true;
-        if (b2.Pt() > 0 && Tlep2.Pt() > 0 && jetP4.DeltaR(b2) < 0.8 && jetP4.DeltaR(Tlep2) < 0.8) matched = true;
-        if (matched) tTagProbTop->Fill(jet->toptag_in_);
-      }
-
+   
       if(topEvent){
         float WP=0.85;
         int ttag=0;
         bool ifeve = false;
 	bool ifeveIso = false;
-    if(selectedNonIsoLeptons->size() >=2) drll=deltaR((*selectedNonIsoLeptons)[0]->eta_,(*selectedNonIsoLeptons)[0]->phi_,(*selectedNonIsoLeptons)[1]->eta_,(*selectedNonIsoLeptons)[1]->phi_);
-    if(selectedNonIsoLeptons->size() >=2 && (*selectedNonIsoLeptons)[0]->lep_ == 1 &&  (*selectedNonIsoLeptons)[1]->lep_==1 && drll>0.8) ifeve=true;
-    if(selectedNonIsoLeptons->size() >=2 && (*selectedNonIsoLeptons)[0]->lep_ == 1 &&  (*selectedNonIsoLeptons)[1]->lep_==10 && drll>0.8) ifeve=true;
-    if(selectedNonIsoLeptons->size() >=2 && (*selectedNonIsoLeptons)[0]->lep_ == 10 &&  (*selectedNonIsoLeptons)[1]->lep_==1  && drll>0.8) ifeve=true;
-    if(selectedNonIsoLeptons->size() >=2 && (*selectedNonIsoLeptons)[0]->lep_ == 10 &&  (*selectedNonIsoLeptons)[1]->lep_==10 && drll>0.8) ifeve=true;
-    if(selectedOldIsoLeptons->size() >=2) drll=deltaR((*selectedOldIsoLeptons)[0]->eta_,(*selectedOldIsoLeptons)[0]->phi_,(*selectedOldIsoLeptons)[1]->eta_,(*selectedOldIsoLeptons)[1]->phi_);
-    if(selectedOldIsoLeptons->size() >=2 && (*selectedOldIsoLeptons)[0]->lep_ == 1 &&  (*selectedOldIsoLeptons)[1]->lep_==1 && drll>0.8) ifeveIso=true;
-    if(selectedOldIsoLeptons->size() >=2 && (*selectedOldIsoLeptons)[0]->lep_ == 1 &&  (*selectedOldIsoLeptons)[1]->lep_==10 && drll>0.8) ifeveIso=true;
-    if(selectedOldIsoLeptons->size() >=2 && (*selectedOldIsoLeptons)[0]->lep_ == 10 &&  (*selectedOldIsoLeptons)[1]->lep_==1  && drll>0.8) ifeveIso=true;
-    if(selectedOldIsoLeptons->size() >=2 && (*selectedOldIsoLeptons)[0]->lep_ == 10 &&  (*selectedOldIsoLeptons)[1]->lep_==10 && drll>0.8) ifeveIso=true;
-
-    std::vector<int> topJets;
-    for (int l=0;l<nFatJet;l++){
-      if((FatJet_globalParT3_TopbWev[l]+FatJet_globalParT3_TopbWmv[l])/(FatJet_globalParT3_TopbWev[l]+FatJet_globalParT3_TopbWmv[l]+FatJet_globalParT3_QCD[l])>WP) {
-          ttag=ttag+1;
-          topJets.push_back(l);
-      }
-    }
-
-    int nout = 0;
-
-    for (int i = 0; i < selectedOldIsoLeptons->size(); ++i) {
-      bool overlaps = false;
-      for (int l = 0; l < nFatJet; ++l) {
-        float score = (FatJet_globalParT3_TopbWev[l] + FatJet_globalParT3_TopbWmv[l]) / (FatJet_globalParT3_TopbWev[l] + FatJet_globalParT3_TopbWmv[l] +  FatJet_globalParT3_QCD[l]);
-        if (score > WP && deltaR(FatJet_eta[l], FatJet_phi[l], (*selectedOldIsoLeptons)[i]->eta_, (*selectedOldIsoLeptons)[i]->phi_) < 0.8) {
-          overlaps = true;
-          break;
+        if(selectedNonIsoLeptons->size() >=2) drll=deltaR((*selectedNonIsoLeptons)[0]->eta_,(*selectedNonIsoLeptons)[0]->phi_,(*selectedNonIsoLeptons)[1]->eta_,(*selectedNonIsoLeptons)[1]->phi_);
+        if(selectedNonIsoLeptons->size() >=2 && (*selectedNonIsoLeptons)[0]->lep_ == 1 &&  (*selectedNonIsoLeptons)[1]->lep_==1 && drll>0.8) ifeve=true;
+        if(selectedNonIsoLeptons->size() >=2 && (*selectedNonIsoLeptons)[0]->lep_ == 1 &&  (*selectedNonIsoLeptons)[1]->lep_==10 && drll>0.8) ifeve=true;
+        if(selectedNonIsoLeptons->size() >=2 && (*selectedNonIsoLeptons)[0]->lep_ == 10 &&  (*selectedNonIsoLeptons)[1]->lep_==1  && drll>0.8) ifeve=true;
+        if(selectedNonIsoLeptons->size() >=2 && (*selectedNonIsoLeptons)[0]->lep_ == 10 &&  (*selectedNonIsoLeptons)[1]->lep_==10 && drll>0.8) ifeve=true;
+        if(selectedOldIsoLeptons->size() >=2) drll=deltaR((*selectedOldIsoLeptons)[0]->eta_,(*selectedOldIsoLeptons)[0]->phi_,(*selectedOldIsoLeptons)[1]->eta_,(*selectedOldIsoLeptons)[1]->phi_);
+        if(selectedOldIsoLeptons->size() >=2 && (*selectedOldIsoLeptons)[0]->lep_ == 1 &&  (*selectedOldIsoLeptons)[1]->lep_==1 && drll>0.8) ifeveIso=true;
+        if(selectedOldIsoLeptons->size() >=2 && (*selectedOldIsoLeptons)[0]->lep_ == 1 &&  (*selectedOldIsoLeptons)[1]->lep_==10 && drll>0.8) ifeveIso=true;
+        if(selectedOldIsoLeptons->size() >=2 && (*selectedOldIsoLeptons)[0]->lep_ == 10 &&  (*selectedOldIsoLeptons)[1]->lep_==1  && drll>0.8) ifeveIso=true;
+        if(selectedOldIsoLeptons->size() >=2 && (*selectedOldIsoLeptons)[0]->lep_ == 10 &&  (*selectedOldIsoLeptons)[1]->lep_==10 && drll>0.8) ifeveIso=true;
+    
+        std::vector<int> topJets;
+        for (int l=0;l<nFatJet;l++){
+          if((FatJet_globalParT3_TopbWev[l]+FatJet_globalParT3_TopbWmv[l])/(FatJet_globalParT3_TopbWev[l]+FatJet_globalParT3_TopbWmv[l]+FatJet_globalParT3_QCD[l])>WP) {
+              ttag=ttag+1;
+              topJets.push_back(l);
+          }
         }
-      }
-      if (!overlaps) ++nout;
-    }
-    int noutIso = 0;
-    for (int i = 0; i < selectedIsoLeptons->size(); ++i) {
-      bool overlaps = false;
-      for (int l = 0; l < nFatJet; ++l) {
-        float score = (FatJet_globalParT3_TopbWev[l] + FatJet_globalParT3_TopbWmv[l]) / (FatJet_globalParT3_TopbWev[l] + FatJet_globalParT3_TopbWmv[l] + FatJet_globalParT3_QCD[l]);
-        if (score > WP && deltaR(FatJet_eta[l], FatJet_phi[l], (*selectedIsoLeptons)[i]->eta_, (*selectedIsoLeptons)[i]->phi_) < 0.8) {
-          overlaps = true;
-          break;
+    
+        int nout = 0;
+    
+        for (int i = 0; i < selectedOldIsoLeptons->size(); ++i) {
+          bool overlaps = false;
+          for (int l = 0; l < nFatJet; ++l) {
+            float score = (FatJet_globalParT3_TopbWev[l] + FatJet_globalParT3_TopbWmv[l]) / (FatJet_globalParT3_TopbWev[l] + FatJet_globalParT3_TopbWmv[l] +  FatJet_globalParT3_QCD[l]);
+            if (score > WP && deltaR(FatJet_eta[l], FatJet_phi[l], (*selectedOldIsoLeptons)[i]->eta_, (*selectedOldIsoLeptons)[i]->phi_) < 0.8) {
+              overlaps = true;
+              break;
+            }
+          }
+          if (!overlaps) ++nout;
         }
-    }  
-    if (!overlaps) ++noutIso;
-    }
-
-    if(ifeve) cutFlow->Fill(0.5);
-    if(ifeve && trigger(data, dataset,year)) cutFlow->Fill(1.5);
-    if(ifeve && trigger(data, dataset,year) && nLeptons==0) cutFlow->Fill(2.5);
-    if(ifeve && trigger(data, dataset,year) && nLeptons==1) cutFlow->Fill(3.5);
-    if(ifeve && trigger(data, dataset,year) && nLeptons==2) cutFlow->Fill(4.5);
-    if(ifeve && trigger(data, dataset,year) && ifeveIso && nLeptons==0) cutFlow->Fill(5.5);
-    if(ifeve && trigger(data, dataset,year) && ifeveIso && nLeptons==1) cutFlow->Fill(6.5);
-    if(ifeve && trigger(data, dataset,year) && ifeveIso && nLeptons==2) cutFlow->Fill(7.5);
-    if(ifeve && trigger(data, dataset,year) && nLeptons==0 && ttag==0 && noutIso >=2) cutFlow->Fill(8.5);
-    if(ifeve && trigger(data, dataset,year) && nLeptons==1 && ttag==0 && noutIso >=2) cutFlow->Fill(9.5);    
-    if(ifeve && trigger(data, dataset,year) && nLeptons==2 && ttag==0 && noutIso >=2) cutFlow->Fill(10.5);
-    if(ifeve && trigger(data, dataset,year) && nLeptons==0 && ttag==1 && noutIso >=1) cutFlow->Fill(11.5);
-    if(ifeve && trigger(data, dataset,year) && nLeptons==1 && ttag==1 && noutIso >=1) cutFlow->Fill(12.5);
-    if(ifeve && trigger(data, dataset,year) && nLeptons==2 && ttag==1 && noutIso >=1) cutFlow->Fill(13.5);    
-    if(ifeve && trigger(data, dataset,year) && nLeptons==0 && ttag==2) cutFlow->Fill(14.5);
-    if(ifeve && trigger(data, dataset,year) && nLeptons==1 && ttag==2) cutFlow->Fill(15.5);
-    if(ifeve && trigger(data, dataset,year) && nLeptons==2 && ttag==2) cutFlow->Fill(16.5);
-    if(ifeve && trigger(data, dataset,year) && ifeveIso && nLeptons==2) cutFlow->Fill(18.5);
-    if((ifeve && trigger(data, dataset,year) && nLeptons==2 && ttag==0 && noutIso >=2) || (ifeve && trigger(data, dataset,year) && nLeptons==2 && ttag==1 && noutIso >=1) || (ifeve && trigger(data, dataset,year) && nLeptons==2 && ttag==2)) cutFlow->Fill(19.5);
+        int noutIso = 0;
+        for (int i = 0; i < selectedIsoLeptons->size(); ++i) {
+          bool overlaps = false;
+          for (int l = 0; l < nFatJet; ++l) {
+            float score = (FatJet_globalParT3_TopbWev[l] + FatJet_globalParT3_TopbWmv[l]) / (FatJet_globalParT3_TopbWev[l] + FatJet_globalParT3_TopbWmv[l] + FatJet_globalParT3_QCD[l]);
+            if (score > WP && deltaR(FatJet_eta[l], FatJet_phi[l], (*selectedIsoLeptons)[i]->eta_, (*selectedIsoLeptons)[i]->phi_) < 0.8) {
+              overlaps = true;
+              break;
+            }
+        }  
+        if (!overlaps) ++noutIso;
+        }
+    
+        if(ifeve) cutFlow->Fill(0.5);
+        if(ifeve && trigger(data, dataset,year)) cutFlow->Fill(1.5);
+        if(ifeve && trigger(data, dataset,year) && nLeptons==0) cutFlow->Fill(2.5);
+        if(ifeve && trigger(data, dataset,year) && nLeptons==1) cutFlow->Fill(3.5);
+        if(ifeve && trigger(data, dataset,year) && nLeptons==2) cutFlow->Fill(4.5);
+        if(ifeve && trigger(data, dataset,year) && ifeveIso && nLeptons==0) cutFlow->Fill(5.5);
+        if(ifeve && trigger(data, dataset,year) && ifeveIso && nLeptons==1) cutFlow->Fill(6.5);
+        if(ifeve && trigger(data, dataset,year) && ifeveIso && nLeptons==2) cutFlow->Fill(7.5);
+        if(ifeve && trigger(data, dataset,year) && nLeptons==0 && ttag==0 && noutIso >=2) cutFlow->Fill(8.5);
+        if(ifeve && trigger(data, dataset,year) && nLeptons==1 && ttag==0 && noutIso >=2) cutFlow->Fill(9.5);    
+        if(ifeve && trigger(data, dataset,year) && nLeptons==2 && ttag==0 && noutIso >=2) cutFlow->Fill(10.5);
+        if(ifeve && trigger(data, dataset,year) && nLeptons==0 && ttag==1 && noutIso >=1) cutFlow->Fill(11.5);
+        if(ifeve && trigger(data, dataset,year) && nLeptons==1 && ttag==1 && noutIso >=1) cutFlow->Fill(12.5);
+        if(ifeve && trigger(data, dataset,year) && nLeptons==2 && ttag==1 && noutIso >=1) cutFlow->Fill(13.5);    
+        if(ifeve && trigger(data, dataset,year) && nLeptons==0 && ttag==2) cutFlow->Fill(14.5);
+        if(ifeve && trigger(data, dataset,year) && nLeptons==1 && ttag==2) cutFlow->Fill(15.5);
+        if(ifeve && trigger(data, dataset,year) && nLeptons==2 && ttag==2) cutFlow->Fill(16.5);
+        if(ifeve && trigger(data, dataset,year) && ifeveIso && nLeptons==2) cutFlow->Fill(18.5);
+        if((ifeve && trigger(data, dataset,year) && nLeptons==2 && ttag==0 && noutIso >=2) || (ifeve && trigger(data, dataset,year) && nLeptons==2 && ttag==1 && noutIso >=1) || (ifeve && trigger(data, dataset,year) && nLeptons==2 && ttag==2)) cutFlow->Fill(19.5);
 //        if(ifeve && trigger(data, dataset,year) && ifeveIso && nLeptons==2 && PFMET_pt>MetCut) cutFlow->Fill(17.5);
       }
     }
@@ -796,7 +902,7 @@ cout<<"starting loop with  Virtual Memory: "<<getValue()/1048576.0<<" GB"<<endl;
 //##
     if (data == "mc") weight_Lumi = (1000*xs*lumi)/Nevent;
 
-//Event selection
+//Event selection with lepton channel categorization
     resetVecInt(reg);
     resetVecInt(allCh);
     leptonPass = false;
@@ -822,10 +928,10 @@ cout<<"starting loop with  Virtual Memory: "<<getValue()/1048576.0<<" GB"<<endl;
           continue;
     
         bool sf = (l1.lep_ == l2.lep_);
-        bool os = (l1.charge_ * l2.charge_ < 0);
+//        bool os = (l1.charge_ * l2.charge_ < 0);
         bool inZ = (76. < mass && mass < 106.);
     
-        if (!(sf && os && inZ))
+        if (!(sf && inZ))
           continue;
     
         double ptSum = l1.pt_ + l2.pt_;
@@ -879,32 +985,12 @@ cout<<"starting loop with  Virtual Memory: "<<getValue()/1048576.0<<" GB"<<endl;
         }
     }    
 
-//    leptonPass=false;
-//    DyInZPass=false;
-//    MetPass=false;
-//    drll=deltaR((*selectedNonIsoLeptons)[0]->eta_,(*selectedNonIsoLeptons)[0]->phi_,(*selectedNonIsoLeptons)[1]->eta_,(*selectedNonIsoLeptons)[1]->phi_);
-//    mll=((*selectedNonIsoLeptons)[0]->p4_ + (*selectedNonIsoLeptons)[1]->p4_).M();
-//    for (UInt_t i=0;i<2;i++){
-//      sumCharge += (*selectedNonIsoLeptons)[i]->charge_;
-//      sumFlavour += (*selectedNonIsoLeptons)[i]->lep_;
-//    }
-//    if (sumFlavour== 2 && mll>20 && drll>0.8) leptonPass=true;
-//    if (sumFlavour== 11 && mll>20 && (((*selectedNonIsoLeptons)[0]->pt_ > 60 && (*selectedNonIsoLeptons)[0]->lep_==10) || ((*selectedNonIsoLeptons)[1]->pt_ > 60 && (*selectedNonIsoLeptons)[1]->lep_==10)) && drll>0.8) leptonPass=true;
-//    if (sumFlavour== 20 && mll>20 && (*selectedNonIsoLeptons)[0]->pt_ > 60 && drll>0.8) leptonPass=true;
-//    if ((mll<106 && mll>76 && sumFlavour==2) || (mll<106 && mll>76 && sumFlavour==20) || sumFlavour==11) DyInZPass=true;
-//
-//    if(sumFlavour== 2 && leptonPass && DyInZPass) allCh[getVecPos(channels,"2l_eeInZ")]=getVecPos(channels,"2l_eeInZ");
-//    if(sumFlavour== 20 && leptonPass && DyInZPass) allCh[getVecPos(channels,"2l_mmInZ")]=getVecPos(channels,"2l_mmInZ");
-//    if(sumFlavour== 2 && leptonPass && !DyInZPass) allCh[getVecPos(channels,"2l_eeOutZ")]=getVecPos(channels,"2l_eeOutZ");
-//    if(sumFlavour== 20 && leptonPass && !DyInZPass) allCh[getVecPos(channels,"2l_mmOutZ")]=getVecPos(channels,"2l_mmOutZ");
-//    if(sumFlavour== 11 && leptonPass) allCh[getVecPos(channels,"2l_em")]=getVecPos(channels,"2l_em");	      
-
-//count number of b-tagged jets and leptons outside the top tagged jets    
+//count number of b-tagged jets and isolated leptons outside the top tagged jets    
   float tagProb = -1.f;
   for (size_t j = 0; j < selectedJets08->size(); ++j) {
-      const auto& jet = *(*selectedJets08)[j];
-      if (jet.toptag_in_ > tagProb) {
-          tagProb = jet.toptag_in_;
+      auto* jet = (*selectedJets08)[j];
+      if (jet->lepFlavor_ > 0 && jet->topTagBDT_>tagProb) {
+          tagProb = jet->topTagBDT_;
           tTagIndex = j;
       }
   }
@@ -912,27 +998,18 @@ cout<<"starting loop with  Virtual Memory: "<<getValue()/1048576.0<<" GB"<<endl;
   for(int i=0; i<selectedJets->size(); i++){
       if(!(*selectedJets)[i]->btag_) continue;
       nbjet++;
-      bool insideTopJet = false;
-      for(int j=0; j<selectedJets08->size(); j++){
-          if(!(*selectedJets08)[j]->toptag_) continue;
-          if(deltaR((*selectedJets)[i]->eta_, (*selectedJets)[i]->phi_, (*selectedJets08)[j]->eta_, (*selectedJets08)[j]->phi_) < 0.8){
-              insideTopJet = true;
-              break;
-          }
-      }
-      if(!insideTopJet) nbjetOut++;
-      else nbjetIn++;
   }
 
   for(int i=0; i<selectedNonIsoLeptons->size(); i++){
       bool isIso = (((*selectedNonIsoLeptons)[i]->lep_==1 &&  Electron_miniPFRelIso_all[(*selectedNonIsoLeptons)[i]->indice_] < 0.2)
-       || ((*selectedNonIsoLeptons)[i]->lep_==10 && Muon_miniPFRelIso_all[(*selectedNonIsoLeptons)[i]->indice_] < 0.2)
+       || ((*selectedNonIsoLeptons)[i]->lep_==10 && Muon_tkIsoId[(*selectedNonIsoLeptons)[i]->indice_] >=1)
       );
       if(!isIso) continue;
       bool insideTopJet = false;
       for(int j=0; j<selectedJets08->size(); j++){
-          if(!(*selectedJets08)[j]->toptag_) continue;
-          if(deltaR((*selectedNonIsoLeptons)[i]->eta_, (*selectedNonIsoLeptons)[i]->phi_, (*selectedJets08)[j]->eta_, (*selectedJets08)[j]->phi_) < 0.8){
+	  auto* jet = (*selectedJets08)[j];    
+          if(!(jet->lepFlavor_ > 0 && jet->istop(jet->topTagBDT_,year))) continue;
+          if(deltaR((*selectedNonIsoLeptons)[i]->eta_, (*selectedNonIsoLeptons)[i]->phi_, jet->eta_, jet->phi_) < 0.8){
               insideTopJet = true;
               break;  
           }
@@ -940,20 +1017,10 @@ cout<<"starting loop with  Virtual Memory: "<<getValue()/1048576.0<<" GB"<<endl;
       if(!insideTopJet) nIsolOut++;
   }
 
-  for(int i=0; i<selectedNonIsoLeptons->size(); i++){
-      bool insideTopJet = false;
-      for(int j=0; j<selectedJets08->size(); j++){
-          if(!(*selectedJets08)[j]->toptag_) continue;
-          if(deltaR((*selectedNonIsoLeptons)[i]->eta_, (*selectedNonIsoLeptons)[i]->phi_, (*selectedJets08)[j]->eta_, (*selectedJets08)[j]->phi_) < 0.8){
-              insideTopJet = true;
-              break;
-          }
-      }
-      if(insideTopJet) nNonIsolIn++;
-  }
 
   for(int i=0;i<selectedJets08->size();i++){
-    if((*selectedJets08)[i]->toptag_) {
+    auto* jet = (*selectedJets08)[i];	 
+    if(jet->lepFlavor_ > 0 && jet->istop(jet->topTagBDT_,year)) {
       ntjet++;
       if(deltaR(lep0->eta_,lep0->phi_, (*selectedJets08)[i]->eta_, (*selectedJets08)[i]->phi_) < 0.8) lep0IntJet = true;
       if(deltaR(lep1->eta_,lep1->phi_, (*selectedJets08)[i]->eta_, (*selectedJets08)[i]->phi_) < 0.8) lep1IntJet = true;
@@ -961,7 +1028,7 @@ cout<<"starting loop with  Virtual Memory: "<<getValue()/1048576.0<<" GB"<<endl;
   }  
 
   const jet_candidate* tjet = nullptr;
-  if(selectedJets08->size()>0){
+  if(tagProb>0){
     tjet = (*selectedJets08)[tTagIndex];
     if(SubJet_btagUParTAK4B[FatJet_subJetIdx1[tjet->indice_]] > 0.1272) nbSubjet++;
     if(SubJet_btagUParTAK4B[FatJet_subJetIdx2[tjet->indice_]] > 0.1272) nbSubjet++;
@@ -970,36 +1037,121 @@ cout<<"starting loop with  Virtual Memory: "<<getValue()/1048576.0<<" GB"<<endl;
   const bool lep0Iso =    (!lep0IntJet) &&    ((lep0->lep_ == 1  && Electron_miniPFRelIso_all[lep0->indice_] < 0.2) ||     (lep0->lep_ == 10 && Muon_tkIsoId[lep0->indice_] >= 1));
   const bool lep1Iso =    (!lep1IntJet) &&    ((lep1->lep_ == 1  && Electron_miniPFRelIso_all[lep1->indice_] < 0.2) ||     (lep1->lep_ == 10 && Muon_tkIsoId[lep1->indice_] >= 1));
   bool topMass=false;
-  if(selectedJets08->size()>0 && (*selectedJets08)[tTagIndex]->mass_>50) topMass=true;
+//  if(selectedJets08->size()>0 && (*selectedJets08)[tTagIndex]->mass_>50) topMass=true;
 
   reg[getVecPos(regions,"All")]=getVecPos(regions,"All");
-  if( ntjet==0 && nbjetOut==2 && lep0Iso && lep1Iso) reg[getVecPos(regions,"2b0t")]=getVecPos(regions,"2b0t"); 
-  if( ntjet==0 && nbjetOut==1 && lep0Iso && lep1Iso) reg[getVecPos(regions,"1b0t")]=getVecPos(regions,"1b0t");  
-  if( ntjet==0 && nbjetOut==0 && lep0Iso && lep1Iso) reg[getVecPos(regions,"0b0t")]=getVecPos(regions,"0b0t");  
-  if (ntjet == 1 && nbjetOut == 1 && (lep0Iso || lep1Iso))   reg[getVecPos(regions, "1b1t")] = getVecPos(regions, "1b1t");
-  if (ntjet == 1 && nbjetOut == 0 && (lep0Iso || lep1Iso))   reg[getVecPos(regions, "0b1t")] = getVecPos(regions, "0b1t");
-  if( ntjet==2) reg[getVecPos(regions,"2t")]=getVecPos(regions,"2t");  
-  if (ntjet == 1 && nbjetOut == 1 && (lep0Iso || lep1Iso) && topMass)   reg[getVecPos(regions, "1b1tM50")] = getVecPos(regions, "1b1tM50");
-  if( ntjet==2 && topMass) reg[getVecPos(regions,"2tM50")]=getVecPos(regions,"2tM50");  
+  if( ntjet==0 && nbjet==2 && lep0Iso && lep1Iso) reg[getVecPos(regions,"2b0t")]=getVecPos(regions,"2b0t"); 
+  if( ntjet==0 && nbjet==1 && lep0Iso && lep1Iso) reg[getVecPos(regions,"1b0t")]=getVecPos(regions,"1b0t");  
+  if( ntjet==0 && nbjet==0 && lep0Iso && lep1Iso) reg[getVecPos(regions,"0b0t")]=getVecPos(regions,"0b0t"); 
+ if (ntjet == 1 && nbjet == 0 && (lep0Iso || lep1Iso))   reg[getVecPos(regions, "0b1t")] = getVecPos(regions, "0b1t");
+  if (ntjet == 1 && nbjet == 1 && (lep0Iso || lep1Iso))   reg[getVecPos(regions, "1b1t")] = getVecPos(regions, "1b1t");
+  if (ntjet == 1 && nbjet == 2 && (lep0Iso || lep1Iso))   reg[getVecPos(regions, "2b1t")] = getVecPos(regions, "2b1t");
+  if( ntjet==2) reg[getVecPos(regions,"2t")]=getVecPos(regions,"2t");
+    
  
-  //if(reg[getVecPos(regions, "0b1t")] >= 0 
+  if(ntjet==0 && nbjet==2 && lep0Iso && lep1Iso) RECOmass0->Fill(recoTT(recoTop1,recoTop2,lep0, lep1,ntjet,year));
+  if(ntjet == 1 && nbjet == 1 && (lep0Iso || lep1Iso)) RECOmass1->Fill(recoTT(recoTop1,recoTop2,lep0, lep1,ntjet,year));
+  if( ntjet==2) RECOmass2->Fill(recoTT(recoTop1,recoTop2,lep0, lep1,ntjet,year));
 
+  if(ntjet==2) cutFlowFinal->Fill(0.5);
 
-    if(ntjet==0 && nbjetOut==2 && nIsolOut==2) RECOmass0->Fill(recoTT(recoTop1,recoTop2));
-    if( ntjet==1 && nbjetOut==1 && nIsolOut==1) RECOmass1->Fill(recoTT(recoTop1,recoTop2));
-    if( ntjet==2) RECOmass2->Fill(recoTT(recoTop1,recoTop2));
+  if(ntjet==2 && nLeptons==2) cutFlowFinal->Fill(3.5);
 
-    if(ntjet==2) cutFlowFinal->Fill(0.5);
-    if(ntjet==2 && nNonIsolIn>=2) cutFlowFinal->Fill(1.5);
-    if(ntjet==2 && nNonIsolIn>=2 && nbjetIn>=2) cutFlowFinal->Fill(2.5);
+  if (data == "mc"){ 
+    weight_lep  = weight_Lumi * signnum_typical(LHEWeight_originalXWGTUP)*nominalWeights[getVecPos(sys,"pu")]*nominalWeights[getVecPos(sys,"eleRecoId")]*nominalWeights[getVecPos(sys,"muRecoId")]*nominalWeights[getVecPos(sys,"bcTagSfUnCorr")];//*nominalWeights[getVecPos(sys,"topTagSF")];
+  }
+  if (!std::isfinite(weight_lep)) {
+    std::cout <<"**********************************"<< weight_lep << std::endl;
+    cout<<"a "<<weight_Lumi<<" b "<<signnum_typical(LHEWeight_originalXWGTUP)<<" c "<<nominalWeights[getVecPos(sys,"pu")]<<" d "<<nominalWeights[getVecPos(sys,"eleRecoId")]<<" e "<<nominalWeights[getVecPos(sys,"muRecoId")]<<" f "<<nominalWeights[getVecPos(sys,"bcTagSfUnCorr")]<<endl;
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////  
+  //find the top tagging rate  
+  bool lepFromTop = false;
+  bool ele = false;
+  bool matched = false;
+  bool liso=false;
+  
+  const auto checkLepton = [&](const lepton_candidate* lep, const jet_candidate* jet) {
+    if (deltaR(lep->eta_, lep->phi_, jet->eta_, jet->phi_) > 0.8) return;
+    matched = true;
+    if (lep->lep_ == 1) {
+      ele = true;
+      if (data == "mc") lepFromTop |= isFromTop(Electron_genPartIdx[lep->indice_]);
+    }
+    else if (lep->lep_ == 10) {
+      if (data == "mc") lepFromTop |= isFromTop(Muon_genPartIdx[lep->indice_]);
+    }
+  };
 
-    if(ntjet==2 && nLeptons==2) cutFlowFinal->Fill(3.5);
-    if(ntjet==2 && nNonIsolIn>=2 && nLeptons==2) cutFlowFinal->Fill(4.5);
-    if(ntjet==2 && nNonIsolIn>=2 && nbjetIn>=2 && nLeptons==2) cutFlowFinal->Fill(5.5);
+  for(int i=0;i<selectedJets08->size();i++){  
+    auto* jet = (*selectedJets08)[i];
+    lepFromTop = false;
+    ele = false;
+    matched = false;
+    checkLepton(lep0,jet);
+    if(matched) liso=lep1Iso;
+    checkLepton(lep1,jet);
+    if(matched) liso=lep0Iso;
+    if (!matched) continue;
+    int genIdx = FatJet_genJetAK8Idx[jet->indice_];
+    bool isBFlavour = genIdx >= 0 && abs(GenJetAK8_partonFlavour[genIdx]) == 5;
+    const bool isPromptB = data == "mc" && isBFlavour && lepFromTop;
+    int cat=getVecPos(catTopTagSF,  "lPnonb");;
+    if(data == "mc" && isBFlavour && lepFromTop) cat  = getVecPos(catTopTagSF,  "lPb");
+    if(data == "mc" && isBFlavour && !lepFromTop) cat  = getVecPos(catTopTagSF,  "nonlPb");
 
-    if (data == "mc"){ 
-      weight_lep  = weight_Lumi * signnum_typical(LHEWeight_originalXWGTUP)*nominalWeights[getVecPos(sys,"pu")]*nominalWeights[getVecPos(sys,"eleRecoId")]*nominalWeights[getVecPos(sys,"muRecoId")];
-    }  
+    if (allCh[getVecPos(channels, "2l_eeInZ")] >= 0 && nbjet == 0 && liso)   topTagSF_analysis(cat,  getVecPos(channelsTopTagSF, "E2l_eeInZ_0b"), jet, weight_lep, year);
+    if (allCh[getVecPos(channels, "2l_mmInZ")] >= 0 && nbjet == 0 && liso)   topTagSF_analysis(cat,  getVecPos(channelsTopTagSF, "M2l_mmInZ_0b"), jet, weight_lep, year);
+    if (allCh[getVecPos(channels, "2l_em")] >= 0 && nbjet == 1 && liso && recoTT(recoTop1, recoTop2,lep0, lep1,ntjet,year) < 500){
+        const char* channel = ele ? "E2l_em_1b" : "M2l_em_1b";
+        topTagSF_analysis(cat, getVecPos(channelsTopTagSF, channel), jet, weight_lep,year);
+    }
+  }
+
+//  for(int i=0;i<selectedJets08->size();i++){
+//    if((*selectedJets08)[i]->mass_<50) continue;	 
+//    bool lepFromTop=false;
+//    bool ele=false;
+//    if(deltaR(lep0->eta_,lep0->phi_, (*selectedJets08)[i]->eta_, (*selectedJets08)[i]->phi_) < 0.8 && lep0->lep_ == 1){
+//      ele=true;
+//      if(data == "mc" && isFromTop(Electron_genPartIdx[lep0->indice_]) lepFromTop=true;
+//    }
+//    if(deltaR(lep1->eta_,lep1->phi_, (*selectedJets08)[i]->eta_, (*selectedJets08)[i]->phi_) < 0.8 && lep0->lep_ == 1){
+//      ele=true;
+//      if(data == "mc" && isFromTop(Electron_genPartIdx[lep1->indice_]) lepFromTop=true;
+//    }
+//    if(deltaR(lep0->eta_,lep0->phi_, (*selectedJets08)[i]->eta_, (*selectedJets08)[i]->phi_) < 0.8 && lep0->lep_ == 10){
+//      if(data == "mc" && isFromTop(Muon_genPartIdx[lep0->indice_]) lepFromTop=true;
+//    }
+//    if(deltaR(lep1->eta_,lep1->phi_, (*selectedJets08)[i]->eta_, (*selectedJets08)[i]->phi_) < 0.8 && lep0->lep_ == 10){
+//      if(data == "mc" && isFromTop(Muon_genPartIdx[lep1->indice_]) lepFromTop=true;
+//    }
+//
+//    if(deltaR(lep0->eta_,lep0->phi_, (*selectedJets08)[i]->eta_, (*selectedJets08)[i]->phi_) < 0.8 || deltaR(lep1->eta_,lep1->phi_, (*selectedJets08)[i]->eta_, (*selectedJets08)[i]->phi_) < 0.8){
+//      if(allCh[getVecPos(channels, "2l_eeInZ")] >= 0 && nbjetOut == 0 && (lep0Iso || lep1Iso)) {
+//	 if(data == "mc" && FatJet_hadronFlavour[(*selectedJets08)[i]->indice_] && lepFromTop) topTagSF_analysis(getVecPos(catTopTagSF,"lPb"),getVecPos(channelsTopTagSF,"E2l_eeInZ_0b"),(*selectedJets08)[i], weight_lep);	    
+//	 else topTagSF_analysis(getVecPos(catTopTagSF,"lPnonb"),getVecPos(channelsTopTagSF,"E2l_eeInZ_0b"),(*selectedJets08)[i], weight_lep);
+//      }
+//      if(allCh[getVecPos(channels, "2l_mmInZ")] >= 0 && nbjetOut == 0 && (lep0Iso || lep1Iso)) {
+//         if(data == "mc" && FatJet_hadronFlavour[(*selectedJets08)[i]->indice_] && lepFromTop) topTagSF_analysis(getVecPos(catTopTagSF,"lPb"),getVecPos(channelsTopTagSF,"M2l_mmInZ_0b"),(*selectedJets08)[i], weight_lep);
+//         else topTagSF_analysis(getVecPos(catTopTagSF,"lPnonb"),getVecPos(channelsTopTagSF,"M2l_mmInZ_0b"),(*selectedJets08)[i], weight_lep);
+//      }	      
+//      if(allCh[getVecPos(channels, "2l_em")] >= 0 && nbjetOut == 1 && (lep0Iso || lep1Iso) && recoTT(recoTop1,recoTop2) < 800) {
+//	 if(ele){     
+//           if(data == "mc" && FatJet_hadronFlavour[(*selectedJets08)[i]->indice_] && lepFromTop) topTagSF_analysis(getVecPos(catTopTagSF,"lPb"),getVecPos(channelsTopTagSF,"E2l_em_1b"),(*selectedJets08)[i], weight_lep);
+//           else topTagSF_analysis(getVecPos(catTopTagSF,"lPnonb"),getVecPos(channelsTopTagSF,"E2l_em_1b"),(*selectedJets08)[i], weight_lep);
+//	 }  
+//	 else{
+//           if(data == "mc" && FatJet_hadronFlavour[(*selectedJets08)[i]->indice_] && lepFromTop) topTagSF_analysis(getVecPos(catTopTagSF,"lPb"),getVecPos(channelsTopTagSF,"M2l_em_1b"),(*selectedJets08)[i], weight_lep);
+//           else topTagSF_analysis(getVecPos(catTopTagSF,"lPnonb"),getVecPos(channelsTopTagSF,"M2l_em_1b"),(*selectedJets08)[i], weight_lep);		 
+//         }		 
+//      }	 
+//    }
+//  }    
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 //##     weight_lepB = weight_lep* nominalWeights[getVecPos(sys,"bcTagSfUnCorr")];
 //##     weight_EFT = weight_Lumi* signnum_typical(LHEWeight_originalXWGTUP)*(1.0/LHEWeight_originalXWGTUP)*nominalWeights[getVecPos(sys,"eleRecoIdIso")]*nominalWeights[getVecPos(sys,"muRecoIdIso")]*nominalWeights[getVecPos(sys,"triggerSF")]*nominalWeights[getVecPos(sys,"pu")]*nominalWeights[getVecPos(sys,"prefiring")]*nominalWeights[getVecPos(sys,"bcTagSfUnCorr")]*nominalWeights[getVecPos(sys,"JetPuID")]*HemMcWeight;
 //##     if(abs(weight_lepB)>100){
@@ -1051,10 +1203,9 @@ cout<<"starting loop with  Virtual Memory: "<<getValue()/1048576.0<<" GB"<<endl;
       wcfit[i][j]= *eft_fit;
    }
   }
-  if(lep0->pt_<15) cout<<"***********************************************!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! "<<lep0->pt_<<endl;
 //##   if(ch<30 && channels[ch].Contains("2lss") && myreg==-1) mll_SS_Zwindow_0jet->Fill( ((*selectedIsoLeptons)[0]->p4_ + (*selectedIsoLeptons)[1]->p4_).M(),weight_lepB);
 //##     evaluateMVA(selectedJets, selectedIsoLeptons, Z_P, channels[ch], PFMET_pt, PFMET_phi, MVAS_TU, MVAB_TU, MVAS_TC, MVAB_TC);
-     lep0Pt->Fill(lep0->pt_);
+     lep0Pt->Fill(lep0->pt_,weight_lep);
      FillD3Hists(Hists, allCh, reg, vInd(vars,"lep1Pt"), lep0->pt_ ,wgt, wcfit);
      FillD3Hists(Hists, allCh, reg, vInd(vars,"lep1Eta"), lep0->eta_ ,wgt, wcfit); 
      FillD3Hists(Hists, allCh, reg, vInd(vars,"lep1Phi"), lep0->phi_ ,wgt, wcfit); 
@@ -1069,23 +1220,23 @@ cout<<"starting loop with  Virtual Memory: "<<getValue()/1048576.0<<" GB"<<endl;
      FillD3Hists(Hists, allCh, reg, vInd(vars,"njet08"), selectedJets08->size() ,wgt, wcfit);
      FillD3Hists(Hists, allCh, reg, vInd(vars,"nbjet"), nbjet ,wgt, wcfit);
      FillD3Hists(Hists, allCh, reg, vInd(vars,"ntTagjet08"), ntjet ,wgt, wcfit);
-     FillD3Hists(Hists, allCh, reg, vInd(vars,"Met"), PFMET_pt ,wgt, wcfit);
-     FillD3Hists(Hists, allCh, reg, vInd(vars,"MetPhi"), PFMET_phi ,wgt, wcfit);
+     FillD3Hists(Hists, allCh, reg, vInd(vars,"Met"), PuppiMET_pt ,wgt, wcfit);
+     FillD3Hists(Hists, allCh, reg, vInd(vars,"MetPhi"), PuppiMET_phi ,wgt, wcfit);
      FillD3Hists(Hists, allCh, reg, vInd(vars,"nVtx"), PV_npvs ,wgt, wcfit);
      FillD3Hists(Hists, allCh, reg, vInd(vars,"llMZw"), (lep0->p4_ + lep1->p4_).M() ,wgt, wcfit);
-     FillD3Hists(Hists, allCh, reg, vInd(vars,"ttM"), recoTT(recoTop1,recoTop2) ,wgt, wcfit);
+     FillD3Hists(Hists, allCh, reg, vInd(vars,"ttM"), recoTT(recoTop1,recoTop2,lep0, lep1,ntjet,year) ,wgt, wcfit);
      if(selectedJets->size()>0){
        FillD3Hists(Hists, allCh, reg, vInd(vars,"jet1Pt"), (*selectedJets)[0]->pt_ ,wgt, wcfit);
        FillD3Hists(Hists, allCh, reg, vInd(vars,"jet1Eta"), (*selectedJets)[0]->eta_ ,wgt, wcfit);
        FillD3Hists(Hists, allCh, reg, vInd(vars,"jet1Phi"), (*selectedJets)[0]->phi_ ,wgt, wcfit);
      }
-     if(selectedJets08->size()>0){
-       FillD3Hists(Hists, allCh, reg, vInd(vars,"t1prob"), (*selectedJets08)[tTagIndex]->toptag_in_  ,wgt, wcfit);
+     if(tagProb>0){
+       FillD3Hists(Hists, allCh, reg, vInd(vars,"t1prob"), (*selectedJets08)[tTagIndex]->topTagBDT_  ,wgt, wcfit);
        FillD3Hists(Hists, allCh, reg, vInd(vars,"t1mass"), (*selectedJets08)[tTagIndex]->mass_ ,wgt, wcfit);
-       FillD3Hists(Hists, allCh, reg, vInd(vars,"t1chEmEF"), FatJet_chEmEF[(*selectedJets08)[tTagIndex]->indice_] + FatJet_muEF[(*selectedJets08)[tTagIndex]->indice_], wgt, wcfit);
-       FillD3Hists(Hists, allCh, reg, vInd(vars,"t1tau21"), FatJet_tau2[(*selectedJets08)[tTagIndex]->indice_]/FatJet_tau1[(*selectedJets08)[tTagIndex]->indice_], wgt, wcfit);
-       FillD3Hists(Hists, allCh, reg, vInd(vars,"t1nbSubjet"),nbSubjet, wgt, wcfit);
-//       if(FatJet_genJetAK8Idx[(*selectedJets08)[tTagIndex]->indice_] >=0 && (*selectedJets08)[tTagIndex]->toptag_in_>0.95) cout<<static_cast<int>(GenJetAK8_hadronFlavour[FatJet_genJetAK8Idx[(*selectedJets08)[tTagIndex]->indice_]])<<endl;
+       FillD3Hists(Hists, allCh, reg, vInd(vars,"t1Pt"), (*selectedJets08)[tTagIndex]->pt_, wgt, wcfit);
+       FillD3Hists(Hists, allCh, reg, vInd(vars,"t1Eta"), (*selectedJets08)[tTagIndex]->eta_ , wgt, wcfit);
+       if((*selectedJets08)[tTagIndex]->lepFlavor_==1) FillD3Hists(Hists, allCh, reg, vInd(vars,"t1ptlOptJ"), Electron_pt[(*selectedJets08)[tTagIndex]->lepIndex_]/(*selectedJets08)[tTagIndex]->pt_, wgt, wcfit);
+       if((*selectedJets08)[tTagIndex]->lepFlavor_==10) FillD3Hists(Hists, allCh, reg, vInd(vars,"t1ptlOptJ"), Muon_pt[(*selectedJets08)[tTagIndex]->lepIndex_]/(*selectedJets08)[tTagIndex]->pt_, wgt, wcfit);
      }  
 //##  if(chIso<30){ 
 //##     evaluateMVA(selectedJets, selectedNonIsoLeptons, Z_FP, channelsFA[chIso], PFMET_pt, PFMET_phi, MVAS_TUFA, MVAB_TUFA, MVAS_TCFA, MVAB_TCFA);
@@ -1623,28 +1774,37 @@ cout<<"starting loop with  Virtual Memory: "<<getValue()/1048576.0<<" GB"<<endl;
   h2_BTaggingEff_Num_udsg  ->Write("",TObject::kOverwrite);
   crossSection             ->Write("",TObject::kOverwrite);
 
-  tTagProbQcdAll->Write("",TObject::kOverwrite);
-  tTagProbQcdB->Write("",TObject::kOverwrite);
-  tTagProbQcdNonB->Write("",TObject::kOverwrite);
-  tTagProbTop->Write("",TObject::kOverwrite);
+  tTag_noL_B->Write("",TObject::kOverwrite);
+  tTag_noL_nonB->Write("",TObject::kOverwrite);
+  MtTag_LfromTop_B->Write("",TObject::kOverwrite);
+  MtTag_LfromTop_nonB->Write("",TObject::kOverwrite);
+  MtTag_LfromNonTop_B->Write("",TObject::kOverwrite);
+  MtTag_LfromNonTop_nonB->Write("",TObject::kOverwrite);
+  MtTag_LnonPrompt_B->Write("",TObject::kOverwrite);
+  MtTag_LnonPrompt_nonB->Write("",TObject::kOverwrite);
 
-  tTag_ee_pt_Den->Write("",TObject::kOverwrite); 
-  tTag_ee_pt_Num->Write("",TObject::kOverwrite);
-  tTag_ee_eta_Den->Write("",TObject::kOverwrite);
-  tTag_ee_eta_Num->Write("",TObject::kOverwrite);
-  tTag_ee_mass_Den->Write("",TObject::kOverwrite); 
-  tTag_ee_mass_Num->Write("",TObject::kOverwrite); 
-  tTag_ee_lfrac_Den->Write("",TObject::kOverwrite);
-  tTag_ee_lfrac_Num->Write("",TObject::kOverwrite);
+  EtTag_LfromTop_B->Write("",TObject::kOverwrite);
+  EtTag_LfromTop_nonB->Write("",TObject::kOverwrite);
+  EtTag_LfromNonTop_B->Write("",TObject::kOverwrite);
+  EtTag_LfromNonTop_nonB->Write("",TObject::kOverwrite);
+  EtTag_LnonPrompt_B->Write("",TObject::kOverwrite);
+  EtTag_LnonPrompt_nonB->Write("",TObject::kOverwrite);
 
-  tTag_mm_pt_Den->Write("",TObject::kOverwrite); 
-  tTag_mm_pt_Num->Write("",TObject::kOverwrite); 
-  tTag_mm_eta_Den->Write("",TObject::kOverwrite);
-  tTag_mm_eta_Num->Write("",TObject::kOverwrite);
-  tTag_mm_mass_Den->Write("",TObject::kOverwrite); 
-  tTag_mm_mass_Num->Write("",TObject::kOverwrite); 
-  tTag_mm_lfrac_Den->Write("",TObject::kOverwrite);
-  tTag_mm_lfrac_Num->Write("",TObject::kOverwrite);
+  MtTagMVA_LfromTop_B->Write("",TObject::kOverwrite);
+  MtTagMVA_LfromTop_nonB->Write("",TObject::kOverwrite);
+  MtTagMVA_LfromNonTop_B->Write("",TObject::kOverwrite);
+  MtTagMVA_LfromNonTop_nonB->Write("",TObject::kOverwrite);
+  MtTagMVA_LnonPrompt_B->Write("",TObject::kOverwrite);
+  MtTagMVA_LnonPrompt_nonB->Write("",TObject::kOverwrite);
+
+  EtTagMVA_LfromTop_B->Write("",TObject::kOverwrite);
+  EtTagMVA_LfromTop_nonB->Write("",TObject::kOverwrite);
+  EtTagMVA_LfromNonTop_B->Write("",TObject::kOverwrite);
+  EtTagMVA_LfromNonTop_nonB->Write("",TObject::kOverwrite);
+  EtTagMVA_LnonPrompt_B->Write("",TObject::kOverwrite);
+  EtTagMVA_LnonPrompt_nonB->Write("",TObject::kOverwrite);
+
+  subjetMaxBscore->Write("",TObject::kOverwrite);
 
   mll_SS_Zwindow_0jet->Write("",TObject::kOverwrite);
   jetVetoMap_before->Write("",TObject::kOverwrite);
@@ -1665,6 +1825,11 @@ cout<<"starting loop with  Virtual Memory: "<<getValue()/1048576.0<<" GB"<<endl;
   RECOmass2->Write("",TObject::kOverwrite); 
   lep0Pt->Write("",TObject::kOverwrite); 
 //  genAnalysis.writeGENHists();
+  file_out.mkdir("topTagSF");
+  file_out.cd("topTagSF/");
+  topTagSF_end();
+  file_out.cd("");
+
   file_out.Close() ;
 
   delete h2_BTaggingEff_Denom_b    ;
@@ -1673,10 +1838,35 @@ cout<<"starting loop with  Virtual Memory: "<<getValue()/1048576.0<<" GB"<<endl;
   delete h2_BTaggingEff_Num_b      ;
   delete h2_BTaggingEff_Num_c      ;
   delete h2_BTaggingEff_Num_udsg   ;
-  delete tTagProbQcdAll;
-  delete tTagProbQcdB;
-  delete tTagProbQcdNonB;
-  delete tTagProbTop;
+  delete tTag_noL_B;
+  delete tTag_noL_nonB;
+  delete EtTag_LfromTop_B;
+  delete EtTag_LfromTop_nonB;
+  delete EtTag_LfromNonTop_B;
+  delete EtTag_LfromNonTop_nonB;
+  delete EtTag_LnonPrompt_B;
+  delete EtTag_LnonPrompt_nonB;
+  delete MtTag_LfromTop_B;
+  delete MtTag_LfromTop_nonB;
+  delete MtTag_LfromNonTop_B;
+  delete MtTag_LfromNonTop_nonB;
+  delete MtTag_LnonPrompt_B;
+  delete MtTag_LnonPrompt_nonB;
+
+  delete EtTagMVA_LfromTop_B;
+  delete EtTagMVA_LfromTop_nonB;
+  delete EtTagMVA_LfromNonTop_B;
+  delete EtTagMVA_LfromNonTop_nonB;
+  delete EtTagMVA_LnonPrompt_B;
+  delete EtTagMVA_LnonPrompt_nonB;
+  delete MtTagMVA_LfromTop_B;
+  delete MtTagMVA_LfromTop_nonB;
+  delete MtTagMVA_LfromNonTop_B;
+  delete MtTagMVA_LfromNonTop_nonB;
+  delete MtTagMVA_LnonPrompt_B;
+  delete MtTagMVA_LnonPrompt_nonB;
+
+  delete subjetMaxBscore;
   delete crossSection;
   delete mll_SS_Zwindow_0jet;
   delete jetVetoMap_before;
@@ -1696,23 +1886,8 @@ cout<<"starting loop with  Virtual Memory: "<<getValue()/1048576.0<<" GB"<<endl;
   delete RECOmass2;
   delete cutFlowFinal;   
 
-  delete tTag_ee_pt_Den;
-  delete tTag_ee_pt_Num;
-  delete tTag_ee_eta_Den;
-  delete tTag_ee_eta_Num;
-  delete tTag_ee_mass_Den;
-  delete tTag_ee_mass_Num;
-  delete tTag_ee_lfrac_Den;
-  delete tTag_ee_lfrac_Num;
 
-  delete tTag_mm_pt_Den;
-  delete tTag_mm_pt_Num;
-  delete tTag_mm_eta_Den;
-  delete tTag_mm_eta_Num;
-  delete tTag_mm_mass_Den;
-  delete tTag_mm_mass_Num;
-  delete tTag_mm_lfrac_Den;
-  delete tTag_mm_lfrac_Num;
+  delete lep0Pt;
 
   malloc_trim(0);
   cout<<  "File ANoutput" + std::to_string(end) + ".root is made"<<endl;
@@ -1728,6 +1903,8 @@ void MyAnalysis::FillD3Hists(D3HistsContainer H3, std::vector<int> v1, std::vect
       if(v1[i]<0 || v2[j]<0) continue;
 //      std::cout << "Accessing hist at [" << v1[i] << "][" << v2[j] << "]["<<v3<< std::endl;
 // cout<<channels[v1[i]]<<" for "<<regions[v2[j]]<<" is files"<<endl;
+if (std::isnan(value) || std::isinf(value) || std::isnan(weight[i][j]) || std::isinf(weight[i][j])) {
+    std::cout <<v3<< " Warning: NaN/Inf detected! filled value = " << value << ", weight = " << weight[i][j] << std::endl;}
       H3[v1[i]][v2[j]][v3]->Fill(value, weight[i][j], wcfit[i][j]);
     }
   }

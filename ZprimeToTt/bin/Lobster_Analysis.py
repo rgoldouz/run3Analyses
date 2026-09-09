@@ -6,6 +6,8 @@ from lobster import cmssw
 from lobster.core import AdvancedOptions, Category, Config, MultiProductionDataset, StorageConfiguration, Workflow, Dataset,ParentDataset
 sys.path.append(os.path.abspath("."))
 import Files_ULall_nano
+import math
+
 
 SAMPLES = {}
 SAMPLES.update(Files_ULall_nano.UL17)
@@ -28,14 +30,12 @@ storage = StorageConfiguration(
     input=[
         "file:///cms/cephfs/data/store/user/",
         "root://cmsxrootd.crc.nd.edu//store/user/",        
-        "root://skynet013.crc.nd.edu//store/user/",
         "root://cmsxcache.crc.nd.edu//store/user/",
     ],
     output=[
         # Until a separate bug is fixed file://cms/cephfs needs to be the first output so the initial lobster validation passes.
         "file:///cms/cephfs/data"+output_path,
         "root://cmsxrootd.crc.nd.edu/"+output_path,
-        "root://skynet013.crc.nd.edu/"+output_path,
         "root://cmsxcache.crc.nd.edu/"+output_path,
     ],
     disable_input_streaming=True,
@@ -51,35 +51,27 @@ storage = StorageConfiguration(
 gs_resources = Category(
     name='gs',
     cores=1,
-    memory=2990,
-    disk=14990,
+    memory=3500,
+    disk=6000,
     mode='max'
 )
 
-
-tt_resources = Category(
-    name='tt',
-    cores=2,
-    memory=5990,
-    disk=14990,
-    mode='max'
-)
 #################################################################
 wf = []
+totalJob=0
 for key, value in SAMPLES.items():
 #    if 'UL17' not in key:
 #       continue
-    FPT=5
+    mypath='/cms/cephfs/data/store/user/rgoldouz/FullProduction/AnalysisZprimeTT/Analysis_' + key
+    orgPath='/cms/cephfs/data/store/user/'+value[0][0]
+    FPT=15
     cat = gs_resources
-#    if 'TT' in key or 'FCNC' in key or 'Z' in key:
-#        cat=tt_resources
-    if path.exists('/cms/cephfs/data/store/user/rgoldouz/FullProduction/AnalysisZprimeTT/Analysis_' + key) and len(os.listdir('/cms/cephfs/data/store/user/rgoldouz/FullProduction/AnalysisZprimeTT/Analysis_' + key))>0:
+    FPT = math.ceil(2.5 / float(value[11]))
+    if path.exists(mypath) and len(os.listdir(mypath))>0:
         continue
-    if path.exists('/cms/cephfs/data/store/user/rgoldouz/FullProduction/AnalysisZprimeTT/Analysis_' + key):
-        os.system('rm -r '+ '/cms/cephfs/data/store/user/rgoldouz/FullProduction/AnalysisZprimeTT/Analysis_' + key)
-    print (key)
-#    if len(os.listdir('/cms/cephfs/data/store/user/rgoldouz/FullProduction/AnalysisZprimeTT/Analysis_'+key))!=0:
-#        continue
+    nfiles = sum(os.path.isfile(os.path.join(orgPath, f))    for f in os.listdir(orgPath))
+    totalJob+=math.ceil(nfiles/float(FPT))
+    print (key,f" is submitted --> number of files {nfiles}, with {FPT} per task --> {math.ceil(nfiles/float(FPT))} task")
     Analysis = Workflow(
         label='Analysis_%s' % (key),
         sandbox=cmssw.Sandbox(release='/groups/mhildret/rgoldouz/run3Analyses/CMSSW_15_0_10'),
@@ -105,7 +97,7 @@ for key, value in SAMPLES.items():
         category=cat
     )
     wf.append(Analysis)
-
+print(f"total jobs {totalJob}")
 config = Config(
     label=master_label,
     workdir=workdir_path,

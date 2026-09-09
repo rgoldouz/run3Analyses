@@ -43,6 +43,7 @@ bool CompareMassJet(jet_candidate *a, jet_candidate *b);
 std::vector<bool> parsePhotonVIDCuts(int bitMap, int cutLevel);
 //float scale_factor( TH2F* h, float X, float Y , TString uncert);
 float scale_factor( TH2F* h, float X, float Y , TString uncert,bool, bool);
+float scale_factor1D( TH1F* h, float X, TString uncert);
 float topPt(float pt);
 TLorentzVector Wneutrino(double MET, double METphi, double leptonPT, double leptonEta, double leptonPhi);
 int vInd(std::map<TString, std::tuple<int, int, const double*>> V, TString name);

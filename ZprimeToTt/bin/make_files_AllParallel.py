@@ -121,7 +121,6 @@ def SumofWeight(add):
             if not fi or fi.IsZombie():
                 print("Skipping zombie file:", filename)
                 continue                
-            
             fi = TFile.Open(filename)
             tree_meta = fi.Get('Runs')
             for i in range( tree_meta.GetEntries() ):
@@ -166,6 +165,8 @@ def f(Dirs):
     neventsweight = 0
     neventsweightSumw = 0
     nRuns = 0
+    nfiles=0
+    total_size=0    
     nWeight = []
     for n in Dirs:
         for fname in os.listdir(n):
@@ -185,33 +186,38 @@ def f(Dirs):
                 print("Skipping zombie file:", filename)
                 badFiles.append(filename)
                 continue
-            tree_meta = fi.Get('Runs')
-            genEventCount = 0
-            genEventSumw = 0
-            evtTree = fi.Get('Events')
-            evtTree.SetBranchStatus("*", 0)
-            evtTree.SetBranchStatus("genWeight", 1)
-            evtTree.SetBranchStatus("LHEWeight_originalXWGTUP", 1)
-            genWeight0=1
-            for entry in evtTree:
-                genWeight0=abs(evtTree.genWeight)
-                break
-            for i in range( tree_meta.GetEntries() ):
-                tree_meta.GetEntry(i)
-                genEventCount += tree_meta.genEventCount
-                genEventSumw += tree_meta.genEventSumw
-                nRuns +=1
-            neventsweight += genEventCount
-            neventsweightSumw += genEventSumw/genWeight0
-            tree_meta.Reset()
-            tree_meta.Delete()
-            evtTree.Reset()
-            evtTree.Delete()
+            nfiles+=1
+            total_size += os.path.getsize(filename)           
+            if 'data_' not in filename: 
+                tree_meta = fi.Get('Runs')
+                genEventCount = 0
+                genEventSumw = 0
+                evtTree = fi.Get('Events')
+                evtTree.SetBranchStatus("*", 0)
+                evtTree.SetBranchStatus("genWeight", 1)
+                evtTree.SetBranchStatus("LHEWeight_originalXWGTUP", 1)
+                genWeight0=1
+                for entry in evtTree:
+                    genWeight0=abs(evtTree.genWeight)
+                    break
+                for i in range( tree_meta.GetEntries() ):
+                    tree_meta.GetEntry(i)
+                    genEventCount += tree_meta.genEventCount
+                    genEventSumw += tree_meta.genEventSumw
+                    nRuns +=1
+                neventsweight += genEventCount
+                neventsweightSumw += genEventSumw/genWeight0
+                tree_meta.Reset()
+                tree_meta.Delete()
+                evtTree.Reset()
+                evtTree.Delete()
             fi.Close()
         if len(nWeight)>1:
             print (filename + ' ***!!!!!!!!!!!!!!!*** Warning number of original weights is '+str(len(nWeight)))
-    new_names = [nam[28:] for nam in Dirs]        
-    return new_names,str(neventsweightSumw), str(nRuns), badFiles 
+    new_names = [nam[28:] for nam in Dirs]      
+    meanSize = total_size / (nfiles * 1024**3)
+    print(f"{meanSize:.3f}", total_size, nfiles)
+    return new_names,str(neventsweightSumw), str(nRuns), badFiles , f"{meanSize:.3f}"
 
 
 if __name__ == '__main__':
@@ -227,6 +233,7 @@ if __name__ == '__main__':
     'TTX_TTLNu':'0.2591',
     'TTX_TTLNuEWK':'0.0195',
     'TTX_TTLNu1Jets':'0.259',
+    'Gamma_TTG':'4.629', 
     'VV_WZtoL3Nu':'5.297',
     'VV_WZto2L2Q':'7.57',
     'VV_WZtoLNu2Q':'15.87',
@@ -271,6 +278,25 @@ if __name__ == '__main__':
     "DY_DYto2TauMLL2500to4000":'0.00005949',
     "DY_DYto2TauMLL4000to6000":'0.000001558',
     'DY_DYto2TauMLL6000':'0.00000003519',
+    "DY_4JetsHT800to1500MLL50to120":     0.6987,
+    "DY_4JetsHT800to1500MLL4to50":     0.4209,
+    "DY_4JetsHT800to1500MLL120":     0.02089,
+    "DY_4JetsHT70to100MLL50to120":     140.4,
+    "DY_4JetsHT70to100MLL4to50":     347.6,
+    "DY_4JetsHT70to100MLL120":     2.203,
+    "DY_4JetsHT40to70MLL120":     4.576,
+    "DY_4JetsHT400to800MLL50to120":     6.721,
+    "DY_4JetsHT400to800MLL4to50":     5.652,
+    "DY_4JetsHT400to800MLL120":     0.1753,
+    "DY_4JetsHT2500MLL50to120":     0.003455,
+    "DY_4JetsHT2500MLL4to50":     0.001067,
+    "DY_4JetsHT2500MLL120":     0.000124,
+    "DY_4JetsHT1500to2500MLL50to120":     0.05051,
+    "DY_4JetsHT1500to2500MLL4to50":     0.0207,
+    "DY_4JetsHT1500to2500MLL120":     0.001679,
+    "DY_4JetsHT100to400MLL50to120":     179.9,
+    "DY_4JetsHT100to400MLL4to50":     316.8,
+    "DY_4JetsHT100to400MLL120":     3.351,
     'Wjet_WtoLNu1Jet':'9182',
     'Wjet_WtoLNu2Jet':'2929',
     'Wjet_WtoLNu3Jet':'870.20',
@@ -401,11 +427,11 @@ if __name__ == '__main__':
                     b = Skey.split("_")[1]
                     c = Skey.split("_")[2]
                     n= 'data_'+years[b][0]+'_'+a+'_'+c
-                    MCSAMPLES[n] = [    [],    "data",    a[:-1],    years[b][3],   c,    "1",    years[b][2],    "1",  "0", "1", "0", Skey]
+                    MCSAMPLES[n] = [    [],    "data",    a[:-1],    years[b][3],   c,    "1",    years[b][2],    "1",  "0", "1", "0", "-",Skey]
                 else:
                     a = Skey.split("_")[0]
                     n= years[a][0]+'_'+'_'.join(Skey.split("_")[1:])
-                    MCSAMPLES[n] = [    [],    "mc",    "none",    years[a][3],    "none",    "1",    years[a][2],    "0",  "0", "1", "0", Skey]
+                    MCSAMPLES[n] = [    [],    "mc",    "none",    years[a][3],    "none",    "1",    years[a][2],    "0",  "0", "1", "0", "-", Skey]
 
         for root, dirs, files in os.walk(value):
             if len(files) > 0:
@@ -415,25 +441,28 @@ if __name__ == '__main__':
 
         for keyS, valueS in MCSAMPLES.items():
             if 'data_' in keyS:
+                SlistData.append(valueS[0])
                 new_names = [nam[28:] for nam in valueS[0]]
                 valueS[0]=new_names
-                SlistData.append(valueS[0])
             else:
                 Slist.append(valueS[0])
     print (Slist)
     print (SlistData)
+    newSlist = Slist + SlistData
 #    resData = Parallel(n_jobs=40)(delayed(checkFiles)(i) for i in SlistData)
 #    rmFilesData = [f for sublist in resData for f in sublist]
 #    if len(rmFilesData) > 0:
 #        print(f"You should remove these bad crab files and rerun again (be careful it is data file and could affect your lumi): {' '.join(rmFilesData)}")
 #        sys.exit(1)
 
-    res = Parallel(n_jobs=15)(delayed(f)(i) for i in Slist)
+    res = Parallel(n_jobs=15)(delayed(f)(i) for i in newSlist)
     Address = [item[0] for item in res]
     Sumw = [item[1] for item in res]
     SumRuns = [item[2] for item in res]
     BF = [item[3] for item in res]
+    msize=[item[4] for item in res]
     rmFiles=[]
+    print(msize)
     for a in BF:
         for b in a:
             rmFiles.append(b)
@@ -443,10 +472,14 @@ if __name__ == '__main__':
     for a in range(len(Address)):
 #        print (Address[a] + ' ' + Sumw[a] +" " +SumRuns[a])
         for key, value in MCSAMPLES.items():
-            if any(key in s for s in Address[a]):
-                value[0] = Address[a]
-                value[7] = Sumw[a]
-                value[9] = SumRuns[a]
+            if any(key in s for s in Address[a]) or any(value[-1] in s for s in Address[a]):
+                print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%",value[-1],Address[a],value[1],Sumw[a],SumRuns[a])
+                if value[1]=='mc':
+                    value[0] = Address[a]
+                    value[7] = Sumw[a]
+                    value[9] = SumRuns[a]
+                value[11] = msize[a]
+
 
     for key, value in MCSAMPLES.items():
         for S, xs in crossSection.items():

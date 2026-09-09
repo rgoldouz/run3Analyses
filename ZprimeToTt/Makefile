@@ -6,11 +6,14 @@ CORFLAGS       = $(shell correction config --cflags)
 
 CVMA            = /cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_15_0_10/src/
 BOOST          = /cvmfs/cms.cern.ch/el9_amd64_gcc12/external/boost/1.80.0-fa55cb3940cb89fca310de6848667027/include/
-EFT            = ../CMSSW_15_0_10/src/EFTGenReader/EFTHelperUtilities/interface/
+EFT            = /groups/mhildret/rgoldouz/run3Analyses/CMSSW_15_0_10/src/EFTGenReader/EFTHelperUtilities/interface/
 FMT            = /cvmfs/cms.cern.ch/el9_amd64_gcc12/external/fmt/10.2.1-e35fd1db5eb3abc8ac0452e8ee427196/include/
-INCLUDES       = -I./include -I./RestFrames/include -I$(EFT) -I$(BOOST) -I$(CVMA) -I$(FMT)
-RESTLIB        = -L./RestFrames/lib
-
+ONNX           = /cvmfs/cms.cern.ch/el9_amd64_gcc12/external/onnxruntime/1.20.1-85dcf3ae05a34b48b31a48529d2643ca/include/
+INCLUDES       = -I./include -I./RestFrames/include -I$(EFT) -I$(BOOST) -I$(CVMA) -I$(FMT) -I$(ONNX)
+RESTLIB        = -L/groups/mhildret/rgoldouz/run3Analyses/ZprimeToTt/RestFrames/lib
+ONNXLIB        = -L/cvmfs/cms.cern.ch/el9_amd64_gcc12/external/onnxruntime/1.20.1-85dcf3ae05a34b48b31a48529d2643ca/lib
+EFTLIB         = -L/groups/mhildret/rgoldouz/run3Analyses/CMSSW_15_0_10/lib/el9_amd64_gcc12
+CMSSWLIB       = -L/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_15_0_10/lib/el9_amd64_gcc12
 
 CXX            = g++ -m64 
 CXXFLAGS       = -fPIC -fno-var-tracking -Wno-deprecated -D_GNU_SOURCE -O2  $(INCLUDES) 
@@ -26,7 +29,7 @@ LIBS           = $(ROOTLIBS)
 GLIBS         = $(ROOTGLIBS) -lMinuit -lMinuit2 -lTreePlayer -lGenVector -lTMVA
 
 #SRCS = src/GEScaleSyst.cc src/Utils.cc src/BTagCalibrationStandalone.cc src/RoccoR.cc src/lepton_candidate.cc src/Z_candidate.cc src/jet_candidate.cc src/PU_reWeighting.cc src/sumOfWeights.cc src/sumOfWeightsSignal.cc src/LumiMask.cc src/genLevelAnalysis.cc src/JigsawRecTZFCNC.cc src/JigsawRecTHFCNC.cc src/initiateMyAnalysis.cc src/trigger.cc src/objectSelection.cc src/MyAnalysis.cc
-SRCS = src/GEScaleSyst.cc src/Utils.cc src/RoccoR.cc src/lepton_candidate.cc src/Z_candidate.cc src/jet_candidate.cc src/PU_reWeighting.cc src/sumOfWeights.cc src/sumOfWeightsSignal.cc src/LumiMask.cc src/genLevelAnalysis.cc src/JigsawRecTZFCNC.cc src/JigsawRecTHFCNC.cc src/initiateMyAnalysis.cc src/trigger.cc src/objectSelection.cc src/eventSelection.cc src/MyAnalysis.cc
+SRCS = src/GEScaleSyst.cc src/Utils.cc src/RoccoR.cc src/lepton_candidate.cc src/Z_candidate.cc src/jet_candidate.cc src/PU_reWeighting.cc src/sumOfWeights.cc src/sumOfWeightsSignal.cc src/LumiMask.cc src/genLevelAnalysis.cc src/JigsawRecTZFCNC.cc src/JigsawRecTHFCNC.cc src/initiateMyAnalysis.cc src/trigger.cc src/objectSelection.cc src/eventSelection.cc src/topTagSF.cc src/MyAnalysis.cc
 OBJS =  $(patsubst %.C,%.o,$(SRCS:.cc=.o))
 
 LIB=lib/libmain.so
@@ -47,8 +50,8 @@ $(LIB): $(OBJS)
 	@echo "$(LIB) successfully compiled!"
 bin/RunAll : src/main.C  $(LIB)
 	mkdir -p bin
-	$(CXX) $(CXXFLAGS) -ldl -L./lib $(RESTLIB) -lRestFrames -lJetMETCorrectionsModules -lCondFormatsSerialization -lcorrectionlib -lEFTGenReaderEFTHelperUtilities -lboost_serialization -lmain src/main.C $(GLIBS) -o $@
-
+	$(CXX) $(CXXFLAGS) -ldl -L./lib $(CMSSWLIB) $(RESTLIB) $(EFTLIB) -lRestFrames -lJetMETCorrectionsModules -lCondFormatsSerialization -lcorrectionlib -lEFTGenReaderEFTHelperUtilities -lboost_serialization -lmain src/main.C $(GLIBS) -o $@
+#        $(CXX) $(CXXFLAGS) -ldl -L./lib $(RESTLIB) $(ONNXLIB) -lonnxruntime -lRestFrames -lJetMETCorrectionsModules -lCondFormatsSerialization -lcorrectionlib -lEFTGenReaderEFTHelperUtilities -lboost_serialization -lmain src/main.C $(GLIBS) -o $@
 clean:
 	$(RM) $(OBJS)	
 	$(RM) $(LIB)

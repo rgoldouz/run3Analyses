@@ -50,6 +50,7 @@
 #include "CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
 #include "CondFormats/JetMETObjects/interface/JetResolutionObject.h"
 #include "JetMETCorrections/Modules/interface/JetResolution.h"
+//#include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
 #include "TMVA/Reader.h"
 #include "TMVA/Tools.h"
 
@@ -296,25 +297,25 @@ public :
    Float_t         FsrPhoton_pt[20];   //[nFsrPhoton]
    Float_t         FsrPhoton_relIso03[20];   //[nFsrPhoton]
    Int_t           nGenJetAK8;
-   Float_t         GenJetAK8_eta[16];   //[nGenJetAK8]
-   Float_t         GenJetAK8_mass[16];   //[nGenJetAK8]
-   Float_t         GenJetAK8_phi[16];   //[nGenJetAK8]
-   Float_t         GenJetAK8_pt[16];   //[nGenJetAK8]
+   Float_t         GenJetAK8_eta[26];   //[nGenJetAK8]
+   Float_t         GenJetAK8_mass[26];   //[nGenJetAK8]
+   Float_t         GenJetAK8_phi[26];   //[nGenJetAK8]
+   Float_t         GenJetAK8_pt[26];   //[nGenJetAK8]
    Int_t           nGenJet;
-   Float_t         GenJet_eta[25];   //[nGenJet]
-   Float_t         GenJet_mass[25];   //[nGenJet]
-   Float_t         GenJet_phi[25];   //[nGenJet]
-   Float_t         GenJet_pt[25];   //[nGenJet]
+   Float_t         GenJet_eta[50];   //[nGenJet]
+   Float_t         GenJet_mass[50];   //[nGenJet]
+   Float_t         GenJet_phi[50];   //[nGenJet]
+   Float_t         GenJet_pt[50];   //[nGenJet]
    Int_t           nGenPart;
-   Short_t         GenPart_genPartIdxMother[141];   //[nGenPart]
-   UShort_t        GenPart_statusFlags[141];   //[nGenPart]
-   Int_t           GenPart_pdgId[141];   //[nGenPart]
-   Int_t           GenPart_status[141];   //[nGenPart]
-   Float_t         GenPart_eta[141];   //[nGenPart]
-   Float_t         GenPart_mass[141];   //[nGenPart]
-   Float_t         GenPart_phi[141];   //[nGenPart]
-   Float_t         GenPart_pt[141];   //[nGenPart]
-   Float_t         GenPart_iso[141];   //[nGenPart]
+   Short_t         GenPart_genPartIdxMother[300];   //[nGenPart]
+   UShort_t        GenPart_statusFlags[300];   //[nGenPart]
+   Int_t           GenPart_pdgId[300];   //[nGenPart]
+   Int_t           GenPart_status[300];   //[nGenPart]
+   Float_t         GenPart_eta[300];   //[nGenPart]
+   Float_t         GenPart_mass[300];   //[nGenPart]
+   Float_t         GenPart_phi[300];   //[nGenPart]
+   Float_t         GenPart_pt[300];   //[nGenPart]
+   Float_t         GenPart_iso[300];   //[nGenPart]
    Int_t           nGenProton;
    Bool_t          GenProton_isPU[26];   //[nGenProton]
    Float_t         GenProton_px[26];   //[nGenProton]
@@ -4114,14 +4115,17 @@ public :
    virtual void     Loop(TString fname, TString data, TString dataset ,string year, TString run, float xs, float lumi, float Nevent, int iseft, int nRuns, int onlyGen, MyAnalysis *Evt, Long64_t start, Long64_t end);
    virtual void     Analyze(TString fname, TString data, TString dataset ,string year, TString run, float xs, float lumi, float Nevent, int iseft, int nRuns, int onlyGen, MyAnalysis *Evt);
    bool overlapRemoval(double Et_cut, double Eta_cut, double dR_cut, bool verbose, bool reversePtCut);
+   bool isFromTop(Int_t id);
+   bool isFromWZTau(Int_t id);
    std::vector<double> minGenDr(int myInd, std::vector<int> ignorePID = std::vector<int>());
    typedef vector<TH1EFT*> Dim1;
    typedef vector<Dim1> Dim2;
    typedef vector<Dim2> Dim3;
    typedef vector<Dim3> Dim4;
-   typedef vector< vector < vector < vector< TH1EFT* > > > > D4HistsContainer;
-   typedef vector< vector < vector < TH1EFT* > > > D3HistsContainer;
-   typedef vector< vector < vector < vector< TH1F* > > > > normalD4HistsContainer;
+   typedef vector< vector < vector < vector< TH1EFT* >>>> D4HistsContainer;
+   typedef vector< vector < vector < TH1EFT* >>> D3HistsContainer;
+   typedef vector< vector < vector < vector< TH1F* >>>> normalD4HistsContainer;
+   typedef vector< vector < vector < TH1F*>>> normalD3HistsContainer;
    D3HistsContainer Hists;
    D3HistsContainer HistsFA;
    D4HistsContainer HistsFAUp;
@@ -4131,6 +4135,7 @@ public :
    D3HistsContainer HistsTh;
    D3HistsContainer HistsSysCompactUp;
    D3HistsContainer HistsSysCompactDown;
+   normalD4HistsContainer HistsTopTagSF;
    normalD4HistsContainer HistsNormalSysUp;
    normalD4HistsContainer HistsNormalSysDown;
    TH1EFT *h_test;
@@ -4139,12 +4144,16 @@ public :
    void initiateHists(TString data,string year, bool ifSys);
    void endHists(TString data,string year, bool ifSys);
    bool trigger(TString data,TString dataset, string year);
+   void topTagSF_init();
+   void topTagSF_analysis(int cat, int ch, jet_candidate *J, float w, TString year);
+   void topTagSF_end();
 ////////////////////////////////////////////////////////////////////////////////////
    void objectSelection(TString data,string year);
    void objectSelectionEnd();
    int findRegion(std::vector<jet_candidate*> *j,int ch, int chFA);
    void evaluateMVA(std::vector<jet_candidate*> *J, std::vector<lepton_candidate*> *L, std::vector<Z_candidate*> *Z, TString C, float metPt, float metPhi, float &MVAS_TU, float &MVAB_TU, float &MVAS_TC, float &MVAB_TC);
-   float recoTT(TLorentzVector& recoTop1, TLorentzVector& recoTop2);
+   void evaluateTopSys();
+   float recoTT(TLorentzVector&, TLorentzVector&, const lepton_candidate* l1, const lepton_candidate* l2, int, TString);
    float bTagCutWpL;
    float bTagCutWpM;
    float jetBTagDeepFlav(int l);
@@ -4191,62 +4200,38 @@ public :
 //
    TMVA::Reader* readerMVA2lss_TU;
    TMVA::Reader* readerMVA3lonZ_TU;
-   TMVA::Reader* readerMVA3loffZ_TU;
+   TMVA::Reader* readerMVAtopTagEle;
+   TMVA::Reader* readerMVAtopTagMu;
    TMVA::Reader* readerMVA2lss_TC;
    TMVA::Reader* readerMVA3lonZ_TC;
    TMVA::Reader* readerMVA3loffZ_TC;
 
-   Float_t MVA_lep1Pt;
-   Float_t MVA_lep1Eta;
-   Float_t MVA_lep2Pt;
-   Float_t MVA_lep2Eta;
-   Float_t MVA_lep3Pt;
-   Float_t MVA_lep3Eta;
-   Float_t MVA_llM;
-   Float_t MVA_llPt;
-   Float_t MVA_llDr;
-   Float_t MVA_llDphi;
-   Float_t MVA_jet1Pt;
-   Float_t MVA_jet1Eta;
-   Float_t MVA_bJetPt;
-   Float_t MVA_bJetEta;
-   Float_t   MVA_nJets;
-
-   Float_t MVA_tH_topMass;
-   Float_t MVA_tH_HMass;
-   Float_t MVA_tH_WtopMass;
-   Float_t MVA_tH_W1HMass;
-   Float_t MVA_tH_W2HMass;
-   Float_t MVA_tH_HPt;
-   Float_t MVA_tH_HEta;
-   Float_t MVA_tH_topPt;
-   Float_t MVA_tH_topEta;
-   Float_t MVA_tH_drWtopB;
-   Float_t MVA_tH_drW1HW2H;
-   Float_t MVA_tZ_topMass;
-   Float_t MVA_tZ_ZMass;
-   Float_t MVA_tZ_WtopMass;
-   Float_t MVA_tZ_ZPt;
-   Float_t MVA_tZ_ZEta;
-   Float_t MVA_tZ_topPt;
-   Float_t MVA_tZ_topEta;
+   Float_t MVA_lepPtOjetPt;
+   Float_t MVA_globalParT3_TopbWlv;
+   Float_t MVA_globalParT3_QCD;
+   Float_t MVA_lepIso;
+   Float_t MVA_jetSubJet_btagUParTAK4B;
 ////////////////////////////////////////////////////////////////////////////////////
    void FillD3Hists(D3HistsContainer H3, std::vector<int> v1, std::vector<int> v2, int v3, float value, std::vector<std::vector<float>> weight, std::vector<std::vector<WCFit>> wcfit);
 //   void FillD3Hists(D3HistsContainer H3, int v1, std::vector<int> v2, int v3, float value, std::vector<float> weight, std::vector<WCFit>);
    void FillD4Hists(D4HistsContainer H4, std::vector<int> v1, std::vector<int> v2, int v3, float value, std::vector<std::vector<float>> weight, std::vector<std::vector<WCFit>> wcfit, int n);
    void normalFillD4Hists(normalD4HistsContainer H4, std::vector<int> v1, std::vector<int> v2, int v3, float value, std::vector<std::vector<float>> weight, int n);
+   void normalFillD4HistsTopTagSF(normalD4HistsContainer H4, int v1, int v2, int v3, int v4, float value, float weight);
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
    std::vector<TString> channels{"2l_eeInZ", "2l_mmInZ", "2l_eeOutZ", "2l_mmOutZ", "2l_em"};
    std::vector<TString> channelsFA{};
    std::vector<TString> channelsSys{};
-   std::vector<TString> regions{"All", "2b0t","1b0t","0b0t","0b1t","1b1t","2t","1b1tM50","2tM50"};
-   std::vector<TString> sys{"eleRecoId","eleIso","muRecoId","muIso","triggerSF","pu"};
+   std::vector<TString> regions{"All", "2b0t","1b0t","0b0t","0b1t","1b1t","2b1t","2t"};
+   std::vector<TString> sys{"eleRecoId","eleIso","muRecoId","muIso","triggerSF","pu","bcTagSfCorr","LTagSfCorr","bcTagSfUnCorr","LTagSfUnCorr","topTagSF"};
    //{,"prefiring","bcTagSfCorr","LTagSfCorr","bcTagSfUnCorr","LTagSfUnCorr","JetPuID", "JesFlavorQCD", "JesBBEC1", "JesAbsolute", "JesRelativeBal", "JesRelativeSample","Jes","Jer","UnclustEn"};
    std::vector<TString> sysJec{"JesFlavorQCD", "JesBBEC1", "JesAbsolute", "JesRelativeBal", "JesRelativeSample","Jes","Jer"};
    std::vector<TString> sysNotWeight{"JesFlavorQCD", "JesBBEC1", "JesAbsolute", "JesRelativeBal", "JesRelativeSample","Jes","Jer","UnclustEn"};
    std::vector<TString> sysNormal{"Jes","Jer"};
    std::vector<TString> sysFA{"fakeAll","fakePt","fakeEta"};
+   std::vector<TString> catTopTagSF{"lPb","lPnonb","nonlPb"};
+   std::vector<TString> channelsTopTagSF{"E2l_eeInZ_0b","M2l_mmInZ_0b","E2l_em_1b","M2l_em_1b"};
+   std::vector<TString> regionsTopTagSF{"all","pass","fail"};
    const int nsrc = 6;
    std::vector<float> nominalWeights;
    std::vector<float> sysDownWeights;
@@ -4257,6 +4242,7 @@ public :
    static const std::map<TString, std::tuple<int, int, const double*>> varsFA;
    static const std::map<TString, std::tuple<int, int, const double*>> varsSys;
    static const std::map<TString, std::tuple<int, int, const double*>> varsFullSys;
+   static const std::map<TString, std::tuple<int, int, const double*>> varsTopTagSF;
    TH2F*  btagEff_b_H;
    TH2F*  btagEff_c_H;
    TH2F*  btagEff_udsg_H;
@@ -4286,6 +4272,8 @@ public :
    TH2F*  fr_mu_H_etaDown;
    TH2F*  fr_ele_H_etaDown;
    TH2F*  cf_ele_H;
+   TH1F*  Sf_topTagEff_mu_H;
+   TH1F*  Sf_topTagEff_ele_H;   
    string rochesterFile;
    string btagFile;
    string eleSF;
@@ -4305,65 +4293,21 @@ public :
    JME::JetResolutionScaleFactor uncRes;
    JME::JetResolution resolution;
 
-  float HT_;
-  float lep1Pt_;
-  float lep1Eta_;
-  float lep2Pt_;
-  float lep2Eta_;
-  float lep3Pt_;
-  float lep3Eta_;
-  float llM_;
-  float llPt_;
-  float llDr_;
-  float llDphi_;
-  float jet1Pt_;
-  float jet1Eta_;
-  float bJetPt_;
-  float bJetEta_;
-  int nJets_;
-  float weightSM_;
-  float weightSMfake_;
-
-  float tH_topMass_;
-  float tH_HMass_;
-  float tH_WtopMass_;
-  float tH_W1HMass_;
-  float tH_W2HMass_;
-  float tH_HPt_;
-  float tH_HEta_;
-  float tH_topPt_;
-  float tH_topEta_;
-  float tH_drWtopB_;
-  float tH_drW1HW2H_;
-
-
-  float tZ_topMass_;
-  float tZ_ZMass_;
-  float tZ_WtopMass_;
-  float tZ_ZPt_;
-  float tZ_ZEta_;
-  float tZ_topPt_;
-  float tZ_topEta_;
-  float MVATU_;
-
+  float jetPt_;
+  float lepPt_;
+  float lepPtOjetPt_;
+  float jetMass_;
+  int lepFlavour_;
+  float globalParT3_TopbWlv_;
+  float globalParT3_QCD_;
+  float lepIso_;
+  float jetSubJet_btagUParTAK4B_;
+  int jetClass_;
+  int memory;
+  int NbTag;
   int ch_;
   int chFA_;
   int reg_;
-  float weightctp_;
-  float weightctlS_;
-  float weightcte_;
-  float weightctl_;
-  float weightctlT_;
-  float weightctZ_;
-  float weightcpt_;
-  float weightcpQM_;
-  float weightctA_;
-  float weightcQe_;
-  float weightctG_;
-  float weightcQlM_;
-  int memory;
-  int NbTag;
-
   int NnonbTag;
 
   TTree *tree_out;

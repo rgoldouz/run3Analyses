@@ -27,6 +27,7 @@ if __name__ == '__main__':
     addedFilesMcDiboson = {"2016preVFP": [],"2016postVFP": [], "2017": [], "2018": [],"2024": []}
     addedFilesMcST = {"2016preVFP": [],"2016postVFP": [], "2017": [], "2018": [],"2024": []}
     addedFilesMcWjets = {"2016preVFP": [],"2016postVFP": [], "2017": [], "2018": [],"2024": []}
+    addedFilesMcTTG = {"2016preVFP": [],"2016postVFP": [], "2017": [], "2018": [],"2024": []}
     
     os.system('rm *.root')
     dist = "/cms/cephfs/data/store/user/rgoldouz/FullProduction/AnalysisZprimeTT/Analysis_" 
@@ -72,6 +73,8 @@ if __name__ == '__main__':
             addedFilesMcDiboson[year].append( key + '.root')  
         elif 'Wjet_' in key:
             addedFilesMcWjets[year].append( key + '.root')            
+        elif 'TTG' in key:
+            addedFilesMcTTG[year].append( key + '.root')
 
 for key, value in addedFilesData.items():
         print(key,value)
@@ -86,6 +89,7 @@ for key, value in addedFilesData.items():
         haddmcDiboson ='hadd -f ' +key+'_Diboson.root ' + ' '.join(addedFilesMcDiboson[key])
         haddmcST ='hadd -f ' +key+'_ST.root ' + ' '.join(addedFilesMcST[key])
         haddmcWjets ='hadd -f ' +key+'_Wjets.root ' + ' '.join(addedFilesMcWjets[key])
+        haddmcTTG ='hadd -f ' +key+'_TTG.root ' + ' '.join(addedFilesMcTTG[key])
         Fmerged.append(hadddata)
         Fmerged.append(haddmcDY)
         Fmerged.append(haddmcttbar0l)
@@ -94,7 +98,10 @@ for key, value in addedFilesData.items():
         Fmerged.append(haddmcDiboson)
         Fmerged.append(haddmcWjets)
         Fmerged.append(haddmcST)
+        Fmerged.append(haddmcTTG)
         Parallel(n_jobs=10)(delayed(f)(i) for i in Fmerged)
+        os.system('hadd ' + key + '_btagBG.root '+key+'_DY.root ' +key+'_ttbar0l.root ' + key+'_ttbar1l.root ' + key+'_ttbar2l.root ')
+        os.system('hadd ' + key + '_topTagBG.root '+key+'_DY.root ' +key+'_ttbar1l.root ')
 #        os.system('hadd ' +key+'_totalBG.root '+key+'_DY.root ' +key+'_Else.root ' +key+'_ttbar.root ' +key+'_Diboson.root ' +key+'_Triboson.root '+key+'_ST.root ' +key+'_TTZ.root ' +key+'_TTW.root '+key+'_TTH.root '+key+'_Conv.root ')        
 #        print '\n \n \n hadddata:' + hadddata + '\n haddmcDY:' + haddmcDY + '\n haddmcElse:' + haddmcElse  + '\n haddmcttbar:' + haddmcttbar + '\n haddmcDiboson:' + haddmcDiboson + '\n haddmcTriboson:' + haddmcTriboson + '\n haddmcTTH:' + haddmcTTH+ '\n haddmcTTW:' + haddmcTTW+ '\n haddmcTTZ:' + haddmcTTZ + '\n haddmcST:' + haddmcST + '\n haddmcConv:' + haddmcConv + '\n haddmcFCNCTCdecay:' + haddmcFCNCTCdecay + '\n haddmcFCNCTCprod:' + haddmcFCNCTCprod + '\n haddmcFCNCTUdecay:' + haddmcFCNCTUdecay + '\n haddmcFCNCTUprod' + haddmcFCNCTUprod
 

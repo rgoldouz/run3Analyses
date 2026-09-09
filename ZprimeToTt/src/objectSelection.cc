@@ -239,7 +239,7 @@ void MyAnalysis::objectSelection(TString data,string year){
       for (int i=0;i<topObjects->size();i++){
         if(deltaR((*topObjects)[i]->Eta(),(*topObjects)[i]->Phi(),FatJet_eta[l],FatJet_phi[l]) < 0.8 ) NtopPartons++;
       }	    
-      if(FatJet_pt[l]>200) selectedJets08->push_back(new jet_candidate(FatJet_pt[l],FatJet_eta[l],FatJet_phi[l],FatJet_msoftdrop[l],0, year,0,l,NtopPartons,2,0, FatJet_mass[l], (FatJet_globalParT3_TopbWev[l]+FatJet_globalParT3_TopbWmv[l])/(FatJet_globalParT3_TopbWev[l]+FatJet_globalParT3_TopbWmv[l]+FatJet_globalParT3_QCD[l]), 0));	    
+      if(FatJet_pt[l]>200 && FatJet_msoftdrop[l] > 20 && abs(FatJet_eta[l]) < 2.4) selectedJets08->push_back(new jet_candidate(FatJet_pt[l],FatJet_eta[l],FatJet_phi[l],FatJet_msoftdrop[l],0, year,0,l,NtopPartons,2,0, FatJet_mass[l], (FatJet_globalParT3_TopbWev[l]+FatJet_globalParT3_TopbWmv[l])/(FatJet_globalParT3_TopbWev[l]+FatJet_globalParT3_TopbWmv[l]+FatJet_globalParT3_QCD[l]), 0));	    
     }
 //jets
     selectedJets = new std::vector<jet_candidate*>();
@@ -266,15 +266,14 @@ void MyAnalysis::objectSelection(TString data,string year){
     std::random_device rd{}; 
     std::mt19937 gen{rd()}; 
     for (int l=0;l<nJet;l++){
-      if(abs(Jet_eta[l]) < 2.4 && Jet_pt[l]>30) selectedJets->push_back(new jet_candidate(Jet_pt[l],Jet_eta[l],Jet_phi[l],Jet_mass[l],Jet_btagUParTAK4B[l], year,Jet_partonFlavour[l],l,0,0,0, 0, 0, 0));	    
-//      if(abs(Jet_eta[l]) >= 2.4) continue;
+      if(abs(Jet_eta[l]) >= 2.4) continue;
 ////      if (jetVetoMaps_H->GetBinContent(jetVetoMaps_H->GetXaxis()->FindBin(Jet_eta[l]),jetVetoMaps_H->GetYaxis()->FindBin(Jet_phi[l]))>0) continue;
 //      cJER=1;cJERUp=1;cJERDown=1; 
-//      jetlepfail = false;
-//      for (int i=0;i<selectedLooseLeptons->size();i++){
-//        if(deltaR((*selectedLooseLeptons)[i]->eta_,(*selectedLooseLeptons)[i]->phi_,Jet_eta[l],Jet_phi[l]) < 0.4 ) jetlepfail=true;
-//      }
-//      if(jetlepfail) continue;
+      jetlepfail = false;
+      for (int i=0;i<selectedNonIsoLeptons->size();i++){
+        if(deltaR((*selectedNonIsoLeptons)[i]->eta_,(*selectedNonIsoLeptons)[i]->phi_,Jet_eta[l],Jet_phi[l]) < 0.8 ) jetlepfail=true;
+      }
+      if(jetlepfail) continue;
 //      if(data == "mc"){
 //        jer_sf=uncRes.getScaleFactor({{JME::Binning::JetEta, Jet_eta[l]}}, Variation::NOMINAL); 
 //        jer_sfUp=uncRes.getScaleFactor({{JME::Binning::JetEta, Jet_eta[l]}}, Variation::UP);
@@ -292,6 +291,7 @@ void MyAnalysis::objectSelection(TString data,string year){
 //          cJERUp = 1. + rn * std::sqrt(max(jer_sfUp * jer_sfUp - 1.,0.));
 //          cJERDown = 1. +  rn * std::sqrt(max(jer_sfDown * jer_sfDown - 1.,0.));
 //        }
+      if(Jet_pt[l]>30) selectedJets->push_back(new jet_candidate(Jet_pt[l],Jet_eta[l],Jet_phi[l],Jet_mass[l],Jet_btagUParTAK4B[l], year,Jet_partonFlavour[l],l,0,0,0, 0, 0, 0));        
 //        if(cJER*Jet_pt[l]>30 && !(Jet_puId[l]<1 && cJER*Jet_pt[l]<50))  selectedJets->push_back(new jet_candidate(cJER*Jet_pt[l],Jet_eta[l],Jet_phi[l],Jet_mass[l],Jet_btagDeepFlavB[l], year,Jet_partonFlavour[l]));
 //        if (cJERUp*Jet_pt[l]>30  && !(Jet_puId[l]<1 && cJERUp*Jet_pt[l]<50)) {
 //          (*JECsysUp)[nsrc].push_back(new jet_candidate(cJERUp*Jet_pt[l],Jet_eta[l],Jet_phi[l],Jet_mass[l],Jet_btagDeepFlavB[l], year,Jet_partonFlavour[l]));
@@ -347,15 +347,16 @@ void MyAnalysis::objectSelection(TString data,string year){
 //    }
 //
 //// Btag SF
-//    for (int l=0;l<selectedJets->size();l++){
-//      if(data == "data") continue;
-//      if((*selectedJets)[l]->pt_<30) continue;
-//      BJetSF=csetBcJetSF->evaluate({"central", "M", 5, abs((*selectedJets)[l]->eta_),(*selectedJets)[l]->pt_});
-//      CJetSF=csetBcJetSF->evaluate({"central", "M", 4, abs((*selectedJets)[l]->eta_),(*selectedJets)[l]->pt_});
-//      LJetSF=csetLightJetSF->evaluate({"central", "M", 0, abs((*selectedJets)[l]->eta_),(*selectedJets)[l]->pt_});
-//      BJetEff=scale_factor(btagEff_b_H, (*selectedJets)[l]->pt_, abs((*selectedJets)[l]->eta_),"central", true, false);
-//      CJetEff=scale_factor(btagEff_c_H, (*selectedJets)[l]->pt_, abs((*selectedJets)[l]->eta_),"central", true, false);
-//      LJetEff=scale_factor(btagEff_udsg_H, (*selectedJets)[l]->pt_, abs((*selectedJets)[l]->eta_),"central", true, false);
+    for (int l=0;l<selectedJets->size();l++){
+      if(data == "data") continue;
+      if((*selectedJets)[l]->pt_<30) continue;
+      BJetSF=csetBcJetSF->evaluate({"central", "M", 5, abs((*selectedJets)[l]->eta_),(*selectedJets)[l]->pt_});
+      CJetSF=csetBcJetSF->evaluate({"central", "M", 4, abs((*selectedJets)[l]->eta_),(*selectedJets)[l]->pt_});
+      LJetSF=csetLightJetSF->evaluate({"central", "M", 0, abs((*selectedJets)[l]->eta_),(*selectedJets)[l]->pt_});
+      BJetEff=scale_factor(btagEff_b_H, (*selectedJets)[l]->pt_, abs((*selectedJets)[l]->eta_),"central", true, false);
+      CJetEff=scale_factor(btagEff_c_H, (*selectedJets)[l]->pt_, abs((*selectedJets)[l]->eta_),"central", true, false);
+      LJetEff=scale_factor(btagEff_udsg_H, (*selectedJets)[l]->pt_, abs((*selectedJets)[l]->eta_),"central", true, false);
+
 //      BJetSF_UpCorr=csetBcJetSF->evaluate({"up_correlated", "M", 5, abs((*selectedJets)[l]->eta_),(*selectedJets)[l]->pt_});
 //      CJetSF_UpCorr=csetBcJetSF->evaluate({"up_correlated", "M", 4, abs((*selectedJets)[l]->eta_),(*selectedJets)[l]->pt_});
 //      LJetSF_UpCorr=csetLightJetSF->evaluate({"up_correlated", "M", 0, abs((*selectedJets)[l]->eta_),(*selectedJets)[l]->pt_});
@@ -368,145 +369,146 @@ void MyAnalysis::objectSelection(TString data,string year){
 //      BJetSF_DownUnCorr=csetBcJetSF->evaluate({"down_uncorrelated", "M", 5, abs((*selectedJets)[l]->eta_),(*selectedJets)[l]->pt_});
 //      CJetSF_DownUnCorr=csetBcJetSF->evaluate({"down_uncorrelated", "M", 4, abs((*selectedJets)[l]->eta_),(*selectedJets)[l]->pt_});
 //      LJetSF_DownUnCorr=csetLightJetSF->evaluate({"down_uncorrelated", "M", 0, abs((*selectedJets)[l]->eta_),(*selectedJets)[l]->pt_});
-////b-quark
-//      if( abs((*selectedJets)[l]->flavor_) == 5){
-//        if( (*selectedJets)[l]->btag_ ) {
-//          P_bjet_mc = P_bjet_mc * BJetEff;
-//          nominalWeights[getVecPos(sys,"bcTagSfCorr")] = nominalWeights[getVecPos(sys,"bcTagSfCorr")] * BJetEff * BJetSF;
+//b-quark
+      if( abs((*selectedJets)[l]->flavor_) == 5){
+        if( (*selectedJets)[l]->btag_ ) {
+          P_bjet_mc = P_bjet_mc * BJetEff;
+          nominalWeights[getVecPos(sys,"bcTagSfCorr")] = nominalWeights[getVecPos(sys,"bcTagSfCorr")] * BJetEff * BJetSF;
 //          sysUpWeights[getVecPos(sys,"bcTagSfCorr")] = sysUpWeights[getVecPos(sys,"bcTagSfCorr")] * BJetEff * BJetSF_UpCorr;
 //          sysDownWeights[getVecPos(sys,"bcTagSfCorr")] = sysDownWeights[getVecPos(sys,"bcTagSfCorr")] * BJetEff * BJetSF_DownCorr;
-//          nominalWeights[getVecPos(sys,"LTagSfCorr")] = nominalWeights[getVecPos(sys,"LTagSfCorr")] * BJetEff * BJetSF;
+          nominalWeights[getVecPos(sys,"LTagSfCorr")] = nominalWeights[getVecPos(sys,"LTagSfCorr")] * BJetEff * BJetSF;
 //          sysUpWeights[getVecPos(sys,"LTagSfCorr")] = sysUpWeights[getVecPos(sys,"LTagSfCorr")] * BJetEff * BJetSF;
 //          sysDownWeights[getVecPos(sys,"LTagSfCorr")] = sysDownWeights[getVecPos(sys,"LTagSfCorr")] * BJetEff * BJetSF;
 //
-//          nominalWeights[getVecPos(sys,"bcTagSfUnCorr")] = nominalWeights[getVecPos(sys,"bcTagSfUnCorr")] * BJetEff * BJetSF;
+          nominalWeights[getVecPos(sys,"bcTagSfUnCorr")] = nominalWeights[getVecPos(sys,"bcTagSfUnCorr")] * BJetEff * BJetSF;
 //          sysUpWeights[getVecPos(sys,"bcTagSfUnCorr")] = sysUpWeights[getVecPos(sys,"bcTagSfUnCorr")] * BJetEff * BJetSF_UpUnCorr;
 //          sysDownWeights[getVecPos(sys,"bcTagSfUnCorr")] = sysDownWeights[getVecPos(sys,"bcTagSfUnCorr")] * BJetEff * BJetSF_DownUnCorr;
-//          nominalWeights[getVecPos(sys,"LTagSfUnCorr")] = nominalWeights[getVecPos(sys,"LTagSfUnCorr")] * BJetEff * BJetSF;
+          nominalWeights[getVecPos(sys,"LTagSfUnCorr")] = nominalWeights[getVecPos(sys,"LTagSfUnCorr")] * BJetEff * BJetSF;
 //          sysUpWeights[getVecPos(sys,"LTagSfUnCorr")] = sysUpWeights[getVecPos(sys,"LTagSfUnCorr")] * BJetEff * BJetSF;
 //          sysDownWeights[getVecPos(sys,"LTagSfUnCorr")] = sysDownWeights[getVecPos(sys,"LTagSfUnCorr")] * BJetEff * BJetSF;
-//        }
-//        if( !(*selectedJets)[l]->btag_ ) {
-//          P_bjet_mc = P_bjet_mc * (1 - BJetEff);
-//          nominalWeights[getVecPos(sys,"bcTagSfCorr")] = nominalWeights[getVecPos(sys,"bcTagSfCorr")]* (1- (BJetEff * BJetSF));
+        }
+        if( !(*selectedJets)[l]->btag_ ) {
+          P_bjet_mc = P_bjet_mc * (1 - BJetEff);
+          nominalWeights[getVecPos(sys,"bcTagSfCorr")] = nominalWeights[getVecPos(sys,"bcTagSfCorr")]* (1- (BJetEff * BJetSF));
 //          sysUpWeights[getVecPos(sys,"bcTagSfCorr")] = sysUpWeights[getVecPos(sys,"bcTagSfCorr")]* (1- (BJetEff * BJetSF_UpCorr));
 //          sysDownWeights[getVecPos(sys,"bcTagSfCorr")] = sysDownWeights[getVecPos(sys,"bcTagSfCorr")]* (1- (BJetEff * BJetSF_DownCorr));
-//          nominalWeights[getVecPos(sys,"LTagSfCorr")] = nominalWeights[getVecPos(sys,"LTagSfCorr")]* (1- (BJetEff * BJetSF));
+          nominalWeights[getVecPos(sys,"LTagSfCorr")] = nominalWeights[getVecPos(sys,"LTagSfCorr")]* (1- (BJetEff * BJetSF));
 //          sysUpWeights[getVecPos(sys,"LTagSfCorr")] = sysUpWeights[getVecPos(sys,"LTagSfCorr")]* (1- (BJetEff * BJetSF));
 //          sysDownWeights[getVecPos(sys,"LTagSfCorr")] = sysDownWeights[getVecPos(sys,"LTagSfCorr")]* (1- (BJetEff * BJetSF));
 //
-//          nominalWeights[getVecPos(sys,"bcTagSfUnCorr")] = nominalWeights[getVecPos(sys,"bcTagSfUnCorr")]* (1- (BJetEff * BJetSF));
+          nominalWeights[getVecPos(sys,"bcTagSfUnCorr")] = nominalWeights[getVecPos(sys,"bcTagSfUnCorr")]* (1- (BJetEff * BJetSF));
 //          sysUpWeights[getVecPos(sys,"bcTagSfUnCorr")] = sysUpWeights[getVecPos(sys,"bcTagSfUnCorr")]* (1- (BJetEff * BJetSF_UpUnCorr));
 //          sysDownWeights[getVecPos(sys,"bcTagSfUnCorr")] = sysDownWeights[getVecPos(sys,"bcTagSfUnCorr")]* (1- (BJetEff * BJetSF_DownUnCorr));
-//          nominalWeights[getVecPos(sys,"LTagSfUnCorr")] = nominalWeights[getVecPos(sys,"LTagSfUnCorr")]* (1- (BJetEff * BJetSF));
+          nominalWeights[getVecPos(sys,"LTagSfUnCorr")] = nominalWeights[getVecPos(sys,"LTagSfUnCorr")]* (1- (BJetEff * BJetSF));
 //          sysUpWeights[getVecPos(sys,"LTagSfUnCorr")] = sysUpWeights[getVecPos(sys,"LTagSfUnCorr")]* (1- (BJetEff * BJetSF));
 //          sysDownWeights[getVecPos(sys,"LTagSfUnCorr")] = sysDownWeights[getVecPos(sys,"LTagSfUnCorr")]* (1- (BJetEff * BJetSF));
-//        }
-//      }
-////c-quark
-//      if( abs((*selectedJets)[l]->flavor_) == 4){
-//        if( (*selectedJets)[l]->btag_) {
-//          P_bjet_mc = P_bjet_mc * CJetEff;
-//          nominalWeights[getVecPos(sys,"bcTagSfCorr")] = nominalWeights[getVecPos(sys,"bcTagSfCorr")] * CJetEff * CJetSF;
+        }
+      }
+//c-quark
+      if( abs((*selectedJets)[l]->flavor_) == 4){
+        if( (*selectedJets)[l]->btag_) {
+          P_bjet_mc = P_bjet_mc * CJetEff;
+          nominalWeights[getVecPos(sys,"bcTagSfCorr")] = nominalWeights[getVecPos(sys,"bcTagSfCorr")] * CJetEff * CJetSF;
 //          sysUpWeights[getVecPos(sys,"bcTagSfCorr")] = sysUpWeights[getVecPos(sys,"bcTagSfCorr")] * CJetEff * CJetSF_UpCorr;
 //          sysDownWeights[getVecPos(sys,"bcTagSfCorr")] = sysDownWeights[getVecPos(sys,"bcTagSfCorr")] * CJetEff * CJetSF_DownCorr;
-//          nominalWeights[getVecPos(sys,"LTagSfCorr")] = nominalWeights[getVecPos(sys,"LTagSfCorr")] * CJetEff * CJetSF;
+          nominalWeights[getVecPos(sys,"LTagSfCorr")] = nominalWeights[getVecPos(sys,"LTagSfCorr")] * CJetEff * CJetSF;
 //          sysUpWeights[getVecPos(sys,"LTagSfCorr")] = sysUpWeights[getVecPos(sys,"LTagSfCorr")] * CJetEff * CJetSF;
 //          sysDownWeights[getVecPos(sys,"LTagSfCorr")] = sysDownWeights[getVecPos(sys,"LTagSfCorr")] * CJetEff * CJetSF;
 //
-//          nominalWeights[getVecPos(sys,"bcTagSfUnCorr")] = nominalWeights[getVecPos(sys,"bcTagSfUnCorr")] * CJetEff * CJetSF;
+          nominalWeights[getVecPos(sys,"bcTagSfUnCorr")] = nominalWeights[getVecPos(sys,"bcTagSfUnCorr")] * CJetEff * CJetSF;
 //          sysUpWeights[getVecPos(sys,"bcTagSfUnCorr")] = sysUpWeights[getVecPos(sys,"bcTagSfUnCorr")] * CJetEff * CJetSF_UpUnCorr;
 //          sysDownWeights[getVecPos(sys,"bcTagSfUnCorr")] = sysDownWeights[getVecPos(sys,"bcTagSfUnCorr")] * CJetEff * CJetSF_DownUnCorr;
-//          nominalWeights[getVecPos(sys,"LTagSfUnCorr")] = nominalWeights[getVecPos(sys,"LTagSfUnCorr")] * CJetEff * CJetSF;
+          nominalWeights[getVecPos(sys,"LTagSfUnCorr")] = nominalWeights[getVecPos(sys,"LTagSfUnCorr")] * CJetEff * CJetSF;
 //          sysUpWeights[getVecPos(sys,"LTagSfUnCorr")] = sysUpWeights[getVecPos(sys,"LTagSfUnCorr")] * CJetEff * CJetSF;
 //          sysDownWeights[getVecPos(sys,"LTagSfUnCorr")] = sysDownWeights[getVecPos(sys,"LTagSfUnCorr")] * CJetEff * CJetSF;
-//        }
-//        if( !(*selectedJets)[l]->btag_ ) {
-//          P_bjet_mc = P_bjet_mc * (1 - CJetEff);
-//          nominalWeights[getVecPos(sys,"bcTagSfCorr")] = nominalWeights[getVecPos(sys,"bcTagSfCorr")]* (1- (CJetEff * CJetSF));
+        }
+        if( !(*selectedJets)[l]->btag_ ) {
+          P_bjet_mc = P_bjet_mc * (1 - CJetEff);
+          nominalWeights[getVecPos(sys,"bcTagSfCorr")] = nominalWeights[getVecPos(sys,"bcTagSfCorr")]* (1- (CJetEff * CJetSF));
 //          sysUpWeights[getVecPos(sys,"bcTagSfCorr")] = sysUpWeights[getVecPos(sys,"bcTagSfCorr")]* (1- (CJetEff * CJetSF_UpCorr));
 //          sysDownWeights[getVecPos(sys,"bcTagSfCorr")] = sysDownWeights[getVecPos(sys,"bcTagSfCorr")]* (1- (CJetEff * CJetSF_DownCorr));
-//          nominalWeights[getVecPos(sys,"LTagSfCorr")] = nominalWeights[getVecPos(sys,"LTagSfCorr")]* (1- (CJetEff * CJetSF));
+          nominalWeights[getVecPos(sys,"LTagSfCorr")] = nominalWeights[getVecPos(sys,"LTagSfCorr")]* (1- (CJetEff * CJetSF));
 //          sysUpWeights[getVecPos(sys,"LTagSfCorr")] = sysUpWeights[getVecPos(sys,"LTagSfCorr")]* (1- (CJetEff * CJetSF));
 //          sysDownWeights[getVecPos(sys,"LTagSfCorr")] = sysDownWeights[getVecPos(sys,"LTagSfCorr")]* (1- (CJetEff * CJetSF));
 //
-//          nominalWeights[getVecPos(sys,"bcTagSfUnCorr")] = nominalWeights[getVecPos(sys,"bcTagSfUnCorr")]* (1- (CJetEff * CJetSF));
+          nominalWeights[getVecPos(sys,"bcTagSfUnCorr")] = nominalWeights[getVecPos(sys,"bcTagSfUnCorr")]* (1- (CJetEff * CJetSF));
 //          sysUpWeights[getVecPos(sys,"bcTagSfUnCorr")] = sysUpWeights[getVecPos(sys,"bcTagSfUnCorr")]* (1- (CJetEff * CJetSF_UpUnCorr));
 //          sysDownWeights[getVecPos(sys,"bcTagSfUnCorr")] = sysDownWeights[getVecPos(sys,"bcTagSfUnCorr")]* (1- (CJetEff * CJetSF_DownUnCorr));
-//          nominalWeights[getVecPos(sys,"LTagSfUnCorr")] = nominalWeights[getVecPos(sys,"LTagSfUnCorr")]* (1- (CJetEff * CJetSF));
+          nominalWeights[getVecPos(sys,"LTagSfUnCorr")] = nominalWeights[getVecPos(sys,"LTagSfUnCorr")]* (1- (CJetEff * CJetSF));
 //          sysUpWeights[getVecPos(sys,"LTagSfUnCorr")] = sysUpWeights[getVecPos(sys,"LTagSfUnCorr")]* (1- (CJetEff * CJetSF));
 //          sysDownWeights[getVecPos(sys,"LTagSfUnCorr")] = sysDownWeights[getVecPos(sys,"LTagSfUnCorr")]* (1- (CJetEff * CJetSF));
-//        }
-//      }
-//
-////light-quark
-//      if( abs((*selectedJets)[l]->flavor_) != 4 && abs((*selectedJets)[l]->flavor_) != 5){
-//        if( (*selectedJets)[l]->btag_) {
-//          P_bjet_mc = P_bjet_mc * LJetEff;
-//          nominalWeights[getVecPos(sys,"bcTagSfCorr")] = nominalWeights[getVecPos(sys,"bcTagSfCorr")]* LJetEff * LJetSF;
+        }
+      }
+
+//light-quark
+      if( abs((*selectedJets)[l]->flavor_) != 4 && abs((*selectedJets)[l]->flavor_) != 5){
+        if( (*selectedJets)[l]->btag_) {
+          P_bjet_mc = P_bjet_mc * LJetEff;
+          nominalWeights[getVecPos(sys,"bcTagSfCorr")] = nominalWeights[getVecPos(sys,"bcTagSfCorr")]* LJetEff * LJetSF;
 //          sysUpWeights[getVecPos(sys,"bcTagSfCorr")] = sysUpWeights[getVecPos(sys,"bcTagSfCorr")]* LJetEff * LJetSF;
 //          sysDownWeights[getVecPos(sys,"bcTagSfCorr")] = sysDownWeights[getVecPos(sys,"bcTagSfCorr")]* LJetEff * LJetSF;
-//          nominalWeights[getVecPos(sys,"LTagSfCorr")] = nominalWeights[getVecPos(sys,"LTagSfCorr")] * LJetEff * LJetSF;
+          nominalWeights[getVecPos(sys,"LTagSfCorr")] = nominalWeights[getVecPos(sys,"LTagSfCorr")] * LJetEff * LJetSF;
 //          sysUpWeights[getVecPos(sys,"LTagSfCorr")] = sysUpWeights[getVecPos(sys,"LTagSfCorr")] * LJetEff * LJetSF_UpCorr;
 //          sysDownWeights[getVecPos(sys,"LTagSfCorr")] = sysDownWeights[getVecPos(sys,"LTagSfCorr")] * LJetEff * LJetSF_DownCorr;
 //
-//          nominalWeights[getVecPos(sys,"bcTagSfUnCorr")] = nominalWeights[getVecPos(sys,"bcTagSfUnCorr")]* LJetEff * LJetSF;
+          nominalWeights[getVecPos(sys,"bcTagSfUnCorr")] = nominalWeights[getVecPos(sys,"bcTagSfUnCorr")]* LJetEff * LJetSF;
 //          sysUpWeights[getVecPos(sys,"bcTagSfUnCorr")] = sysUpWeights[getVecPos(sys,"bcTagSfUnCorr")]* LJetEff * LJetSF;
 //          sysDownWeights[getVecPos(sys,"bcTagSfUnCorr")] = sysDownWeights[getVecPos(sys,"bcTagSfUnCorr")]* LJetEff * LJetSF;
-//          nominalWeights[getVecPos(sys,"LTagSfUnCorr")] = nominalWeights[getVecPos(sys,"LTagSfUnCorr")] * LJetEff * LJetSF;
+          nominalWeights[getVecPos(sys,"LTagSfUnCorr")] = nominalWeights[getVecPos(sys,"LTagSfUnCorr")] * LJetEff * LJetSF;
 //          sysUpWeights[getVecPos(sys,"LTagSfUnCorr")] = sysUpWeights[getVecPos(sys,"LTagSfUnCorr")] * LJetEff * LJetSF_UpUnCorr;
 //          sysDownWeights[getVecPos(sys,"LTagSfUnCorr")] = sysDownWeights[getVecPos(sys,"LTagSfUnCorr")] * LJetEff * LJetSF_DownUnCorr;
-//        }
-//        if( !(*selectedJets)[l]->btag_ ) {
-//          P_bjet_mc = P_bjet_mc * (1 - LJetEff);
-//          nominalWeights[getVecPos(sys,"bcTagSfCorr")] = nominalWeights[getVecPos(sys,"bcTagSfCorr")]* (1- (LJetEff * LJetSF));
+        }
+        if( !(*selectedJets)[l]->btag_ ) {
+          P_bjet_mc = P_bjet_mc * (1 - LJetEff);
+          nominalWeights[getVecPos(sys,"bcTagSfCorr")] = nominalWeights[getVecPos(sys,"bcTagSfCorr")]* (1- (LJetEff * LJetSF));
 //          sysUpWeights[getVecPos(sys,"bcTagSfCorr")] = sysUpWeights[getVecPos(sys,"bcTagSfCorr")]* (1- (LJetEff * LJetSF));
 //          sysDownWeights[getVecPos(sys,"bcTagSfCorr")] = sysDownWeights[getVecPos(sys,"bcTagSfCorr")]* (1- (LJetEff * LJetSF));
-//          nominalWeights[getVecPos(sys,"LTagSfCorr")] = nominalWeights[getVecPos(sys,"LTagSfCorr")]* (1- (LJetEff * LJetSF));
+          nominalWeights[getVecPos(sys,"LTagSfCorr")] = nominalWeights[getVecPos(sys,"LTagSfCorr")]* (1- (LJetEff * LJetSF));
 //          sysUpWeights[getVecPos(sys,"LTagSfCorr")] = sysUpWeights[getVecPos(sys,"LTagSfCorr")]* (1- (LJetEff * LJetSF_UpCorr));
 //          sysDownWeights[getVecPos(sys,"LTagSfCorr")] = sysDownWeights[getVecPos(sys,"LTagSfCorr")]* (1- (LJetEff * LJetSF_DownCorr));
 //
-//          nominalWeights[getVecPos(sys,"bcTagSfUnCorr")] = nominalWeights[getVecPos(sys,"bcTagSfUnCorr")]* (1- (LJetEff * LJetSF));
+          nominalWeights[getVecPos(sys,"bcTagSfUnCorr")] = nominalWeights[getVecPos(sys,"bcTagSfUnCorr")]* (1- (LJetEff * LJetSF));
 //          sysUpWeights[getVecPos(sys,"bcTagSfUnCorr")] = sysUpWeights[getVecPos(sys,"bcTagSfUnCorr")]* (1- (LJetEff * LJetSF));
 //          sysDownWeights[getVecPos(sys,"bcTagSfUnCorr")] = sysDownWeights[getVecPos(sys,"bcTagSfUnCorr")]* (1- (LJetEff * LJetSF));
-//          nominalWeights[getVecPos(sys,"LTagSfUnCorr")] = nominalWeights[getVecPos(sys,"LTagSfUnCorr")]* (1- (LJetEff * LJetSF));
+          nominalWeights[getVecPos(sys,"LTagSfUnCorr")] = nominalWeights[getVecPos(sys,"LTagSfUnCorr")]* (1- (LJetEff * LJetSF));
 //          sysUpWeights[getVecPos(sys,"LTagSfUnCorr")] = sysUpWeights[getVecPos(sys,"LTagSfUnCorr")]* (1- (LJetEff * LJetSF_UpUnCorr));
 //          sysDownWeights[getVecPos(sys,"LTagSfUnCorr")] = sysDownWeights[getVecPos(sys,"LTagSfUnCorr")]* (1- (LJetEff * LJetSF_DownUnCorr));
-//        }
-//      }
-//    }
-
+        }
+      }
+    }
 //    if (P_bjet_mc>0 && isfinite(nominalWeights[getVecPos(sys,"bcTagSfCorr")]) && isfinite(nominalWeights[getVecPos(sys,"LTagSfCorr")]) && isfinite(sysUpWeights[getVecPos(sys,"LTagSfCorr")]) && isfinite(sysDownWeights[getVecPos(sys,"LTagSfCorr")])){
-//      nominalWeights[getVecPos(sys,"bcTagSfCorr")] = nominalWeights[getVecPos(sys,"bcTagSfCorr")]/P_bjet_mc;
+    if (P_bjet_mc>0 && isfinite(nominalWeights[getVecPos(sys,"bcTagSfCorr")])&& isfinite(nominalWeights[getVecPos(sys,"LTagSfCorr")])){    
+      nominalWeights[getVecPos(sys,"bcTagSfCorr")] = nominalWeights[getVecPos(sys,"bcTagSfCorr")]/P_bjet_mc;
 //      sysUpWeights[getVecPos(sys,"bcTagSfCorr")] = sysUpWeights[getVecPos(sys,"bcTagSfCorr")]/P_bjet_mc;
 //      sysDownWeights[getVecPos(sys,"bcTagSfCorr")] = sysDownWeights[getVecPos(sys,"bcTagSfCorr")]/P_bjet_mc;
-//      nominalWeights[getVecPos(sys,"LTagSfCorr")] = nominalWeights[getVecPos(sys,"LTagSfCorr")]/P_bjet_mc;
+      nominalWeights[getVecPos(sys,"LTagSfCorr")] = nominalWeights[getVecPos(sys,"LTagSfCorr")]/P_bjet_mc;
 //      sysUpWeights[getVecPos(sys,"LTagSfCorr")] = sysUpWeights[getVecPos(sys,"LTagSfCorr")]/P_bjet_mc;
 //      sysDownWeights[getVecPos(sys,"LTagSfCorr")] = sysDownWeights[getVecPos(sys,"LTagSfCorr")]/P_bjet_mc;
 //  
-//      nominalWeights[getVecPos(sys,"bcTagSfUnCorr")] = nominalWeights[getVecPos(sys,"bcTagSfUnCorr")]/P_bjet_mc;
+      nominalWeights[getVecPos(sys,"bcTagSfUnCorr")] = nominalWeights[getVecPos(sys,"bcTagSfUnCorr")]/P_bjet_mc;
 //      sysUpWeights[getVecPos(sys,"bcTagSfUnCorr")] = sysUpWeights[getVecPos(sys,"bcTagSfUnCorr")]/P_bjet_mc;
 //      sysDownWeights[getVecPos(sys,"bcTagSfUnCorr")] = sysDownWeights[getVecPos(sys,"bcTagSfUnCorr")]/P_bjet_mc;
-//      nominalWeights[getVecPos(sys,"LTagSfUnCorr")] = nominalWeights[getVecPos(sys,"LTagSfUnCorr")]/P_bjet_mc;
+      nominalWeights[getVecPos(sys,"LTagSfUnCorr")] = nominalWeights[getVecPos(sys,"LTagSfUnCorr")]/P_bjet_mc;
 //      sysUpWeights[getVecPos(sys,"LTagSfUnCorr")] = sysUpWeights[getVecPos(sys,"LTagSfUnCorr")]/P_bjet_mc;
 //      sysDownWeights[getVecPos(sys,"LTagSfUnCorr")] = sysDownWeights[getVecPos(sys,"LTagSfUnCorr")]/P_bjet_mc;
-//    }
-//    else{
-//      cout<<"Warning: b-tagging eff or SF or infinit or b-jet prob in data is zero "<<endl;
-//      nominalWeights[getVecPos(sys,"bcTagSfCorr")] = 1;
+    }
+    else{
+      cout<<"Warning: b-tagging eff or SF or infinit or b-jet prob in data is zero "<<endl;
+      nominalWeights[getVecPos(sys,"bcTagSfCorr")] = 1;
 //      sysUpWeights[getVecPos(sys,"bcTagSfCorr")] = 1;
 //      sysDownWeights[getVecPos(sys,"bcTagSfCorr")] = 1;
-//      nominalWeights[getVecPos(sys,"LTagSfCorr")] = 1;
+      nominalWeights[getVecPos(sys,"LTagSfCorr")] = 1;
 //      sysUpWeights[getVecPos(sys,"LTagSfCorr")] = 1;
 //      sysDownWeights[getVecPos(sys,"LTagSfCorr")] = 1;
 //
-//      nominalWeights[getVecPos(sys,"bcTagSfUnCorr")] = 1;
+      nominalWeights[getVecPos(sys,"bcTagSfUnCorr")] = 1;
 //      sysUpWeights[getVecPos(sys,"bcTagSfUnCorr")] = 1;
 //      sysDownWeights[getVecPos(sys,"bcTagSfUnCorr")] = 1;
-//      nominalWeights[getVecPos(sys,"LTagSfUnCorr")] = 1;
+      nominalWeights[getVecPos(sys,"LTagSfUnCorr")] = 1;
 //      sysUpWeights[getVecPos(sys,"LTagSfUnCorr")] = 1;
 //      sysDownWeights[getVecPos(sys,"LTagSfUnCorr")] = 1;
-//    }      
+    }      
+
 //
 ////PU reweighting
     if(data == "mc"){
@@ -539,6 +541,57 @@ void MyAnalysis::objectSelection(TString data,string year){
 //      sysDownWeights[getVecPos(sys,"prefiring")] = L1PreFiringWeight_Dn;
 //    }  
 
+  for (size_t l = 0; l < selectedJets08->size(); ++l) {
+    auto *jet = (*selectedJets08)[l];
+    for (size_t i = 0; i < selectedNonIsoLeptons->size(); ++i) {
+      if(deltaR(jet->eta_, jet->phi_, (*selectedNonIsoLeptons)[i]->eta_, (*selectedNonIsoLeptons)[i]->phi_) < 0.8) {
+        jet->lepFlavor_ = (*selectedNonIsoLeptons)[i]->lep_;
+        jet->lepIndex_ = (*selectedNonIsoLeptons)[i]->indice_;
+        jet->selectedLepIndex_ = i;
+        break;
+      }
+    }
+  }
+    // calculate the BDT output per jet and set it (default is zero)
+  // please note that this part works only after training the final top BDT
+  std::vector<Float_t> probs;
+  for (size_t l = 0; l < selectedJets08->size(); ++l) {
+    auto *jet = (*selectedJets08)[l];
+    jet->topTagBDT_=0;
+    if (jet->lepIndex_<0) continue;
+    globalParT3_QCD_=FatJet_globalParT3_QCD[jet->indice_];
+    jetSubJet_btagUParTAK4B_ = max(SubJet_btagUParTAK4B[FatJet_subJetIdx1[jet->indice_]],SubJet_btagUParTAK4B[FatJet_subJetIdx2[jet->indice_]]);
+    if(jet->lepFlavor_==1){
+      lepPtOjetPt_=Electron_pt[jet->lepIndex_]/jet->pt_;	    
+      lepIso_= Electron_miniPFRelIso_all[jet->lepIndex_];
+      globalParT3_TopbWlv_=FatJet_globalParT3_TopbWev[jet->indice_];
+      MVA_lepPtOjetPt=lepPtOjetPt_;
+      MVA_globalParT3_TopbWlv=globalParT3_TopbWlv_;
+      MVA_globalParT3_QCD=globalParT3_QCD_;
+      MVA_lepIso=lepIso_;
+      MVA_jetSubJet_btagUParTAK4B=jetSubJet_btagUParTAK4B_;
+      probs = readerMVAtopTagEle->EvaluateMulticlass("BDT::BDT");
+      jet->topTagBDT_=probs[0];
+    }
+    if(jet->lepFlavor_==10){
+      lepPtOjetPt_=Muon_pt[jet->lepIndex_]/jet->pt_;	    
+      lepIso_= Muon_miniPFRelIso_all[jet->lepIndex_];
+      globalParT3_TopbWlv_=FatJet_globalParT3_TopbWmv[jet->indice_];
+      MVA_lepPtOjetPt=lepPtOjetPt_;
+      MVA_globalParT3_TopbWlv=globalParT3_TopbWlv_;
+      MVA_globalParT3_QCD=globalParT3_QCD_;
+      MVA_lepIso=lepIso_;
+      MVA_jetSubJet_btagUParTAK4B=jetSubJet_btagUParTAK4B_;
+      probs = readerMVAtopTagMu->EvaluateMulticlass("BDT::BDT");
+      jet->topTagBDT_=probs[0];
+    }
+  }
+  for (size_t l = 0; l < selectedJets08->size(); ++l) {
+    if(data == "data") continue;	  
+    auto *jet = (*selectedJets08)[l];
+    if(jet->lepFlavor_ == 1 && jet->istop(jet->topTagBDT_,year)) nominalWeights[getVecPos(sys,"topTagSF")] = nominalWeights[getVecPos(sys,"topTagSF")]*scale_factor1D(Sf_topTagEff_ele_H,jet->pt_,"central");
+    if(jet->lepFlavor_ == 10 && jet->istop(jet->topTagBDT_,year)) nominalWeights[getVecPos(sys,"topTagSF")] = nominalWeights[getVecPos(sys,"topTagSF")]*scale_factor1D(Sf_topTagEff_mu_H,jet->pt_,"central");
+  }
 }
 
 
