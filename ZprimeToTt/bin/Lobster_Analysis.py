@@ -76,7 +76,7 @@ for key, value in SAMPLES.items():
         label='Analysis_%s' % (key),
         sandbox=cmssw.Sandbox(release='/groups/mhildret/rgoldouz/run3Analyses/CMSSW_15_0_10'),
         globaltag=False,
-        command='python3 Lobster_check.py ' + key + ' ' + value[1] +' ' + value[2] +' ' +value[3] +' ' +value[4] +' ' +value[5] +' ' +value[6] +' ' +value[7] +' ' +value[8] +' ' +value[9] +' ' +value[10] +' @inputfiles',
+        command='python3 Lobster_check.py ' + key + ' ' + value[1] +' ' + value[2] +' ' +value[3] +' ' +value[4] +' ' +value[5] +' ' +value[6] +' ' +value[7] +' ' +value[8] +' ' +value[9] +' ' +value[10]  +' ' +value[12] +' @inputfiles',
         extra_inputs=[
             '../Makefile',
             'Lobster_check.py',

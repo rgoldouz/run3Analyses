@@ -36,6 +36,8 @@ public:
   int lepFlavor_;
   int lepIndex_;
   int selectedLepIndex_;
+  int bIndex_;
+  int selectedBIndex_;
   float topTagBDT_;
 
 private:

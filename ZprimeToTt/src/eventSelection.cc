@@ -335,6 +335,24 @@ void MyAnalysis::evaluateMVA(std::vector<jet_candidate*> *J, std::vector<lepton_
 //  }
 }
 
+bool MyAnalysis::jethasTopB(float eta, float phi){
+  bool foundTop = false;	
+  for (unsigned int iGen = 0; iGen < nGenPart; ++iGen) {
+    int pdgId = GenPart_pdgId[iGen];
+    if (abs(pdgId) != 5)
+        continue;
+    if(deltaR(GenPart_eta[iGen],GenPart_phi[iGen],eta,phi)>0.8)
+	continue;    
+    Int_t parentIdx = GenPart_genPartIdxMother[iGen];
+    int pdg = std::abs(GenPart_pdgId[parentIdx]);
+    if (pdg == 6) {
+      foundTop = true;
+      break;
+    }
+  }
+  return foundTop;
+}
+
 bool MyAnalysis::isFromTop(Int_t id){
   if (id < 0 || id >= nGenPart){
     return false;

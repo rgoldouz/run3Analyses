@@ -37,9 +37,10 @@ for nameyear in year:
 #        HistsCFrate[nameyear][sample_key] = file.Get('mll_SS_Zwindow_0jet')
         for ch in channels:
             for reg in regions:
-                for var in variables:
+                for var, varname in variables_dict.items(): 
+#                for var in variables:
                     hist_key = "{}_{}_{}".format(ch,reg,var)
-                    #print (hist_key)
+                   # print (hist_key)
                     h = file.Get(hist_key)
                     h = EFTtoNormal(h, wc1)
                     #print(sample,hist_key,h.Integral())
@@ -64,8 +65,8 @@ for nameyear in year:
 for numyear, nameyear in enumerate(year):
     for numch, namech in enumerate(channels):
         for numreg, namereg in enumerate(regions):
-            for numvar, namevar in enumerate(variables):
-                hist_key = "{}_{}_{}".format(namech,namereg,namevar)
+            for var, varname in variables_dict.items():
+                hist_key = "{}_{}_{}".format(namech,namereg,var)
                 HH=[]
                 HHsignal=[]
                 SN=[]
@@ -85,7 +86,7 @@ for numyear, nameyear in enumerate(year):
                     #else:
                     #    HH[index].Scale(HistsCFrate[nameyear][Samples[0]].Integral()/HistsCFrate[nameyear]['DY.root'].Integral())
                    # SN[index]="ChargeFlip"
-                stackPlotsNoSys(HH, HHsignal, SN, SNsignal, 'noSysPlots',namech, namereg, nameyear,namevar,variablesName[numvar])
+                stackPlotsNoSys(HH, HHsignal, SN, SNsignal, 'noSysPlots',namech, namereg, nameyear,var,varname)
 os.system('tar -cvf noSysPlots.tar noSysPlots')
 
 ###for numyear, nameyear in enumerate(year):

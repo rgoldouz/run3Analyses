@@ -585,7 +585,39 @@ TLorentzVector Wneutrino(double MET, double METphi, double leptonPT, double lept
   return  neutrino;
 }
 
-int vInd(std::map<TString, std::tuple<int, int, const double*>> V, TString name){
-  return std::get<0>(V.find(name)->second);
+int vInd(const std::map<TString, std::tuple<int, int, const double*>>& V,
+         const TString& name)
+{
+    auto it = V.find(name);
+
+    if (it == V.end()) {
+        std::cerr << "ERROR: Variable '" << name << "' not found in the variable map." 
+                  << std::endl;
+        return -1;
+    }
+
+    return std::get<0>(it->second);
+}
+
+
+bool passAK4PuppiJetID(float neHEF,
+                       float neEmEF,
+                       int nConstituents,
+                       float chHEF,
+                       int chMultiplicity,
+                       float muEF,
+                       float chEmEF)
+{
+    // Standard Tight Jet ID criteria
+    bool passTight = (neHEF < 0.90f) &&
+                     (neEmEF < 0.90f) &&
+                     (nConstituents > 1) &&
+                     (chHEF > 0.01f) &&
+                     (chMultiplicity > 0) &&
+		     (muEF < 0.80f) && 
+		     (chEmEF < 0.80f);
+
+    if (!passTight) return false;
+    return true;
 }
 

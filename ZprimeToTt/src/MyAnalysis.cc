@@ -151,7 +151,7 @@ int countNonBjets(std::vector<jet_candidate*> *jet){
   return n;
 }
 
-void MyAnalysis::Analyze(TString fname, TString data, TString dataset ,string year, TString Run, float xs, float lumi, float Nevent, int iseft, int nRuns, int onlyGen, MyAnalysis *Evt){
+void MyAnalysis::Analyze(TString fname, TString data, TString dataset ,string year, TString Run, float xs, float lumi, float Nevent, int iseft, int nRuns, int onlyGen, float puFrac, MyAnalysis *Evt){
   ROOT::DisableImplicitMT();
   if (fChain == 0) return;
   inputs(data, year);
@@ -164,7 +164,7 @@ void MyAnalysis::Analyze(TString fname, TString data, TString dataset ,string ye
     Long64_t chunkEnd = std::min(chunkStart + CHUNK_SIZE, ntr);
     std::cout << "Processing events from " << chunkStart << " to " << chunkEnd - 1 << std::endl;
 
-    Loop(fname, data, dataset , year, Run, xs, lumi, Nevent, iseft, nRuns, onlyGen, Evt, chunkStart, chunkEnd);
+    Loop(fname, data, dataset , year, Run, xs, lumi, Nevent, iseft, nRuns, onlyGen, puFrac, Evt, chunkStart, chunkEnd);
 
     chunkStart = chunkEnd; // move forward by the actual number of events processed
 
@@ -175,7 +175,7 @@ void MyAnalysis::Analyze(TString fname, TString data, TString dataset ,string ye
   }
 }
 
-void MyAnalysis::Loop(TString fname, TString data, TString dataset ,string year, TString Run, float xs, float lumi, float Nevent, int iseft, int nRuns, int onlyGen, MyAnalysis *Evt, Long64_t start, Long64_t end){
+void MyAnalysis::Loop(TString fname, TString data, TString dataset ,string year, TString Run, float xs, float lumi, float Nevent, int iseft, int nRuns, int onlyGen, float puFrac, MyAnalysis *Evt, Long64_t start, Long64_t end){
 //*** decide if you want to run with or without saving systematic uncertainty histograms
   bool ifSys=false;
 //*** make the histograms and all needed information ready to start the analysis 
@@ -185,6 +185,11 @@ void MyAnalysis::Loop(TString fname, TString data, TString dataset ,string year,
 
   TH1EFT  *crossSection = new TH1EFT("crossSection","crossSection",1,0,1);
   PU wPU;
+   pu_mc_sum = (TH1F*)pu_mc->Clone("pu_clone");
+   pu_mc_sum->Scale(1-puFrac);
+   pu_mc_ext->Scale(puFrac);	   
+   pu_mc_sum->Add(pu_mc_ext);
+
 
 //  auto myLumiMask = LumiMask::fromJSON(gLumiMask,fRun,lRun);
   TRandom3 Tr;
@@ -254,6 +259,11 @@ void MyAnalysis::Loop(TString fname, TString data, TString dataset ,string year,
   TH1F  *RECOmass1 = new TH1F("RECOmass1","RECOmass1",100,0,6000);
   TH1F  *RECOmass2 = new TH1F("RECOmass2","RECOmass2",100,0,6000);  
   TH1F  *lep0Pt = new TH1F("lep0Pt","lep0Pt",100,-200,200);
+
+  TH1F  *ak8JetPtPu30 = new TH1F("ak8JetPtPu30","ak8JetPtPu30",20,0,2000);
+  TH1F  *ak8JetPtPu40 = new TH1F("ak8JetPtPu40","ak8JetPtPu40",20,0,2000);
+  TH1F  *ak8JetPtPu50 = new TH1F("ak8JetPtPu50","ak8JetPtPu50",20,0,2000);  
+  TH1F  *ak8JetPtPu60 = new TH1F("ak8JetPtPu60","ak8JetPtPu60",20,0,2000);  
 
   std::vector<string> wc_names_lst={};
   std::vector<string> wc_names_lst_BNV={"cT", "cS"};
@@ -374,6 +384,7 @@ void MyAnalysis::Loop(TString fname, TString data, TString dataset ,string year,
   bool DyInZPass;
   bool MetPass;
   float MetCut=25;
+  float muTriggeSF;
   TLorentzVector top_tZFCNC, bt_tZFCNC, Wt_tZFCNC, lt_tZFCNC, nut_tZFCNC, Z_tZFCNC, lpZ_tZFCNC, lmZ_tZFCNC ;
   TLorentzVector hL_tHFCNC, hNu_tHFCNC, hU_tHFCNC, hD_tHFCNC, tNu_tHFCNC, tB_tHFCNC, tL_tHFCNC, met_tHFCNC;
   WCPoint *A = new WCPoint("EFTrwgt4_cpQM_1.0_cpt_1.0_ctA_1.0_ctZ_0.5_ctG_0.1_cQlM_1.0_cQe_1.0_ctl_1.0_cte_1.0_ctlS_1.0_ctlT_0.05_ctp_1.0");
@@ -847,9 +858,28 @@ cout<<"starting loop with  Virtual Memory: "<<getValue()/1048576.0<<" GB"<<endl;
 
 //MET noise filters 2024
     if (Flag_goodVertices  &&  Flag_globalSuperTightHalo2016Filter && Flag_EcalDeadCellTriggerPrimitiveFilter && Flag_BadPFMuonFilter && Flag_eeBadScFilter && Flag_ecalBadCalibFilter && Flag_BadPFMuonDzFilter) metFilterPass = true;
+
+//Check the jet veto map    
+    for (int l=0;l<nFatJet;l++){
+      if(abs(FatJet_eta[l]) > 2.4 || FatJet_pt[l]<200) continue;
+      if(!passAK4PuppiJetID(FatJet_neHEF[l],FatJet_neEmEF[l],FatJet_nConstituents[l],FatJet_chHEF[l],FatJet_chMultiplicity[l],FatJet_muEF[l],FatJet_chEmEF[l])) continue;
+      h2_jetmap_beforeVeto_all->Fill(FatJet_eta[l],FatJet_phi[l]);
+      if (jetVetoMaps_H->GetBinContent(jetVetoMaps_H->GetXaxis()->FindBin(FatJet_eta[l]),jetVetoMaps_H->GetYaxis()->FindBin(FatJet_phi[l]))==0) h2_jetmap_afterVeto_all->Fill(FatJet_eta[l],FatJet_phi[l]);
+      for (size_t i = 0; i < selectedNonIsoLeptons->size(); ++i) {
+        if(deltaR(FatJet_eta[l], FatJet_phi[l], (*selectedNonIsoLeptons)[i]->eta_, (*selectedNonIsoLeptons)[i]->phi_) < 0.8) {
+          h2_jetmap_beforeVeto_1j1l->Fill(FatJet_eta[l],FatJet_phi[l]);
+          if(jetVetoMaps_H->GetBinContent(jetVetoMaps_H->GetXaxis()->FindBin(FatJet_eta[l]),jetVetoMaps_H->GetYaxis()->FindBin(FatJet_phi[l]))==0) h2_jetmap_afterVeto_1j1l->Fill(FatJet_eta[l],FatJet_phi[l]);		
+          if(FatJet_globalParT3_TopbWev[l]>0.5 || FatJet_globalParT3_TopbWmv[l]>0.5){
+            h2_jetmap_beforeVeto_tj->Fill(FatJet_eta[l],FatJet_phi[l]);		  
+	    if(jetVetoMaps_H->GetBinContent(jetVetoMaps_H->GetXaxis()->FindBin(FatJet_eta[l]),jetVetoMaps_H->GetYaxis()->FindBin(FatJet_phi[l]))==0) h2_jetmap_afterVeto_tj->Fill(FatJet_eta[l],FatJet_phi[l]);
+	  }  
+	}  
+      }
+    }
+
 //pre selection    
     bool preSelection=true;
-    if(!metFilterPass || !trigger(data, dataset,year) || selectedNonIsoLeptons->size() < 2) preSelection=false;
+    if(!metFilterPass || !trigger(data, dataset,year) || selectedNonIsoLeptons->size() < 2 || vetoMap) preSelection=false;
     if(!preSelection){
       objectSelectionEnd();
       continue;
@@ -1057,23 +1087,71 @@ cout<<"starting loop with  Virtual Memory: "<<getValue()/1048576.0<<" GB"<<endl;
 
   if(ntjet==2 && nLeptons==2) cutFlowFinal->Fill(3.5);
 
-  if (data == "mc"){ 
-    weight_lep  = weight_Lumi * signnum_typical(LHEWeight_originalXWGTUP)*nominalWeights[getVecPos(sys,"pu")]*nominalWeights[getVecPos(sys,"eleRecoId")]*nominalWeights[getVecPos(sys,"muRecoId")]*nominalWeights[getVecPos(sys,"bcTagSfUnCorr")];//*nominalWeights[getVecPos(sys,"topTagSF")];
+
+  //trigger scale factor
+  if(lep0->lep_ + lep1->lep_ == 11) {
+    if(lep0->lep_==10) muTriggeSF=csetMuTrig->evaluate({abs(lep0->eta_),  lep0->pt_, "nominal"});	  
+    nominalWeights[getVecPos(sys,"triggerSF")] = muTriggeSF;
   }
-  if (!std::isfinite(weight_lep)) {
-    std::cout <<"**********************************"<< weight_lep << std::endl;
-    cout<<"a "<<weight_Lumi<<" b "<<signnum_typical(LHEWeight_originalXWGTUP)<<" c "<<nominalWeights[getVecPos(sys,"pu")]<<" d "<<nominalWeights[getVecPos(sys,"eleRecoId")]<<" e "<<nominalWeights[getVecPos(sys,"muRecoId")]<<" f "<<nominalWeights[getVecPos(sys,"bcTagSfUnCorr")]<<endl;
+
+  if(data == "mc"){
+      nominalWeights[getVecPos(sys,"pu")] = pu_data->GetBinContent(pu_data->FindBin(Pileup_nTrueInt))/pu_mc_sum->GetBinContent(pu_mc_sum->FindBin(Pileup_nTrueInt));
+      if(nominalWeights[getVecPos(sys,"pu")]>15) nominalWeights[getVecPos(sys,"pu")]=15;        
+//       if (!std::isfinite(nominalWeights[getVecPos(sys,"pu")])) {
+//	       cout<<"::::::::::::::::::::::"<<Pileup_nTrueInt<<"**"<<pu_data->GetBinContent(pu_data->FindBin(Pileup_nTrueInt))<<"**"<<pu_mc_sum->GetBinContent(pu_mc_sum->FindBin(Pileup_nTrueInt))<<endl;}
+      if(Pileup_nTrueInt>65) cout<<Pileup_nTrueInt<<":"<<nominalWeights[getVecPos(sys,"pu")]<<":"<<pu_data->GetBinContent(pu_data->FindBin(Pileup_nTrueInt))/pu_mc->GetBinContent(pu_mc->FindBin(Pileup_nTrueInt))<<endl;
+//      if(Pileup_nTrueInt>55) cout<<Pileup_nTrueInt<<":"<<pu_data->GetBinContent(Pileup_nTrueInt)<<":"<<pu_mc_sum->GetBinContent(Pileup_nTrueInt)<<":"<<pu_mc->GetBinContent(Pileup_nTrueInt)<<":"<<pu_mc_ext->GetBinContent(Pileup_nTrueInt)<<endl;
+    }
+
+  if (data == "mc"){ 
+    weight_lep  = weight_Lumi * signnum_typical(LHEWeight_originalXWGTUP)*nominalWeights[getVecPos(sys,"pu")]*nominalWeights[getVecPos(sys,"eleRecoId")]*nominalWeights[getVecPos(sys,"muRecoId")]*nominalWeights[getVecPos(sys,"bcTagSfUnCorr")]*nominalWeights[getVecPos(sys,"triggerSF")];//*nominalWeights[getVecPos(sys,"topTagSF")];
+  }
+  if (!std::isfinite(weight_lep) || abs(weight_lep)>100) {
+    std::cout <<"************** REZA ********************"<< weight_lep << std::endl;
+    cout<<"a "<<weight_Lumi<<" b "<<signnum_typical(LHEWeight_originalXWGTUP)<<" c "<<nominalWeights[getVecPos(sys,"pu")]<<" d "<<nominalWeights[getVecPos(sys,"eleRecoId")]<<" e "<<nominalWeights[getVecPos(sys,"muRecoId")]<<" f "<<nominalWeights[getVecPos(sys,"bcTagSfUnCorr")]<<" g "<<nominalWeights[getVecPos(sys,"triggerSF")]<<endl;
 }
+
+  const double wSign    = signnum_typical(LHEWeight_originalXWGTUP);
+  const double wPU      = nominalWeights[getVecPos(sys,"pu")];
+  const double wEle     = nominalWeights[getVecPos(sys,"eleRecoId")];
+  const double wMu      = nominalWeights[getVecPos(sys,"muRecoId")];
+  const double wBtag    = nominalWeights[getVecPos(sys,"bcTagSfUnCorr")];
+  const double wTrigger = nominalWeights[getVecPos(sys,"triggerSF")];
+  
+  if (!std::isfinite(wSign) || !std::isfinite(wPU) ||
+      !std::isfinite(wEle) || !std::isfinite(wMu) ||
+      !std::isfinite(wBtag) || !std::isfinite(wTrigger)) {
+  
+      std::cout << "BAD COMPONENT :"
+                << " lumi="    << weight_Lumi
+                << " sign="    << wSign
+                << " pu="      << wPU
+                << " ele="     << wEle
+                << " mu="      << wMu
+                << " btag="    << wBtag
+                << " trigger=" << wTrigger
+                << std::endl;
+  }
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////  
   //find the top tagging rate  
   bool lepFromTop = false;
   bool ele = false;
   bool matched = false;
+  bool DRlb = false;
   bool liso=false;
   
   const auto checkLepton = [&](const lepton_candidate* lep, const jet_candidate* jet) {
-    if (deltaR(lep->eta_, lep->phi_, jet->eta_, jet->phi_) > 0.8) return;
+    if (deltaR(lep->eta_, lep->phi_, jet->eta_, jet->phi_) > 0.8) {
+      if(lep->lep_ == 1  && Electron_miniPFRelIso_all[lep->indice_] < 0.2) liso=true;
+      if(lep0->lep_ == 10 && Muon_tkIsoId[lep->indice_] >= 1) liso=true;
+      for(int i=0; i<selectedJets->size(); i++){
+        if(!(*selectedJets)[i]->btag_) continue;
+	if(deltaR(lep->eta_, lep->phi_, (*selectedJets)[i]->eta_, (*selectedJets)[i]->phi_) > 0.8 &&  deltaR(lep->eta_, lep->phi_, (*selectedJets)[i]->eta_, (*selectedJets)[i]->phi_)<1.6) DRlb = true;
+      }  
+      return;
+    }  
     matched = true;
     if (lep->lep_ == 1) {
       ele = true;
@@ -1089,21 +1167,22 @@ cout<<"starting loop with  Virtual Memory: "<<getValue()/1048576.0<<" GB"<<endl;
     lepFromTop = false;
     ele = false;
     matched = false;
+    DRlb = false;
+    liso=false;
     checkLepton(lep0,jet);
-    if(matched) liso=lep1Iso;
     checkLepton(lep1,jet);
-    if(matched) liso=lep0Iso;
     if (!matched) continue;
     int genIdx = FatJet_genJetAK8Idx[jet->indice_];
     bool isBFlavour = genIdx >= 0 && abs(GenJetAK8_partonFlavour[genIdx]) == 5;
     const bool isPromptB = data == "mc" && isBFlavour && lepFromTop;
-    int cat=getVecPos(catTopTagSF,  "lPnonb");;
-    if(data == "mc" && isBFlavour && lepFromTop) cat  = getVecPos(catTopTagSF,  "lPb");
+    int cat=getVecPos(catTopTagSF,  "lPnonb");
+    if(data == "mc" && isBFlavour && jet->bIndex_ >= 0 && lepFromTop) cat  = getVecPos(catTopTagSF,  "top");
+    if(data == "mc" && isBFlavour && jet->bIndex_ <0 && lepFromTop) cat  = getVecPos(catTopTagSF,  "lPb");
     if(data == "mc" && isBFlavour && !lepFromTop) cat  = getVecPos(catTopTagSF,  "nonlPb");
 
     if (allCh[getVecPos(channels, "2l_eeInZ")] >= 0 && nbjet == 0 && liso)   topTagSF_analysis(cat,  getVecPos(channelsTopTagSF, "E2l_eeInZ_0b"), jet, weight_lep, year);
     if (allCh[getVecPos(channels, "2l_mmInZ")] >= 0 && nbjet == 0 && liso)   topTagSF_analysis(cat,  getVecPos(channelsTopTagSF, "M2l_mmInZ_0b"), jet, weight_lep, year);
-    if (allCh[getVecPos(channels, "2l_em")] >= 0 && nbjet == 1 && liso && recoTT(recoTop1, recoTop2,lep0, lep1,ntjet,year) < 500){
+    if (allCh[getVecPos(channels, "2l_em")] >= 0 && nbjet == 1 && liso && (lep0->charge_ + lep1->charge_) == 0   && recoTT(recoTop1, recoTop2,lep0, lep1,ntjet,year) < 500){
         const char* channel = ele ? "E2l_em_1b" : "M2l_em_1b";
         topTagSF_analysis(cat, getVecPos(channelsTopTagSF, channel), jet, weight_lep,year);
     }
@@ -1222,13 +1301,23 @@ cout<<"starting loop with  Virtual Memory: "<<getValue()/1048576.0<<" GB"<<endl;
      FillD3Hists(Hists, allCh, reg, vInd(vars,"ntTagjet08"), ntjet ,wgt, wcfit);
      FillD3Hists(Hists, allCh, reg, vInd(vars,"Met"), PuppiMET_pt ,wgt, wcfit);
      FillD3Hists(Hists, allCh, reg, vInd(vars,"MetPhi"), PuppiMET_phi ,wgt, wcfit);
-     FillD3Hists(Hists, allCh, reg, vInd(vars,"nVtx"), PV_npvs ,wgt, wcfit);
      FillD3Hists(Hists, allCh, reg, vInd(vars,"llMZw"), (lep0->p4_ + lep1->p4_).M() ,wgt, wcfit);
      FillD3Hists(Hists, allCh, reg, vInd(vars,"ttM"), recoTT(recoTop1,recoTop2,lep0, lep1,ntjet,year) ,wgt, wcfit);
-     if(selectedJets->size()>0){
-       FillD3Hists(Hists, allCh, reg, vInd(vars,"jet1Pt"), (*selectedJets)[0]->pt_ ,wgt, wcfit);
-       FillD3Hists(Hists, allCh, reg, vInd(vars,"jet1Eta"), (*selectedJets)[0]->eta_ ,wgt, wcfit);
-       FillD3Hists(Hists, allCh, reg, vInd(vars,"jet1Phi"), (*selectedJets)[0]->phi_ ,wgt, wcfit);
+     FillD3Hists(Hists, allCh, reg, vInd(vars,"nVtx"), PV_npvs ,wgt, wcfit);
+     FillD3Hists(Hists, allCh, reg, vInd(vars,"nVtxGood"), PV_npvsGood ,wgt, wcfit);
+     FillD3Hists(Hists, allCh, reg, vInd(vars,"RhoFixedGridRhoFastjetAll"), Rho_fixedGridRhoFastjetAll ,wgt, wcfit);
+     if(PV_npvs<39) FillD3Hists(Hists, allCh, reg, vInd(vars,"njet08LowPu"), selectedJets08->size() ,wgt, wcfit);
+     else FillD3Hists(Hists, allCh, reg, vInd(vars,"njet08HighPu"), selectedJets08->size() ,wgt, wcfit);
+     if(selectedJets08->size()>0){
+       FillD3Hists(Hists, allCh, reg, vInd(vars,"jet1Pt"), (*selectedJets08)[0]->pt_ ,wgt, wcfit);
+       FillD3Hists(Hists, allCh, reg, vInd(vars,"jet1Eta"), (*selectedJets08)[0]->eta_ ,wgt, wcfit);
+       FillD3Hists(Hists, allCh, reg, vInd(vars,"jet1Phi"), (*selectedJets08)[0]->phi_ ,wgt, wcfit);
+       if(PV_npvs<39) FillD3Hists(Hists, allCh, reg, vInd(vars,"jet1PtHighPu"), (*selectedJets08)[0]->pt_ ,wgt, wcfit);
+       else FillD3Hists(Hists, allCh, reg, vInd(vars,"jet1PtLowPu"), (*selectedJets08)[0]->pt_ ,wgt, wcfit);
+       if(data=="mc" && Pileup_nTrueInt>29 && Pileup_nTrueInt<31) ak8JetPtPu30->Fill((*selectedJets08)[0]->pt_);
+       if(data=="mc" && Pileup_nTrueInt>39 && Pileup_nTrueInt<41) ak8JetPtPu40->Fill((*selectedJets08)[0]->pt_);
+       if(data=="mc" && Pileup_nTrueInt>49 && Pileup_nTrueInt<51) ak8JetPtPu50->Fill((*selectedJets08)[0]->pt_);
+       if(data=="mc" && Pileup_nTrueInt>59 && Pileup_nTrueInt<61) ak8JetPtPu60->Fill((*selectedJets08)[0]->pt_);
      }
      if(tagProb>0){
        FillD3Hists(Hists, allCh, reg, vInd(vars,"t1prob"), (*selectedJets08)[tTagIndex]->topTagBDT_  ,wgt, wcfit);
@@ -1237,7 +1326,17 @@ cout<<"starting loop with  Virtual Memory: "<<getValue()/1048576.0<<" GB"<<endl;
        FillD3Hists(Hists, allCh, reg, vInd(vars,"t1Eta"), (*selectedJets08)[tTagIndex]->eta_ , wgt, wcfit);
        if((*selectedJets08)[tTagIndex]->lepFlavor_==1) FillD3Hists(Hists, allCh, reg, vInd(vars,"t1ptlOptJ"), Electron_pt[(*selectedJets08)[tTagIndex]->lepIndex_]/(*selectedJets08)[tTagIndex]->pt_, wgt, wcfit);
        if((*selectedJets08)[tTagIndex]->lepFlavor_==10) FillD3Hists(Hists, allCh, reg, vInd(vars,"t1ptlOptJ"), Muon_pt[(*selectedJets08)[tTagIndex]->lepIndex_]/(*selectedJets08)[tTagIndex]->pt_, wgt, wcfit);
+       FillD3Hists(Hists, allCh, reg, vInd(vars,"t1llMZw"), (lep0->p4_ + lep1->p4_).M() ,wgt, wcfit);
      }  
+  for(int i=0;i<channels.size();i++){
+    for(int j=0;j<regions.size();j++){
+      wgt[i][j]=weight_lep/nominalWeights[getVecPos(sys,"pu")];
+      wcfit[i][j]= *eft_fit;
+   }
+  }
+     FillD3Hists(Hists, allCh, reg, vInd(vars,"nVtxBeforePur"), PV_npvs ,wgt, wcfit);
+     FillD3Hists(Hists, allCh, reg, vInd(vars,"nVtxGoodBeforePur"), PV_npvsGood ,wgt, wcfit);
+     FillD3Hists(Hists, allCh, reg, vInd(vars,"RhoFixedGridRhoFastjetAllBeforePur"), Rho_fixedGridRhoFastjetAll ,wgt, wcfit);
 //##  if(chIso<30){ 
 //##     evaluateMVA(selectedJets, selectedNonIsoLeptons, Z_FP, channelsFA[chIso], PFMET_pt, PFMET_phi, MVAS_TUFA, MVAB_TUFA, MVAS_TCFA, MVAB_TCFA);
 //##     FillD3Hists(HistsFA, allChFA, reg, vInd(varsFA,"lep1Pt"), (*selectedNonIsoLeptons)[0]->pt_ ,wgtFA, wcfitFA);
@@ -1823,7 +1922,11 @@ cout<<"starting loop with  Virtual Memory: "<<getValue()/1048576.0<<" GB"<<endl;
   RECOmass0->Write("",TObject::kOverwrite);
   RECOmass1->Write("",TObject::kOverwrite);
   RECOmass2->Write("",TObject::kOverwrite); 
-  lep0Pt->Write("",TObject::kOverwrite); 
+  lep0Pt->Write("",TObject::kOverwrite);
+  ak8JetPtPu30->Write("",TObject::kOverwrite);
+  ak8JetPtPu40->Write("",TObject::kOverwrite);
+  ak8JetPtPu50->Write("",TObject::kOverwrite);
+  ak8JetPtPu60->Write("",TObject::kOverwrite);
 //  genAnalysis.writeGENHists();
   file_out.mkdir("topTagSF");
   file_out.cd("topTagSF/");
@@ -1886,8 +1989,12 @@ cout<<"starting loop with  Virtual Memory: "<<getValue()/1048576.0<<" GB"<<endl;
   delete RECOmass2;
   delete cutFlowFinal;   
 
-
   delete lep0Pt;
+  delete ak8JetPtPu30;
+  delete ak8JetPtPu40;
+  delete ak8JetPtPu50;
+  delete ak8JetPtPu60;
+
 
   malloc_trim(0);
   cout<<  "File ANoutput" + std::to_string(end) + ".root is made"<<endl;

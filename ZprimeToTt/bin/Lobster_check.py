@@ -2,19 +2,23 @@ import subprocess
 import sys
 import os
 import glob
-
+import shutil 
 # Fix missing $HOME to avoid ROOT crash
 if not os.environ.get("HOME"):
-    tmp_home = "/tmp/" + os.environ.get("USER", "default_user")
+    tmp_home = os.path.join(os.getcwd(), ".home")  # cwd is already task-unique (t.3471)
     os.environ["HOME"] = tmp_home
-    if not os.path.exists(tmp_home):
-        os.makedirs(tmp_home)
+    os.makedirs(tmp_home, exist_ok=True)
+#if not os.environ.get("HOME"):
+#    tmp_home = "/tmp/" + os.environ.get("USER", "default_user")
+#    os.environ["HOME"] = tmp_home
+#    if not os.path.exists(tmp_home):
+#        os.makedirs(tmp_home)
 
 os.environ["ROOTIGNOREMIMES"] = "1"
 
-infiles = sys.argv[12:]
+infiles = sys.argv[13:]
 print(infiles)
-val = sys.argv[1:12]
+val = sys.argv[1:13]
 print(val)
 
 # --- Build core analysis execution strings ---
@@ -24,7 +28,7 @@ for fn in infiles:
     a, b = fn.split(':')
     text += '    ch ->Add("' +  b + '");\n'
 text += '    MyAnalysis * t1 = new MyAnalysis(ch);\n'
-text += '    t1->Analyze("' + val[0]+'", "' + val[1] + '" , "'+ val[2] + '" , "'+ val[3] + '" , "'+ val[4] + '" , ' + val[5] + ' , '+ val[6] + ' , '+ val[7] + ' , '+ val[8] + ' , '+ val[9] + ' , '+ val[10] +', t1);\n'
+text += '    t1->Analyze("' + val[0]+'", "' + val[1] + '" , "'+ val[2] + '" , "'+ val[3] + '" , "'+ val[4] + '" , ' + val[5] + ' , '+ val[6] + ' , '+ val[7] + ' , '+ val[8] + ' , '+ val[9] + ' , '+ val[10] + ' , '+ val[11] +', t1);\n'
 text += '    delete t1;\n'
 
 # --- Write a true C++ main application to src/main.C ---
@@ -42,7 +46,9 @@ SHFILE1 = (
 )
 
 open(SHNAME1, 'wt').write(SHFILE1)
-
+print("========== main.C ==========")
+print(SHFILE1)
+print("============================")
 
 # Strip out problematic Bash functions from current environment
 clean_env = {k: v for k, v in os.environ.items() if not k.startswith("BASH_FUNC_")}
@@ -87,23 +93,65 @@ env["OPENBLAS_NUM_THREADS"] = "1"
 env["ROOT_DISABLE_IMT"] = "1"
 
 # --- RUNNING MAKE VIA TRANSFERRED MAKEFILE ---
+
 print("Compiling src/main.C on the node...")
-exit_code = subprocess.call(["make", "bin/RunAll"], env=env)
+print("========== BUILD DEBUG ==========")
+print("PWD:", os.getcwd())
+print("REAL PWD:", os.path.realpath(os.getcwd()))
+
+for f in ["src/main.C", "src/main.o", "bin/RunAll"]:
+    print(f)
+    print("  exists:", os.path.exists(f))
+    if os.path.exists(f):
+        print("  realpath:", os.path.realpath(f))
+        print("  size:", os.path.getsize(f))
+        print("  inode:", os.stat(f).st_ino)
+        print("  mtime:", os.stat(f).st_mtime)
+
+print("=================================")
+for f in glob.glob("src/*.o"):
+    os.remove(f)
+
+exit_code = subprocess.call(
+    ["make", "-B", "bin/RunAll"],
+    env=env
+)
 
 if exit_code != 0:
     print("Compilation via Makefile failed! Exiting job execution context.")
     sys.exit(1)
 
+# --- CHECK WHAT WAS ACTUALLY COMPILED ---
+
+print("========== BINARY CHECK ==========")
+
+output = subprocess.check_output(
+    ["strings", "bin/RunAll"],
+    env=env
+).decode()
+
+for line in output.splitlines():
+    if "tree_" in line:
+        print("BINARY CONTAINS:", line)
+
+print("==================================")
+
 # --- RUN THE COMPILED NATIVE EXECUTABLE ---
+
 print("Running compiled binary application...")
+
 try:
-    # check_call will immediately raise an exception if ./bin/RunAll fails/crashes
     subprocess.check_call(["./bin/RunAll"], env=env)
+
 except subprocess.CalledProcessError as e:
-    print(f"CRITICAL: C++ Executable ./bin/RunAll crashed or failed with exit code {e.returncode}!")
+    print(
+        f"CRITICAL: C++ Executable ./bin/RunAll "
+        f"crashed or failed with exit code {e.returncode}!"
+    )
     sys.exit(e.returncode)
 
-# Get matching files safely
+# --- GET MATCHING FILES SAFELY ---
+
 files = glob.glob("ANoutput*.root")
 
 if not files:
@@ -113,4 +161,45 @@ if not files:
 if os.path.exists("ANoutput.root"):
     os.remove("ANoutput.root")
 
-os.system('hadd -f ANoutput.root ANoutput*.root')
+os.system("hadd -f ANoutput.root ANoutput*.root")
+
+
+
+###### --- RUNNING MAKE VIA TRANSFERRED MAKEFILE ---
+#####print("Compiling src/main.C on the node...")
+######exit_code = subprocess.call(["make", "bin/RunAll"], env=env)
+#####exit_code = subprocess.call(["make", "-B", "bin/RunAll"], env=env)
+#####
+#####if exit_code != 0:
+#####    print("Compilation via Makefile failed! Exiting job execution context.")
+#####    sys.exit(1)
+#####
+#####output = subprocess.check_output(
+#####    ["strings", "bin/RunAll"],
+#####    env=env
+#####).decode()
+#####
+#####for line in output.splitlines():
+#####    if "tree_" in line:
+#####        print("BINARY CONTAINS:", line)
+#####
+###### --- RUN THE COMPILED NATIVE EXECUTABLE ---
+#####print("Running compiled binary application...")
+#####try:
+#####    # check_call will immediately raise an exception if ./bin/RunAll fails/crashes
+#####    subprocess.check_call(["./bin/RunAll"], env=env)
+#####except subprocess.CalledProcessError as e:
+#####    print(f"CRITICAL: C++ Executable ./bin/RunAll crashed or failed with exit code {e.returncode}!")
+#####    sys.exit(e.returncode)
+#####
+###### Get matching files safely
+#####files = glob.glob("ANoutput*.root")
+#####
+#####if not files:
+#####    print("No output ROOT files found. Skipping hadd.")
+#####    sys.exit(1)
+#####
+#####if os.path.exists("ANoutput.root"):
+#####    os.remove("ANoutput.root")
+#####
+#####os.system('hadd -f ANoutput.root ANoutput*.root')

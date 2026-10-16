@@ -17,6 +17,9 @@ jet_candidate::jet_candidate(float pt_in, float eta_in, float phi_in, float E_in
   mass_ = mass_in;
   lepFlavor_=-1;
   lepIndex_=-1;
+  selectedLepIndex_=-1;
+  bIndex_=-1;
+  selectedBIndex_=-1;
 }
 
 

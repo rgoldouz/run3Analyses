@@ -4112,8 +4112,8 @@ public :
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
    virtual void     Init(TTree *tree);
-   virtual void     Loop(TString fname, TString data, TString dataset ,string year, TString run, float xs, float lumi, float Nevent, int iseft, int nRuns, int onlyGen, MyAnalysis *Evt, Long64_t start, Long64_t end);
-   virtual void     Analyze(TString fname, TString data, TString dataset ,string year, TString run, float xs, float lumi, float Nevent, int iseft, int nRuns, int onlyGen, MyAnalysis *Evt);
+   virtual void     Loop(TString fname, TString data, TString dataset ,string year, TString run, float xs, float lumi, float Nevent, int iseft, int nRuns, int onlyGen, float puFrac, MyAnalysis *Evt, Long64_t start, Long64_t end);
+   virtual void     Analyze(TString fname, TString data, TString dataset ,string year, TString run, float xs, float lumi, float Nevent, int iseft, int nRuns, int onlyGen, float puFrac, MyAnalysis *Evt);
    bool overlapRemoval(double Et_cut, double Eta_cut, double dR_cut, bool verbose, bool reversePtCut);
    bool isFromTop(Int_t id);
    bool isFromWZTau(Int_t id);
@@ -4172,6 +4172,8 @@ public :
    double dz =0.1;
    double miniRelIso=0.4 ;
    double sip3d=8;
+   bool vetoMap;
+   bool jethasTopB(float eta, float phi);
    std::unique_ptr<correction::CorrectionSet> csetFileEleSF;
    std::shared_ptr<const correction::Correction> csetEleIdReco;
 
@@ -4188,7 +4190,11 @@ public :
    std::shared_ptr<const correction::Correction> csetLightJetSF;
    std::shared_ptr<const correction::Correction> csetBcJetSF;
 
-   std::unique_ptr<correction::CorrectionSet> csetFileJetSF;
+   std::unique_ptr<correction::CorrectionSet> csetFileFatJetSF;
+   std::shared_ptr<const correction::Correction> csetFatJetRes;
+   std::shared_ptr<const correction::Correction> csetFatJetResSF;
+   std::shared_ptr<const correction::Correction> csetFatJetResSFUnc;
+
    std::shared_ptr<const correction::Correction> csetJetPuID;
 
    std::unique_ptr<correction::CorrectionSet> csetFilePDFScale;
@@ -4229,7 +4235,7 @@ public :
    std::vector<TString> sysNotWeight{"JesFlavorQCD", "JesBBEC1", "JesAbsolute", "JesRelativeBal", "JesRelativeSample","Jes","Jer","UnclustEn"};
    std::vector<TString> sysNormal{"Jes","Jer"};
    std::vector<TString> sysFA{"fakeAll","fakePt","fakeEta"};
-   std::vector<TString> catTopTagSF{"lPb","lPnonb","nonlPb"};
+   std::vector<TString> catTopTagSF{"top","lPb","lPnonb","nonlPb"};
    std::vector<TString> channelsTopTagSF{"E2l_eeInZ_0b","M2l_mmInZ_0b","E2l_em_1b","M2l_em_1b"};
    std::vector<TString> regionsTopTagSF{"all","pass","fail"};
    const int nsrc = 6;
@@ -4272,6 +4278,22 @@ public :
    TH2F*  fr_mu_H_etaDown;
    TH2F*  fr_ele_H_etaDown;
    TH2F*  cf_ele_H;
+
+   TH1F* htemp1D;
+   TH1F* pu_data;
+   TH1F* pu_mc;
+   TH1F* pu_mc_ext;
+   TH1F* pu_mc_sum;   
+
+
+   TH2F* h2_jetmap_beforeVeto_all;
+   TH2F* h2_jetmap_afterVeto_all;
+   TH2F* h2_jetmap_beforeVeto_1j1l;
+   TH2F* h2_jetmap_afterVeto_1j1l;
+   TH2F* h2_jetmap_beforeVeto_tj;
+   TH2F* h2_jetmap_afterVeto_tj;
+
+
    TH1F*  Sf_topTagEff_mu_H;
    TH1F*  Sf_topTagEff_ele_H;   
    string rochesterFile;

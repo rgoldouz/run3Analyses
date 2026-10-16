@@ -75,6 +75,7 @@ void MyAnalysis::objectSelection(TString data,string year){
   bool jetlepfail;
   double muPtSFRochester;
   int NtopPartons;
+  vetoMap=false;
   TLorentzVector *topObj;
   selectedNonIsoLeptons = new std::vector<lepton_candidate*>();
   selectedIsoLeptons = new std::vector<lepton_candidate*>();
@@ -213,8 +214,25 @@ void MyAnalysis::objectSelection(TString data,string year){
 //        }
 //      }
 //    }
+//****************************************************************************************************************************************************************
+//****************************************************************************************************************************************************************
 //fatjet
+    float cJER;
+    float cJERUp;
+    float cJERDown;
+    float jesVar;
+    float jer_sf;
+    float jer_sfUp;
+    float jer_sfDown;
+    float sigma;
+    float jet_resolution;
+    float rn;
+    std::random_device rd{};
+    std::mt19937 gen{rd()};
+
     topObjects = new std::vector<TLorentzVector*>();
+    float rawMass;
+    float regressedMass;
     if (data == "mc"){
       for (int l=0;l<nGenPart;l++){
         if(isnan(GenPart_pt[l]) || isinf(GenPart_pt[l]) || GenPart_pt[l]==0) continue;
@@ -234,13 +252,96 @@ void MyAnalysis::objectSelection(TString data,string year){
     }  
 
     selectedJets08 = new std::vector<jet_candidate*>();
-    for (int l=0;l<nFatJet;l++){
-      NtopPartons=0;
-      for (int i=0;i<topObjects->size();i++){
-        if(deltaR((*topObjects)[i]->Eta(),(*topObjects)[i]->Phi(),FatJet_eta[l],FatJet_phi[l]) < 0.8 ) NtopPartons++;
-      }	    
-      if(FatJet_pt[l]>200 && FatJet_msoftdrop[l] > 20 && abs(FatJet_eta[l]) < 2.4) selectedJets08->push_back(new jet_candidate(FatJet_pt[l],FatJet_eta[l],FatJet_phi[l],FatJet_msoftdrop[l],0, year,0,l,NtopPartons,2,0, FatJet_mass[l], (FatJet_globalParT3_TopbWev[l]+FatJet_globalParT3_TopbWmv[l])/(FatJet_globalParT3_TopbWev[l]+FatJet_globalParT3_TopbWmv[l]+FatJet_globalParT3_QCD[l]), 0));	    
+    for (int l = 0; l < nFatJet; ++l) {
+      cJER = cJERUp = cJERDown = 1.;
+      // Jet eta and ID
+      if (std::abs(FatJet_eta[l]) > 2.4 || !passAK4PuppiJetID(FatJet_neHEF[l], FatJet_neEmEF[l], FatJet_nConstituents[l],FatJet_chHEF[l], FatJet_chMultiplicity[l], FatJet_muEF[l],FatJet_chEmEF[l])) continue;
+      // Jet vetomap
+      if (jetVetoMaps_H->GetBinContent(jetVetoMaps_H->GetXaxis()->FindBin(FatJet_eta[l]),jetVetoMaps_H->GetYaxis()->FindBin(FatJet_phi[l])) > 0) {
+        vetoMap = true;
+        continue;
+      }
+    
+      NtopPartons = 0;
+      for (const auto& obj : *topObjects)
+        if (deltaR(obj->Eta(), obj->Phi(), FatJet_eta[l], FatJet_phi[l]) < 0.8) ++NtopPartons;
+    
+      rawMass      = FatJet_mass[l] * (1.f - FatJet_rawFactor[l]);
+      regressedMass = FatJet_globalParT3_massCorrGeneric[l] * rawMass;
+    
+      if (data == "mc") {
+        jer_sf     = csetFatJetResSF->evaluate({FatJet_eta[l],  FatJet_pt[l]});
+        jer_sfUp   = csetFatJetResSFUnc->evaluate({FatJet_eta[l],  FatJet_pt[l]});
+        jer_sfDown = csetFatJetResSFUnc->evaluate({FatJet_eta[l],  FatJet_pt[l]});
+        jet_resolution = csetFatJetRes->evaluate({FatJet_eta[l],  FatJet_pt[l], Rho_fixedGridRhoFastjetAll}); 
+    
+        const int gj = FatJet_genJetAK8Idx[l];
+        const bool matched =
+          gj >= 0 &&
+          deltaR(FatJet_eta[l], FatJet_phi[l], GenJetAK8_eta[gj], GenJetAK8_phi[gj]) < 0.4 &&
+          std::abs(FatJet_pt[l] - GenJetAK8_pt[gj]) < 3 * jet_resolution * FatJet_pt[l];
+        if (matched) {
+          const double dPt = (FatJet_pt[l] - GenJetAK8_pt[gj]) / FatJet_pt[l];
+          cJER     = 1. + (jer_sf     - 1.) * dPt;
+          cJERUp   = 1. + (jer_sfUp   - 1.) * dPt;
+          cJERDown = 1. + (jer_sfDown - 1.) * dPt;
+        } else {
+          std::normal_distribution<> d(0., jet_resolution);
+          rn = d(gen);
+          cJER     = 1. + rn * std::sqrt(std::max(jer_sf     * jer_sf     - 1., 0.));
+          cJERUp   = 1. + rn * std::sqrt(std::max(jer_sfUp   * jer_sfUp   - 1., 0.));
+          cJERDown = 1. + rn * std::sqrt(std::max(jer_sfDown * jer_sfDown - 1., 0.));
+        }
+      }
+    
+      if (cJER * FatJet_pt[l] > 200. && regressedMass > 20.)
+        selectedJets08->push_back(new jet_candidate(
+          cJER * FatJet_pt[l], FatJet_eta[l], FatJet_phi[l], regressedMass,
+          0, year, 0, l, NtopPartons, 2, 0, regressedMass,
+          (FatJet_globalParT3_TopbWev[l] + FatJet_globalParT3_TopbWmv[l]) /
+          (FatJet_globalParT3_TopbWev[l] + FatJet_globalParT3_TopbWmv[l] +
+           FatJet_globalParT3_QCD[l]),
+          0));
     }
+
+
+
+//    for (int l=0;l<nFatJet;l++){
+//      cJER=1;cJERUp=1;cJERDown=1;	    
+//      if(abs(FatJet_eta[l]) > 2.4) continue;
+//      if(!passAK4PuppiJetID(FatJet_neHEF[l],FatJet_neEmEF[l],FatJet_nConstituents[l],FatJet_chHEF[l],FatJet_chMultiplicity[l],FatJet_muEF[l],FatJet_chEmEF[l])) continue;     
+//      if (jetVetoMaps_H->GetBinContent(jetVetoMaps_H->GetXaxis()->FindBin(FatJet_eta[l]),jetVetoMaps_H->GetYaxis()->FindBin(FatJet_phi[l]))>0){
+//	vetoMap=true;      
+//        continue;
+//      }	
+//      NtopPartons=0;
+//      for (int i=0;i<topObjects->size();i++){
+//        if(deltaR((*topObjects)[i]->Eta(),(*topObjects)[i]->Phi(),FatJet_eta[l],FatJet_phi[l]) < 0.8 ) NtopPartons++;
+//      }	   
+//      rawMass = FatJet_mass[l] * (1.0f - FatJet_rawFactor[l]);    
+//      // Calculate ParT-3 regressed mass
+//      regressedMass = FatJet_globalParT3_massCorrGeneric[l] * rawMass;
+//      if(data == "mc"){
+//        jer_sf=uncRes.getScaleFactor({{JME::Binning::JetEta, FatJet_eta[l]}}, Variation::NOMINAL);
+//        jer_sfUp=uncRes.getScaleFactor({{JME::Binning::JetEta, FatJet_eta[l]}}, Variation::UP);
+//        jer_sfDown=uncRes.getScaleFactor({{JME::Binning::JetEta, FatJet_eta[l]}}, Variation::DOWN);
+//        jet_resolution = resolution.getResolution({{JME::Binning::JetPt, FatJet_pt[l]}, {JME::Binning::JetEta, FatJet_eta[l]}, {JME::Binning::Rho, Rho_fixedGridRhoFastjetAll}});
+//        if(FatJet_genJetAK8Idx[l]>=0 && deltaR(FatJet_eta[l],FatJet_phi[l],GenJetAK8_eta[FatJet_genJetAK8Idx[l]],GenJetAK8_phi[FatJet_genJetAK8Idx[l]]) < 0.4 && abs(FatJet_pt[l]-GenJetAK8_pt[FatJet_genJetAK8Idx[l]])<3*jet_resolution*FatJet_pt[l]){
+//          cJER=1+(jer_sf-1)*((FatJet_pt[l]-GenJetAK8_pt[FatJet_genJetAK8Idx[l]])/FatJet_pt[l]);
+//          cJERUp=1+(jer_sfUp-1)*((FatJet_pt[l]-GenJetAK8_pt[FatJet_genJetAK8Idx[l]])/FatJet_pt[l]);
+//          cJERDown=1+(jer_sfDown-1)*((FatJet_pt[l]-GenJetAK8_pt[FatJet_genJetAK8Idx[l]])/FatJet_pt[l]);
+//        }
+//        else{
+//          std::normal_distribution<> d(0, jet_resolution);
+//          rn = d(gen);
+//          cJER = 1. + rn * std::sqrt(max(jer_sf * jer_sf - 1.,0.));
+//          cJERUp = 1. + rn * std::sqrt(max(jer_sfUp * jer_sfUp - 1.,0.));
+//          cJERDown = 1. +  rn * std::sqrt(max(jer_sfDown * jer_sfDown - 1.,0.));
+//        }
+//      }	
+//      if(cJER*FatJet_pt[l]>200 && regressedMass > 20) selectedJets08->push_back(new jet_candidate(cJER*FatJet_pt[l],FatJet_eta[l],FatJet_phi[l],regressedMass,0, year,0,l,NtopPartons,2,0, regressedMass, (FatJet_globalParT3_TopbWev[l]+FatJet_globalParT3_TopbWmv[l])/(FatJet_globalParT3_TopbWev[l]+FatJet_globalParT3_TopbWmv[l]+FatJet_globalParT3_QCD[l]), 0));	    
+//    }
+//*******************************************************************************
 //jets
     selectedJets = new std::vector<jet_candidate*>();
     JECsysUp = new std::vector<std::vector<jet_candidate*>>(nsrc + 1);
@@ -253,21 +354,10 @@ void MyAnalysis::objectSelection(TString data,string year){
     std::vector<float> dpyUp(nsrc + 1, 0.0f);
     std::vector<float> dpxDown(nsrc + 1, 0.0f);
     std::vector<float> dpyDown(nsrc + 1, 0.0f);
-    float cJER;
-    float cJERUp;
-    float cJERDown;
-    float jesVar;
-    float jer_sf;
-    float jer_sfUp;
-    float jer_sfDown;
-    float sigma;
-    float jet_resolution;
-    float rn;
-    std::random_device rd{}; 
-    std::mt19937 gen{rd()}; 
     for (int l=0;l<nJet;l++){
       if(abs(Jet_eta[l]) >= 2.4) continue;
-////      if (jetVetoMaps_H->GetBinContent(jetVetoMaps_H->GetXaxis()->FindBin(Jet_eta[l]),jetVetoMaps_H->GetYaxis()->FindBin(Jet_phi[l]))>0) continue;
+      if(!passAK4PuppiJetID(Jet_neHEF[l],Jet_neEmEF[l],Jet_nConstituents[l],Jet_chHEF[l],Jet_chMultiplicity[l],Jet_muEF[l],Jet_chEmEF[l])) continue;      
+      if (jetVetoMaps_H->GetBinContent(jetVetoMaps_H->GetXaxis()->FindBin(Jet_eta[l]),jetVetoMaps_H->GetYaxis()->FindBin(Jet_phi[l]))>0) continue;
 //      cJER=1;cJERUp=1;cJERDown=1; 
       jetlepfail = false;
       for (int i=0;i<selectedNonIsoLeptons->size();i++){
@@ -511,9 +601,10 @@ void MyAnalysis::objectSelection(TString data,string year){
 
 //
 ////PU reweighting
-    if(data == "mc"){
-      nominalWeights[getVecPos(sys,"pu")] = csetPu->evaluate({Pileup_nTrueInt, "nominal"});
-    }	      
+//    if(data == "mc"){
+//	    cout<<Pileup_nTrueInt<<endl;
+//      nominalWeights[getVecPos(sys,"pu")] = csetPu->evaluate({Pileup_nTrueInt, "nominal"});
+//    }	      
 //    if (data == "mc" && year == "2016preVFP") {
 //      nominalWeights[getVecPos(sys,"pu")] = wPU.PU_2016preVFP(int(Pileup_nTrueInt),"nominal");
 //      sysUpWeights[getVecPos(sys,"pu")] = wPU.PU_2016preVFP(int(Pileup_nTrueInt),"up");
@@ -543,6 +634,10 @@ void MyAnalysis::objectSelection(TString data,string year){
 
   for (size_t l = 0; l < selectedJets08->size(); ++l) {
     auto *jet = (*selectedJets08)[l];
+    if(jethasTopB(jet->eta_,jet->phi_)){
+      jet->bIndex_ = jet->indice_; 
+      jet->selectedBIndex_ = l;
+    }      
     for (size_t i = 0; i < selectedNonIsoLeptons->size(); ++i) {
       if(deltaR(jet->eta_, jet->phi_, (*selectedNonIsoLeptons)[i]->eta_, (*selectedNonIsoLeptons)[i]->phi_) < 0.8) {
         jet->lepFlavor_ = (*selectedNonIsoLeptons)[i]->lep_;

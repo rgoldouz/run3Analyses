@@ -164,6 +164,7 @@ def f(Dirs):
     badFiles=[]
     neventsweight = 0
     neventsweightSumw = 0
+    neventsweightSumwPU = 0
     nRuns = 0
     nfiles=0
     total_size=0    
@@ -207,6 +208,8 @@ def f(Dirs):
                     nRuns +=1
                 neventsweight += genEventCount
                 neventsweightSumw += genEventSumw/genWeight0
+                if "PU" in n:
+                    neventsweightSumwPU += genEventSumw/genWeight0
                 tree_meta.Reset()
                 tree_meta.Delete()
                 evtTree.Reset()
@@ -216,8 +219,11 @@ def f(Dirs):
             print (filename + ' ***!!!!!!!!!!!!!!!*** Warning number of original weights is '+str(len(nWeight)))
     new_names = [nam[28:] for nam in Dirs]      
     meanSize = total_size / (nfiles * 1024**3)
+    puExtension=0
+    if neventsweightSumw>0:
+        puExtension=neventsweightSumwPU/neventsweightSumw
     print(f"{meanSize:.3f}", total_size, nfiles)
-    return new_names,str(neventsweightSumw), str(nRuns), badFiles , f"{meanSize:.3f}"
+    return new_names,str(neventsweightSumw), str(nRuns), badFiles , f"{meanSize:.3f}", f"{puExtension:.6f}"
 
 
 if __name__ == '__main__':
@@ -233,6 +239,8 @@ if __name__ == '__main__':
     'TTX_TTLNu':'0.2591',
     'TTX_TTLNuEWK':'0.0195',
     'TTX_TTLNu1Jets':'0.259',
+    'TTX_TTWWtoQQ':'0.4678',
+    'TTX_TTZZtoQQ':'1.572',
     'Gamma_TTG':'4.629', 
     'VV_WZtoL3Nu':'5.297',
     'VV_WZto2L2Q':'7.57',
@@ -427,11 +435,11 @@ if __name__ == '__main__':
                     b = Skey.split("_")[1]
                     c = Skey.split("_")[2]
                     n= 'data_'+years[b][0]+'_'+a+'_'+c
-                    MCSAMPLES[n] = [    [],    "data",    a[:-1],    years[b][3],   c,    "1",    years[b][2],    "1",  "0", "1", "0", "-",Skey]
+                    MCSAMPLES[n] = [    [],    "data",    a[:-1],    years[b][3],   c,    "1",    years[b][2],    "1",  "0", "1", "0", "-","0",Skey]
                 else:
                     a = Skey.split("_")[0]
                     n= years[a][0]+'_'+'_'.join(Skey.split("_")[1:])
-                    MCSAMPLES[n] = [    [],    "mc",    "none",    years[a][3],    "none",    "1",    years[a][2],    "0",  "0", "1", "0", "-", Skey]
+                    MCSAMPLES[n] = [    [],    "mc",    "none",    years[a][3],    "none",    "1",    years[a][2],    "0",  "0", "1", "0", "-","0", Skey]
 
         for root, dirs, files in os.walk(value):
             if len(files) > 0:
@@ -461,6 +469,7 @@ if __name__ == '__main__':
     SumRuns = [item[2] for item in res]
     BF = [item[3] for item in res]
     msize=[item[4] for item in res]
+    puFrac=[item[5] for item in res]
     rmFiles=[]
     print(msize)
     for a in BF:
@@ -478,6 +487,7 @@ if __name__ == '__main__':
                     value[0] = Address[a]
                     value[7] = Sumw[a]
                     value[9] = SumRuns[a]
+                    value[12] = puFrac[a]
                 value[11] = msize[a]
 
 

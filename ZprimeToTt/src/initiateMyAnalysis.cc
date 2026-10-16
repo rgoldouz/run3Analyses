@@ -1,16 +1,18 @@
 #include "MyAnalysis.h"
 #include "TH1EFT.h"
 
+
    double binsPtH[]={0, 10, 20, 30, 50, 80, 120, 170, 250, 350, 500,750,1000};
    double binsPtM[]={0, 10, 20, 30, 50, 80, 110, 150, 200, 250, 300, 400, 500};
    double binsPtL[]={0, 10, 20, 30, 50, 80, 110, 150, 200, 250, 300};
+   double binsPtFatj[]={150, 200,250, 300, 400, 500,750,1000,1500,2000};
    double binsEta[]={-5,-4,-3,-2.75,-2.5,-2.25,-2,-1.75,-1.5,-1.25,-1,-0.75,-0.5,-0.25,0,0.25,0.5,0.75,1,1.25,1.5,1.75,2,2.25,2.5,2.75,3,4,5};
    double binsPhi[]={-4,-3,-2,-1,0,1,2,3,4};
    double binsMVA[]={0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2,2.5,3,3.5,4,4.5,5,10,15,20,25,30,35,40,45,50};
    double binsDr[]={0,0.5,1,1.5,2,2.5,3,3.5,4,4.5,5,5.5,6,6.5,7};
    double binsMz[]={70.0, 71.0256, 72.0513, 73.0769, 74.1026, 75.1282, 76.1538, 77.1795, 78.2051, 79.2308,80.2564, 81.2821, 82.3077, 83.3333, 84.3590, 85.3846, 86.4103, 87.4359, 88.4615, 89.4872,90.5128, 91.5385, 92.5641, 93.5897, 94.6154, 95.6410, 96.6667, 97.6923, 98.7179, 99.7436,100.7692, 101.7949, 102.8205, 103.8462, 104.8718, 105.8974, 106.9231, 107.9487, 108.9744, 110.0};
    double binsnJets[]={0,1,2,3,4,5,6,7,8};
-   double binsnVtx[]={0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60};
+   double binsnVtx[]={0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60,62,64,66,68,70,75,80,85,90,95,100};
    double binProb[]={0.00, 0.10, 0.20, 0.30, 0.40, 0.50, 0.60, 0.70, 0.80, 0.90, 1, 1.2, 1.4, 1.6};
    double binsMtt[]={250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800, 850, 900, 950, 1000, 1050, 1100, 1150, 1200, 1250, 1300, 1350, 1400, 1450, 1500, 1550, 1600, 1650, 1700, 1750, 1800, 1850, 1900, 1950, 2000, 2100, 2200, 2300, 2400, 2500, 2600, 2700, 2800, 2900, 3000, 3100, 3200, 3300, 3400, 3500, 3600, 3700, 3800, 3900, 4000, 4200, 4400, 4600, 4800, 5000, 5200, 5400, 5600, 5800, 6000, 6200, 6400, 6600, 6800, 7000};
 
@@ -26,7 +28,7 @@
     {"llPt",                           {7,       sizeof(binsPtM)/sizeof(double) - 1, binsPtM}},
     {"llDr",                           {8,       sizeof(binsDr)/sizeof(double) - 1, binsDr}},
     {"llDphi",                         {9,       sizeof(binsDr)/sizeof(double) - 1, binsDr}},
-    {"jet1Pt",                         {10,      sizeof(binsPtL)/sizeof(double) - 1, binsPtL }},
+    {"jet1Pt",                         {10,      sizeof(binsPtFatj)/sizeof(double) - 1, binsPtFatj }},
     {"jet1Eta",                        {11,      sizeof(binsEta)/sizeof(double) - 1, binsEta}},
     {"jet1Phi",                        {12,      sizeof(binsPhi)/sizeof(double) - 1, binsPhi}},
     {"njet",                           {13,      sizeof(binsnJets)/sizeof(double) - 1, binsnJets}},
@@ -35,14 +37,25 @@
     {"ntTagjet08",                     {16,      sizeof(binsnJets)/sizeof(double) - 1, binsnJets}},
     {"Met",                            {17,      sizeof(binsPtL)/sizeof(double) - 1, binsPtL}},
     {"MetPhi",                         {18,      sizeof(binsPhi)/sizeof(double) - 1, binsPhi}},
-    {"nVtx",                           {19,      sizeof(binsnVtx)/sizeof(double) - 1, binsnVtx}},
-    {"llMZw",                          {20,      sizeof(binsMz)/sizeof(double) - 1, binsMz}},
-    {"t1Pt",                           {21,      sizeof(binsPtH)/sizeof(double) - 1, binsPtH}},
-    {"t1Eta",                          {22,      sizeof(binsEta)/sizeof(double) - 1, binsEta}},
-    {"t1mass",                         {23,      sizeof(binsPtM)/sizeof(double) - 1, binsPtM}},
-    {"t1ptlOptJ",                      {24,      sizeof(binProb)/sizeof(double) - 1, binProb}},
-    {"ttM",                            {25,      sizeof(binsMtt)/sizeof(double) - 1, binsMtt}},    
-    {"t1prob",                         {26,      sizeof(binProb)/sizeof(double) - 1, binProb}},
+    {"llMZw",                          {19,      sizeof(binsMz)/sizeof(double) - 1, binsMz}},
+    {"t1Pt",                           {20,      sizeof(binsPtH)/sizeof(double) - 1, binsPtH}},
+    {"t1Eta",                          {21,      sizeof(binsEta)/sizeof(double) - 1, binsEta}},
+    {"t1mass",                         {22,      sizeof(binsPtM)/sizeof(double) - 1, binsPtM}},
+    {"t1ptlOptJ",                      {23,      sizeof(binProb)/sizeof(double) - 1, binProb}},
+    {"ttM",                            {24,      sizeof(binsMtt)/sizeof(double) - 1, binsMtt}},    
+    {"t1prob",                         {25,      sizeof(binProb)/sizeof(double) - 1, binProb}},
+    {"t1llMZw",                        {26,      sizeof(binsMz)/sizeof(double) - 1, binsMz}},
+    {"nVtxBeforePur",                  {27,      sizeof(binsnVtx)/sizeof(double) - 1, binsnVtx}},
+    {"nVtx",                           {28,      sizeof(binsnVtx)/sizeof(double) - 1, binsnVtx}},
+    {"nVtxGoodBeforePur",              {29,      sizeof(binsnVtx)/sizeof(double) - 1, binsnVtx}},
+    {"nVtxGood",                       {30,      sizeof(binsnVtx)/sizeof(double) - 1, binsnVtx}},
+    {"RhoFixedGridRhoFastjetAllBeforePur",     {31,      sizeof(binsnVtx)/sizeof(double) - 1, binsnVtx}},
+    {"RhoFixedGridRhoFastjetAll",     {32,      sizeof(binsnVtx)/sizeof(double) - 1, binsnVtx}},
+    {"njet08LowPu",                         {33,      sizeof(binsnJets)/sizeof(double) - 1, binsnJets}},
+    {"njet08HighPu",                         {34,      sizeof(binsnJets)/sizeof(double) - 1, binsnJets}},
+    {"jet1PtLowPu",                         {35,      sizeof(binsPtFatj)/sizeof(double) - 1, binsPtFatj }},
+    {"jet1PtHighPu",                         {36,      sizeof(binsPtFatj)/sizeof(double) - 1, binsPtFatj }},
+
    };
 
       const std::map<TString, std::tuple<int, int, const double*>> MyAnalysis::varsFA =
@@ -77,6 +90,12 @@
 
 void MyAnalysis::initiateHists(TString data,string year, bool ifSys){
   cout<<"Start initiating"<<endl;
+   h2_jetmap_beforeVeto_all = new TH2F("h2_jetmap_beforeVeto_all","h2_jetmap_beforeVeto_all",100, -5, 5,80, -4, 4);
+   h2_jetmap_afterVeto_all = new TH2F("h2_jetmap_afterVeto_all","h2_jetmap_afterVeto_all",100, -5, 5,80, -4, 4);
+   h2_jetmap_beforeVeto_1j1l = new TH2F("h2_jetmap_beforeVeto_1j1l","h2_jetmap_beforeVeto_1j1l",100, -5, 5,80, -4, 4);
+   h2_jetmap_afterVeto_1j1l = new TH2F("h2_jetmap_afterVeto_1j1l","h2_jetmap_afterVeto_1j1l",100, -5, 5,80, -4, 4);
+   h2_jetmap_beforeVeto_tj = new TH2F("h2_jetmap_beforeVeto_tj","h2_jetmap_beforeVeto_tj",100, -5, 5,80, -4, 4);
+   h2_jetmap_afterVeto_tj = new TH2F("h2_jetmap_afterVeto_tj","h2_jetmap_afterVeto_tj",100, -5, 5,80, -4, 4);
   //Hists is used to save nominal histograms in signal regions
   Hists.resize(channels.size());
   for (int i=0;i<channels.size();++i){
@@ -725,12 +744,35 @@ void MyAnalysis::inputs(TString data,string year){
     lRun=325175;
   }
 
-  if(year == "2024"){  
+  if(year == "2024"){ 
+// for accessing the latest json files that are read by the correctionlib please see the following directories 
+// /cvmfs/cms-griddata.cern.ch/cat/metadata/
+// https://cms-analysis-corrections.docs.cern.ch/#24cdereprocessingfghiprompt-summer24 	  
     eleSF = sourceAddress + "input/Run3SF/EGM/Run3-24CDEReprocessingFGHIPrompt-Summer24-NanoAODv15/latest/electron.json.gz";
     muSF = sourceAddress + "input/Run3SF/MUO/Run3-24CDEReprocessingFGHIPrompt-Summer24-NanoAODv15/latest/muon_HighPt.json.gz";
     puSF = sourceAddress + "input/Run3SF/LUM/Run3-24CDEReprocessingFGHIPrompt-Summer24-NanoAODv15/latest/puWeights_CDEFGHI.json.gz";
     bSF = sourceAddress + "input/Run3SF/BTV/Run3-24CDEReprocessingFGHIPrompt-Summer24-NanoAODv15/latest/btagging.json.gz";
-//    jetSF="/users/rgoldouz/FCNC/NanoAnalysis/data/POG/JME/2018_UL/UL18_jmar.json.gz";
+    jetSF= sourceAddress + "input/Run3SF/JME/Run3-24CDEReprocessingFGHIPrompt-Summer24-NanoAODv15/latest/fatJet_jerc.json.gz";
+    TFile *Map2024 = new TFile("/groups/mhildret/rgoldouz/run3Analyses/ZprimeToTt/input/jet_veto_maps/Summer24Prompt24_V1/Summer24Prompt24_RunBCDEFGHI.root");
+    TH2F* htemp = (TH2F*)Map2024->Get("jetvetomap_all");
+    jetVetoMaps_H = (TH2F*)htemp->Clone("jetVetoMaps_H_clone");
+    jetVetoMaps_H->SetDirectory(0);
+    Map2024->Close();
+    delete Map2024;
+    TFile *f_pu = new TFile("/groups/mhildret/rgoldouz/run3Analyses/ZprimeToTt/input/pu/pileup_output.root");
+    htemp1D = (TH1F*)f_pu->Get("h_data");
+    pu_data = (TH1F*)htemp1D->Clone("h_data_clone");
+    pu_data->SetDirectory(0);
+    delete htemp1D;
+    htemp1D = (TH1F*)f_pu->Get("h_mc");
+    pu_mc = (TH1F*)htemp1D->Clone("h_mc_clone");
+    pu_mc->SetDirectory(0);
+    delete htemp1D;
+    htemp1D = (TH1F*)f_pu->Get("h_mc_ext");
+    pu_mc_ext = (TH1F*)htemp1D->Clone("h_mc_ext_clone");
+    pu_mc_ext->SetDirectory(0);
+    delete htemp1D;
+    f_pu->Close();
   }  
 	  
   cout<<"Scale factor histograms are ready to be used"<<endl;
@@ -743,7 +785,7 @@ void MyAnalysis::inputs(TString data,string year){
   csetMuId = csetFileMuSF->at("NUM_HighPtID_DEN_GlobalMuonProbes");
 //  NUM_Mu50_or_CascadeMu100_or_HighPtTkMu100_DEN_CutBasedIdGlobalHighPt_and_TkIsoLoose
   csetMuIso = csetFileMuSF->at("NUM_probe_AbsTkIso_DEN_HighPtProbes");
-  csetMuTrig = csetFileMuSF->at("NUM_HLT_DEN_HighPtLooseAbsIsoProbes");
+  csetMuTrig = csetFileMuSF->at("NUM_HLT_DEN_HighPtLooseRelIsoProbes");
 
   csetFilePuSF = CorrectionSet::from_file(puSF);
   csetPu = csetFilePuSF->at("Collisions24_CDEFGHI_goldenJSON");  
@@ -752,6 +794,10 @@ void MyAnalysis::inputs(TString data,string year){
   csetLightJetSF = csetFilebSF->at("UParTAK4_light");
   csetBcJetSF = csetFilebSF->at("UParTAK4_mujets");
 
+  csetFileFatJetSF = CorrectionSet::from_file(jetSF);
+  csetFatJetRes = csetFileFatJetSF->at("Summer24Prompt24_JRV1_MC_PtResolution_AK8PFPuppi");
+  csetFatJetResSF = csetFileFatJetSF->at("Summer24Prompt24_JRV1_MC_ScaleFactor_AK8PFPuppi");
+  csetFatJetResSFUnc = csetFileFatJetSF->at("Summer24Prompt24_JRV1_MC_SFUncertainty_AK8PFPuppi");
 //  csetFilePDFScale = CorrectionSet::from_file("/users/rgoldouz/FCNC/NanoAnalysis/bin/lhe_weight_sums.json");
 //  csetPDF = csetFilePDFScale->at("pdf_weight_sums");
 //  csetScale = csetFilePDFScale->at("qcd_scale_weight_sums");
@@ -883,13 +929,23 @@ void MyAnalysis::inputs(TString data,string year){
 //    vsrc[isrc] = unc;
 //  }
 //
-//  uncRes = JME::JetResolutionScaleFactor(JERFile1);
-//  resolution=JME::JetResolution(JERFile2);
 
 }
 
 
 void MyAnalysis::endHists(TString data,string year, bool ifSys){
+  h2_jetmap_beforeVeto_all->Write("",TObject::kOverwrite);
+  h2_jetmap_afterVeto_all->Write("",TObject::kOverwrite);
+  h2_jetmap_beforeVeto_1j1l->Write("",TObject::kOverwrite);
+  h2_jetmap_afterVeto_1j1l->Write("",TObject::kOverwrite);
+  h2_jetmap_beforeVeto_tj->Write("",TObject::kOverwrite);
+  h2_jetmap_afterVeto_tj->Write("",TObject::kOverwrite);
+  delete h2_jetmap_beforeVeto_all;
+  delete h2_jetmap_afterVeto_all;
+  delete h2_jetmap_beforeVeto_1j1l;
+  delete h2_jetmap_afterVeto_1j1l;
+  delete h2_jetmap_beforeVeto_tj;
+  delete h2_jetmap_afterVeto_tj;	
   for (int i=0;i<channels.size();++i){
     for (int k=0;k<regions.size();++k){
       for (int l=0;l<vars.size();++l){

@@ -46,7 +46,11 @@ float scale_factor( TH2F* h, float X, float Y , TString uncert,bool, bool);
 float scale_factor1D( TH1F* h, float X, TString uncert);
 float topPt(float pt);
 TLorentzVector Wneutrino(double MET, double METphi, double leptonPT, double leptonEta, double leptonPhi);
-int vInd(std::map<TString, std::tuple<int, int, const double*>> V, TString name);
+//Âint vInd(std::map<TString, std::tuple<int, int, const double*>> V, TString name);
+int vInd(
+    const std::map<TString, std::tuple<int, int, const double*>>& V,
+    const TString& name
+);
 int getVecPos(std::vector<TString> vec, string element);
 bool reconstructNeutrinos(
     const TVector3& jet1_dir,
@@ -84,6 +88,14 @@ void cleanVec( std::vector<T*> *vec ){
   vec->shrink_to_fit();
   delete vec;
 }
+
+bool passAK4PuppiJetID(float neHEF,
+                       float neEmEF,
+                       int nConstituents,
+                       float chHEF,
+                       int chMultiplicity,
+                       float muEF,
+                       float chEmEF);
 
 
 int getIndex(std::vector<TString> words, std::string target);

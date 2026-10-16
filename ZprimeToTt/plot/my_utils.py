@@ -23,10 +23,51 @@ regions=["All", "2b0t","1b0t","0b0t","0b1t","1b1t","2b1t","2t"]
 regionsName=["All", "2b0t","1b0t","0b0t","0b1t","1b1t","2b1t","2t"]
 channels=["2l_eeInZ", "2l_mmInZ", "2l_eeOutZ", "2l_mmOutZ", "2l_em"]
 channelsFake=["2lssEE_LF", "2lssEE_FF", "2lssEM_LF", "2lssEM_FF","2lssMM_LF", "2lssMM_FF", "3lonZ_LLF", "3lonZ_LFF","3lonZ_FFF","3loffZhigh_LLF", "3loffZhigh_LFF","3loffZhigh_FFF", "3loffZlow_LLF", "3loffZlow_LFF","3loffZlow_FFF"]
-variables=["lep1Pt","lep1Eta","lep1Phi","lep2Pt","lep2Eta","lep2Phi","llM","llPt","llDr","llDphi","jet1Pt","jet1Eta","jet1Phi","njet","nbjet","Met","MetPhi","nVtx","llMZw","t1Pt","t1Eta","t1mass","t1ptlOptJ","t1prob","ttM"]
+
+variables_dict = {
+    "lep1Pt": "p_{T}(leading lepton)",
+    "lep1Eta": "#eta(leading lepton)",
+    "lep1Phi": "#Phi(leading lepton)",
+    "lep2Pt": "p_{T}(sub-leading lepton)",
+    "lep2Eta": "#eta(sub-leading lepton)",
+    "lep2Phi": "#Phi(sub-leading lepton)",
+    "llM": "M(ll)",
+    "llPt": "p_{T}(ll)",
+    "llDr": "#Delta R(ll)",
+    "llDphi": "#Delta #Phi(ll)",
+    "jet1Pt": "p_{T}(leading Ak8 jet)",
+    "jet1Eta": "#eta(leading Ak8 jet)",
+    "jet1Phi": "#Phi(leading Ak8 jet)",
+    "njet": "Number of AK4 jets",
+    "nbjet": "Number of b-tagged jets",
+    "njet08": "Number of AK8 jets",
+    "Met": "MET",
+    "MetPhi": "#Phi(MET)",
+    "nVtx": "Number of vertices",
+    "llMZw": "M(ll) [Z window]",
+    "t1Pt": "p_{T}(top jet candidate)",
+    "t1Eta": "#eta(top jet candidate)",
+    "t1mass": "M(top jet candidate)",
+    "t1ptlOptJ": "p_{T}(l) / p_{T}(top jet candidate)",
+    "t1prob": "BDT output (top jet candidate)",
+    "ttM": "M(tt)",
+    "t1llMZw": "M(ll) [Z window] (for top jet candidate)",
+    "nVtxBeforePur": "Number of vertices before PU selection",
+    "nVtxGoodBeforePur": "Number of good vertices before PU selection",
+    "RhoFixedGridRhoFastjetAllBeforePur": "Rho_fixedGridRhoFastjetAll before PU selection",
+    "nVtxGood": "Number of good vertices",
+    "RhoFixedGridRhoFastjetAll": "Rho_fixedGridRhoFastjetAll",
+    "njet08LowPu": "Number of AK8 jets (low PU)",
+    "njet08HighPu": "Number of AK8 jets (high PU)",
+    "jet1PtLowPu": "p_{T}(leading jet) (low PU)",
+    "jet1PtHighPu": "p_{T}(leading jet) (high PU)",
+    "ntTagjet08": "Number of top-tagged AK8 jets",
+}
+
+variables=["lep1Pt","lep1Eta","lep1Phi","lep2Pt","lep2Eta","lep2Phi","llM","llPt","llDr","llDphi","jet1Pt","jet1Eta","jet1Phi","njet","nbjet","njet08","Met","MetPhi","nVtx","llMZw","t1Pt","t1Eta","t1mass","t1ptlOptJ","t1prob","ttM","t1llMZw","nVtxBeforePur","nVtxGoodBeforePur","RhoFixedGridRhoFastjetAllBeforePur", "nVtxGood","RhoFixedGridRhoFastjetAll","njet08LowPu","njet08HighPu","jet1PtLowPu","jet1PtHighPu","ntTagjet08"]
 #"lep3Pt","lep3Eta", "bJetPt", "bJetEta", "tH_topMass", "tH_HMass","tH_WtopMass", "tH_W1HMass","tH_W2HMass", "tH_HPt", "tH_HEta","tH_topPt", "tH_topEta", "tH_drWtopB",  "tH_drW1HW2H", "tZ_topMass", "tZ_ZMass", "tZ_WtopMass","tZ_ZPt","tZ_ZEta","tZ_topPt", "tZ_topEta", "MVATU","MVATC"]
 #variables=["lep1Pt","llM"]
-variablesName=["p_{T}(leading lepton)","#eta(leading lepton)","#Phi(leading lepton)","p_{T}(sub-leading lepton)","#eta(sub-leading lepton)","#Phi(sub-leading lepton)","M(ll)","p_{T}(ll)","#Delta R(ll)","#Delta #Phi(ll)","p_{T}(leading jet)","#eta(leading jet)","#Phi(leading jet)","Number of jets","Number of b-tagged jets","MET","#Phi(MET)","Number of vertices", "M(ll) [z window]","Pt (top jet candidate)","Eta (top jet candidate)","M (top jet candidate)","Pt(l)/Pt(top jet candidate)","BDT output (top jet candidate)","Pt(top jet candidate)","Mtt"]
+variablesName=["p_{T}(leading lepton)","#eta(leading lepton)","#Phi(leading lepton)","p_{T}(sub-leading lepton)","#eta(sub-leading lepton)","#Phi(sub-leading lepton)","M(ll)","p_{T}(ll)","#Delta R(ll)","#Delta #Phi(ll)","p_{T}(leading jet)","#eta(leading jet)","#Phi(leading jet)","Number of Ak4 jets","Number of b-tagged jets", "number of Ak8 jets","MET","#Phi(MET)","Number of vertices", "M(ll) [z window]","Pt (top jet candidate)","Eta (top jet candidate)","M (top jet candidate)","Pt(l)/Pt(top jet candidate)","BDT output (top jet candidate)","Pt(top jet candidate)","Mtt","nVtxBeforePur","nVtxGoodBeforePur","Rho_fixedGridRhoFastjetAllBeforePur", "nVtxGood","Rho_fixedGridRhoFastjetAll","njet08LowPu","njet08HighPu","jet1PtLowPu","jet1PtHighPu","ntTagjet08"]
 
 HistAddress = '/groups/mhildret/rgoldouz/run3Analyses/ZprimeToTt/hists/'
 
